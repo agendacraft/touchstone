@@ -132,3 +132,5 @@ subprocess control use the Go standard library.
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
+
+Copyright 2026 Dela Anthonio
