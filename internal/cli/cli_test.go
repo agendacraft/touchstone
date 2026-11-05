@@ -49,3 +49,19 @@ func TestCommands(t *testing.T) {
 		t.Fatal("invalid configuration reported success")
 	}
 }
+
+func TestConfigValidateDanglingSymlink(t *testing.T) {
+	dir := t.TempDir()
+	args := []string{"config", "validate", "--cwd", dir}
+	var out, stderr bytes.Buffer
+	if err := Run(args, &out, &stderr, "dev"); err != nil || !strings.Contains(out.String(), "configuration valid") {
+		t.Fatalf("absent config should use defaults: %q, %v", out.String(), err)
+	}
+	if err := os.Symlink("missing.toml", filepath.Join(dir, "touchstone.toml")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	out.Reset()
+	if err := Run(args, &out, &stderr, "dev"); err == nil || out.Len() != 0 {
+		t.Fatalf("dangling config reported success: %q, %v", out.String(), err)
+	}
+}

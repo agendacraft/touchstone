@@ -89,6 +89,28 @@ rules = ["glob rule"]
 	}
 }
 
+func TestLoadConfigSymlink(t *testing.T) {
+	dir := t.TempDir()
+	name := filepath.Join(dir, FileName)
+	if err := os.Symlink("target.toml", name); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	if _, err := Load(dir); err == nil {
+		t.Fatal("dangling config symlink accepted as absent")
+	}
+	if err := os.WriteFile(filepath.Join(dir, "target.toml"), []byte("[layers.security]\nmodel='synthetic'"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	c, err := Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	layers, err := c.ForPath("example.go")
+	if err != nil || layers["security"].Model != "synthetic" {
+		t.Fatalf("valid symlink configuration not loaded: %+v, %v", layers, err)
+	}
+}
+
 func TestSpecificityAndStableTies(t *testing.T) {
 	c, err := Parse([]byte(`
 [[paths]]

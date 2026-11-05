@@ -71,9 +71,14 @@ func Defaults() Config {
 
 // Load uses defaults when the repository file is absent. Other read errors fail.
 func Load(repository string) (Config, error) {
-	f, err := os.Open(filepath.Join(repository, FileName))
+	file := filepath.Join(repository, FileName)
+	f, err := os.Open(file)
 	if errors.Is(err, os.ErrNotExist) {
-		return Defaults(), nil
+		if _, statErr := os.Lstat(file); errors.Is(statErr, os.ErrNotExist) {
+			return Defaults(), nil
+		} else if statErr != nil {
+			return Config{}, statErr
+		}
 	}
 	if err != nil {
 		return Config{}, err
