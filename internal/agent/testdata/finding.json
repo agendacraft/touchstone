@@ -1,0 +1,18 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "duration_ms": 4266,
+  "num_turns": 1,
+  "result": "{\"schema_version\":1,\"outcome\":\"findings\",\"findings\":[{\"id\":\"demo-1\",\"layer\":\"correctness\",\"severity\":\"error\",\"file\":\"src/example.go\",\"line\":7,\"title\":\"Synthetic off-by-one error\",\"description\":\"Invented example: the loop skips the final element.\",\"evidence\":\"Synthetic code at line 7: for i := 0; i < len(items)-1; i++ {\"}]}",
+  "session_id": "synthetic-finding-session",
+  "usage": {
+    "input_tokens": 3,
+    "output_tokens": 94,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 10026,
+    "factory_credits": 10405,
+    "thinking_tokens": 0,
+    "ttft_ms": 3096
+  }
+}
