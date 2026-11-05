@@ -217,6 +217,35 @@ func TestMalformedEnvelopeAndModelOutput(t *testing.T) {
 	}
 }
 
+func TestEnvelopeRejectsConsumedFieldAliases(t *testing.T) {
+	clean := string(fixture(t, "clean"))
+	for _, field := range []string{"type", "subtype", "is_error", "result", "session_id", "usage",
+		"input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens", "factory_credits", "thinking_tokens"} {
+		t.Run(field, func(t *testing.T) {
+			original := `"` + field + `"`
+			alias := `"` + strings.ToUpper(field) + `"`
+			for _, input := range []string{
+				strings.Replace(clean, original, alias, 1),
+				strings.Replace(clean, original+":", alias+`: null, `+original+":", 1),
+			} {
+				result, err := parseEnvelope([]byte(input))
+				if err == nil || result.Report.Outcome != "" {
+					t.Fatalf("field alias accepted: %+v, %v", result, err)
+				}
+			}
+		})
+	}
+	contradictory := strings.Replace(clean, `"is_error": false`, `"is_error": true, "IS_ERROR": false`, 1)
+	if result, err := parseEnvelope([]byte(contradictory)); err == nil || result.Report.Outcome != "" {
+		t.Fatalf("failure became a clean review: %+v, %v", result, err)
+	}
+	metadata := strings.Replace(clean, `"duration_ms": 3814`, `"duration_ms": 3814, "DURATION_MS": 1`, 1)
+	metadata = strings.Replace(metadata, `"ttft_ms": 3444`, `"ttft_ms": 3444, "TTFT_MS": 1`, 1)
+	if result, err := parseEnvelope([]byte(metadata)); err != nil || result.Report.Outcome != "clean" {
+		t.Fatalf("unrelated metadata rejected: %+v, %v", result, err)
+	}
+}
+
 func TestOutputBoundedThroughCopy(t *testing.T) {
 	// io.Copy may use ReaderFrom: it must not bypass the output cap.
 	b := &boundedBuffer{limit: 8}

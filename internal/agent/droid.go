@@ -124,9 +124,27 @@ func (b *boundedBuffer) Write(p []byte) (int, error) {
 	return n, nil
 }
 
+func rejectFieldAliases(data []byte, fields ...string) error {
+	var object map[string]json.RawMessage
+	if err := json.Unmarshal(data, &object); err != nil || object == nil {
+		return errors.New("expected JSON object")
+	}
+	for key := range object {
+		for _, field := range fields {
+			if key != field && strings.EqualFold(key, field) {
+				return errors.New("invalid JSON field alias")
+			}
+		}
+	}
+	return nil
+}
+
 func parseEnvelope(data []byte) (Result, error) {
 	var result Result
 	if err := jsonutil.Check(data, maxEnvelope); err != nil {
+		return result, err
+	}
+	if err := rejectFieldAliases(data, "type", "subtype", "is_error", "result", "session_id", "usage"); err != nil {
 		return result, err
 	}
 	var envelope struct {
@@ -146,6 +164,10 @@ func parseEnvelope(data []byte) (Result, error) {
 	}
 	result.SessionID = envelope.SessionID
 	if len(envelope.Usage) > 0 && string(envelope.Usage) != "null" {
+		if err := rejectFieldAliases(envelope.Usage, "input_tokens", "output_tokens", "cache_read_input_tokens",
+			"cache_creation_input_tokens", "factory_credits", "thinking_tokens"); err != nil {
+			return Result{}, errors.New("invalid Droid usage")
+		}
 		if err := json.Unmarshal(envelope.Usage, &result.Usage); err != nil {
 			return Result{}, errors.New("invalid Droid usage")
 		}
