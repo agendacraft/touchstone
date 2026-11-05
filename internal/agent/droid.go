@@ -43,11 +43,11 @@ func (d Droid) Run(ctx context.Context, r Request) (Result, error) {
 		HooksDisabled          bool `json:"hooksDisabled"`
 		CloudSessionSync       bool `json:"cloudSessionSync"`
 		SessionDefaultSettings struct {
-			AutonomyLevel   Autonomy `json:"autonomyLevel"`
-			InteractionMode string   `json:"interactionMode"`
+			AutonomyLevel   string `json:"autonomyLevel"`
+			InteractionMode string `json:"interactionMode"`
 		} `json:"sessionDefaultSettings"`
 	}{HooksDisabled: true}
-	settings.SessionDefaultSettings.AutonomyLevel = r.Autonomy
+	settings.SessionDefaultSettings.AutonomyLevel = "off"
 	settings.SessionDefaultSettings.InteractionMode = "auto"
 	data, err := json.Marshal(settings)
 	if err == nil {
@@ -61,12 +61,7 @@ func (d Droid) Run(ctx context.Context, r Request) (Result, error) {
 	}
 	args := []string{"exec", "-o", "json", "-f", promptPath, "--cwd", r.WorkingDirectory,
 		"-m", r.Model, "-r", r.ReasoningEffort, "--settings", settingsPath, "--disable-builtin-skills"}
-	if r.Autonomy != Off {
-		args = append(args, "--auto", string(r.Autonomy))
-	}
-	if r.ReadOnly {
-		args = append(args, "--only-tools", "Read,Grep,Glob,LS")
-	}
+	args = append(args, "--only-tools", "Read,Grep,Glob,LS")
 	binary := d.Binary
 	if binary == "" {
 		binary = "droid"

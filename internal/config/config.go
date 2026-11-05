@@ -24,19 +24,19 @@ const maxBytes = 1 << 20
 type Layer struct {
 	Model           string
 	ReasoningEffort string
-	Autonomy        agent.Autonomy
+	Autonomy        string
 	Timeout         time.Duration
 	ReadOnly        bool
 	Rules           []string
 }
 
 type override struct {
-	Model           *string         `toml:"model"`
-	ReasoningEffort *string         `toml:"reasoning_effort"`
-	Autonomy        *agent.Autonomy `toml:"autonomy"`
-	Timeout         *string         `toml:"timeout"`
-	ReadOnly        *bool           `toml:"read_only"`
-	Rules           []string        `toml:"rules"`
+	Model           *string  `toml:"model"`
+	ReasoningEffort *string  `toml:"reasoning_effort"`
+	Autonomy        *string  `toml:"autonomy"`
+	Timeout         *string  `toml:"timeout"`
+	ReadOnly        *bool    `toml:"read_only"`
+	Rules           []string `toml:"rules"`
 }
 
 type pathRule struct {
@@ -63,7 +63,7 @@ func Defaults() Config {
 	for _, name := range layerNames {
 		c.layers[name] = Layer{
 			Model: "gpt-6.1-sol", ReasoningEffort: "medium",
-			Autonomy: agent.Off, Timeout: 5 * time.Minute, ReadOnly: true,
+			Autonomy: "off", Timeout: 5 * time.Minute, ReadOnly: true,
 		}
 	}
 	return c
@@ -166,7 +166,7 @@ func apply(base Layer, o override) (Layer, error) {
 	if strings.TrimSpace(base.Model) == "" || !agent.ValidEffort(base.ReasoningEffort) {
 		return Layer{}, errors.New("invalid model or reasoning effort")
 	}
-	if base.Autonomy != agent.Off || !base.ReadOnly {
+	if base.Autonomy != "off" || !base.ReadOnly {
 		return Layer{}, errors.New("repository review layers must remain read-only with autonomy off")
 	}
 	for _, rule := range o.Rules {

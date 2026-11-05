@@ -7,8 +7,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/agendacraft/touchstone/internal/agent"
 )
 
 func TestDefaultAndRepositoryPrecedence(t *testing.T) {
@@ -27,7 +25,7 @@ func TestDefaultAndRepositoryPrecedence(t *testing.T) {
 	for _, name := range []string{"correctness", "security", "verification"} {
 		l := layers[name]
 		if l.Model != "gpt-6.1-sol" || l.ReasoningEffort != "medium" ||
-			l.Timeout != 5*time.Minute || !l.ReadOnly || l.Autonomy != agent.Off {
+			l.Timeout != 5*time.Minute || !l.ReadOnly || l.Autonomy != "off" {
 			t.Fatalf("unexpected %s default: %+v", name, l)
 		}
 	}

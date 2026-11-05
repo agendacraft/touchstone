@@ -11,23 +11,12 @@ import (
 	"github.com/agendacraft/touchstone/internal/findings"
 )
 
-type Autonomy string
-
-const (
-	Off    Autonomy = "off"
-	Low    Autonomy = "low"
-	Medium Autonomy = "medium"
-	High   Autonomy = "high"
-)
-
 type Request struct {
 	Prompt           string
 	Model            string
 	ReasoningEffort  string
-	Autonomy         Autonomy
 	WorkingDirectory string
 	Timeout          time.Duration
-	ReadOnly         bool
 }
 
 func ValidEffort(s string) bool {
@@ -38,18 +27,11 @@ func ValidEffort(s string) bool {
 	return false
 }
 
-func ValidAutonomy(a Autonomy) bool {
-	return a == Off || a == Low || a == Medium || a == High
-}
-
 func (r Request) Validate() error {
 	if strings.TrimSpace(r.Prompt) == "" || strings.TrimSpace(r.Model) == "" ||
-		!ValidEffort(r.ReasoningEffort) || !ValidAutonomy(r.Autonomy) ||
+		!ValidEffort(r.ReasoningEffort) ||
 		!filepath.IsAbs(r.WorkingDirectory) || r.Timeout <= 0 {
 		return errors.New("invalid agent request")
-	}
-	if r.ReadOnly && r.Autonomy != Off {
-		return errors.New("read-only intent requires autonomy off")
 	}
 	return nil
 }

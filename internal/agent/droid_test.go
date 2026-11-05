@@ -28,8 +28,8 @@ func request(t *testing.T) Request {
 	t.Helper()
 	return Request{
 		Prompt: "Synthetic input; $(must-not-run) 'quoted text'",
-		Model:  "synthetic-model", ReasoningEffort: "high", Autonomy: Off,
-		WorkingDirectory: t.TempDir(), Timeout: time.Second, ReadOnly: true,
+		Model:  "synthetic-model", ReasoningEffort: "high",
+		WorkingDirectory: t.TempDir(), Timeout: time.Second,
 	}
 }
 
@@ -71,92 +71,82 @@ func TestRecordedEnvelopes(t *testing.T) {
 }
 
 func TestCommandConstructionAndFreshSessions(t *testing.T) {
-	for _, autonomy := range []Autonomy{Off, Low, Medium, High} {
-		t.Run(string(autonomy), func(t *testing.T) {
-			r := request(t)
-			r.Autonomy, r.ReadOnly = autonomy, autonomy == Off
-			var dirs []string
-			calls := 0
-			d := Droid{Binary: "synthetic-droid", run: func(ctx context.Context, binary string, args []string, cwd string, out, stderr io.Writer) error {
-				calls++
-				if binary != "synthetic-droid" || cwd != r.WorkingDirectory {
-					t.Fatal("binary or cwd changed")
-				}
-				if _, ok := ctx.Deadline(); !ok {
-					t.Fatal("missing per-run deadline")
-				}
-				if len(args) < 16 {
-					t.Fatalf("incomplete command: %v", args)
-				}
-				promptPath, settingsPath := args[4], args[12]
-				expected := []string{"exec", "-o", "json", "-f", promptPath,
-					"--cwd", r.WorkingDirectory, "-m", r.Model, "-r", r.ReasoningEffort,
-					"--settings", settingsPath, "--disable-builtin-skills"}
-				if autonomy != Off {
-					expected = append(expected, "--auto", string(autonomy))
-				}
-				if r.ReadOnly {
-					expected = append(expected, "--only-tools", "Read,Grep,Glob,LS")
-				}
-				if !reflect.DeepEqual(args, expected) {
-					t.Fatalf("command differs from CLI contract:\ngot %v\nwant %v", args, expected)
-				}
-				prompt, err := os.ReadFile(promptPath)
-				if err != nil || string(prompt) != r.Prompt {
-					t.Fatalf("prompt did not survive file boundary: %v", err)
-				}
-				data, err := os.ReadFile(settingsPath)
-				if err != nil {
-					t.Fatal(err)
-				}
-				var settings struct {
-					HooksDisabled    bool `json:"hooksDisabled"`
-					CloudSessionSync bool `json:"cloudSessionSync"`
-					Session          struct {
-						Autonomy Autonomy `json:"autonomyLevel"`
-						Mode     string   `json:"interactionMode"`
-					} `json:"sessionDefaultSettings"`
-				}
-				if err := json.Unmarshal(data, &settings); err != nil {
-					t.Fatal(err)
-				}
-				if !settings.HooksDisabled || settings.CloudSessionSync ||
-					settings.Session.Autonomy != autonomy || settings.Session.Mode != "auto" {
-					t.Fatalf("wrong runtime settings: %+v", settings)
-				}
-				for _, file := range []string{promptPath, settingsPath} {
-					info, err := os.Stat(file)
-					if err != nil || info.Mode().Perm() != 0o600 {
-						t.Fatalf("temporary file permissions: %v", err)
-					}
-				}
-				dir := filepath.Dir(promptPath)
-				info, err := os.Stat(dir)
-				if err != nil || info.Mode().Perm() != 0o700 {
-					t.Fatalf("temporary directory permissions: %v", err)
-				}
-				if filepath.Dir(settingsPath) != dir || dir == cwd {
-					t.Fatal("runtime files are not isolated from repository")
-				}
-				dirs = append(dirs, dir)
-				_, err = out.Write(fixture(t, "clean"))
-				return err
-			}}
-			for range 2 {
-				result, err := d.Run(context.Background(), r)
-				if err != nil || result.Report.Outcome != "clean" {
-					t.Fatalf("run failed: %+v, %v", result, err)
-				}
+	r := request(t)
+	var dirs []string
+	calls := 0
+	d := Droid{Binary: "synthetic-droid", run: func(ctx context.Context, binary string, args []string, cwd string, out, stderr io.Writer) error {
+		calls++
+		if binary != "synthetic-droid" || cwd != r.WorkingDirectory {
+			t.Fatal("binary or cwd changed")
+		}
+		if _, ok := ctx.Deadline(); !ok {
+			t.Fatal("missing per-run deadline")
+		}
+		if len(args) < 16 {
+			t.Fatalf("incomplete command: %v", args)
+		}
+		promptPath, settingsPath := args[4], args[12]
+		expected := []string{"exec", "-o", "json", "-f", promptPath,
+			"--cwd", r.WorkingDirectory, "-m", r.Model, "-r", r.ReasoningEffort,
+			"--settings", settingsPath, "--disable-builtin-skills"}
+		expected = append(expected, "--only-tools", "Read,Grep,Glob,LS")
+		if !reflect.DeepEqual(args, expected) {
+			t.Fatalf("command differs from CLI contract:\ngot %v\nwant %v", args, expected)
+		}
+		prompt, err := os.ReadFile(promptPath)
+		if err != nil || string(prompt) != r.Prompt {
+			t.Fatalf("prompt did not survive file boundary: %v", err)
+		}
+		data, err := os.ReadFile(settingsPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var settings struct {
+			HooksDisabled    bool `json:"hooksDisabled"`
+			CloudSessionSync bool `json:"cloudSessionSync"`
+			Session          struct {
+				Autonomy string `json:"autonomyLevel"`
+				Mode     string `json:"interactionMode"`
+			} `json:"sessionDefaultSettings"`
+		}
+		if err := json.Unmarshal(data, &settings); err != nil {
+			t.Fatal(err)
+		}
+		if !settings.HooksDisabled || settings.CloudSessionSync ||
+			settings.Session.Autonomy != "off" || settings.Session.Mode != "auto" {
+			t.Fatalf("wrong runtime settings: %+v", settings)
+		}
+		for _, file := range []string{promptPath, settingsPath} {
+			info, err := os.Stat(file)
+			if err != nil || info.Mode().Perm() != 0o600 {
+				t.Fatalf("temporary file permissions: %v", err)
 			}
-			if calls != 2 || dirs[0] == dirs[1] {
-				t.Fatal("runs shared runtime state")
-			}
-			for _, dir := range dirs {
-				if _, err := os.Stat(dir); !errors.Is(err, os.ErrNotExist) {
-					t.Fatal("temporary prompt/settings files leaked")
-				}
-			}
-		})
+		}
+		dir := filepath.Dir(promptPath)
+		info, err := os.Stat(dir)
+		if err != nil || info.Mode().Perm() != 0o700 {
+			t.Fatalf("temporary directory permissions: %v", err)
+		}
+		if filepath.Dir(settingsPath) != dir || dir == cwd {
+			t.Fatal("runtime files are not isolated from repository")
+		}
+		dirs = append(dirs, dir)
+		_, err = out.Write(fixture(t, "clean"))
+		return err
+	}}
+	for range 2 {
+		result, err := d.Run(context.Background(), r)
+		if err != nil || result.Report.Outcome != "clean" {
+			t.Fatalf("run failed: %+v, %v", result, err)
+		}
+	}
+	if calls != 2 || dirs[0] == dirs[1] {
+		t.Fatal("runs shared runtime state")
+	}
+	for _, dir := range dirs {
+		if _, err := os.Stat(dir); !errors.Is(err, os.ErrNotExist) {
+			t.Fatal("temporary prompt/settings files leaked")
+		}
 	}
 }
 
@@ -328,7 +318,6 @@ func TestRequestValidationAndFake(t *testing.T) {
 	for _, mutate := range []func(*Request){
 		func(r *Request) { r.Prompt = "" }, func(r *Request) { r.Model = " " },
 		func(r *Request) { r.Timeout = 0 }, func(r *Request) { r.WorkingDirectory = "relative" },
-		func(r *Request) { r.Autonomy = "unsafe" }, func(r *Request) { r.Autonomy = Low },
 		func(r *Request) { r.ReasoningEffort = "impossible" },
 	} {
 		bad := r

@@ -89,10 +89,8 @@ reasoning flags, a bounded subprocess deadline, and a fresh session every time.
 It never resumes or forks a previous session. Unix deadlines kill the process
 group; other platforms kill the direct child only.
 
-Read-only runs omit `--auto`, restrict tools to `Read,Grep,Glob,LS`, disable
-hooks, and disable cloud session sync in per-run settings. The lower-level
-adapter also supports explicit writable autonomy levels for future callers,
-but rejects writable autonomy combined with read-only intent. Autonomy and
+Runs omit `--auto`, restrict tools to `Read,Grep,Glob,LS`, disable hooks, and
+disable cloud session sync in per-run settings. Autonomy and
 tool restrictions are **not an OS sandbox**. Settings merge with local Droid
 settings. Do not run this against untrusted repositories with host credentials.
 Using Droid sends prompts and inspected content to the selected model service.
