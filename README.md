@@ -42,9 +42,16 @@ user-wide Touchstone configuration. An absent file uses defaults; an invalid
 or unreadable file fails validation. Unknown keys and layer names are errors.
 
 The reserved layers are `correctness`, `security`, and `verification`. All
-default to `gpt-6.1-sol`, `medium` reasoning, a five-minute timeout, autonomy
+default to `glm-5.3-flash`, `low` reasoning, a five-minute timeout, autonomy
 `off`, and read-only intent. These are configurable placeholders, not a
 validated model-quality recommendation. No layer runs from the CLI yet.
+
+Set `model` per layer or per matching path in `touchstone.toml`; there is no
+`--model` CLI flag in this scaffold. Model and reasoning settings override
+independently. The [GLM capability trial](docs/droid-capabilities.md#glm-53-flash-follow-up)
+accepted 5/5 outputs as valid schema, but only 4/5 fully matched the requested
+payload. Schema validity is not evidence of review quality or instruction
+reliability.
 
 For example, using only synthetic rules:
 
@@ -52,6 +59,8 @@ For example, using only synthetic rules:
 version = 1
 
 [layers.correctness]
+model = "glm-5.3-flash"
+reasoning_effort = "low"
 timeout = "2m"
 rules = ["Explain the observable failure for each proposed defect."]
 
@@ -64,6 +73,8 @@ rules = ["Consider error-return paths in the synthetic example."]
 [[paths]]
 pattern = "src/example.go"
 [paths.layers.security]
+model = "gpt-6.1-sol"
+reasoning_effort = "high"
 timeout = "3m"
 ```
 

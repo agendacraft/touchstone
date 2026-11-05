@@ -62,7 +62,7 @@ func Defaults() Config {
 	c := Config{layers: make(map[string]Layer)}
 	for _, name := range layerNames {
 		c.layers[name] = Layer{
-			Model: "gpt-6.1-sol", ReasoningEffort: "medium",
+			Model: "glm-5.3-flash", ReasoningEffort: "low",
 			Autonomy: "off", Timeout: 5 * time.Minute, ReadOnly: true,
 		}
 	}

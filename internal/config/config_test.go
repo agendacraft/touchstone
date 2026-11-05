@@ -24,7 +24,7 @@ func TestDefaultAndRepositoryPrecedence(t *testing.T) {
 	}
 	for _, name := range []string{"correctness", "security", "verification"} {
 		l := layers[name]
-		if l.Model != "gpt-6.1-sol" || l.ReasoningEffort != "medium" ||
+		if l.Model != "glm-5.3-flash" || l.ReasoningEffort != "low" ||
 			l.Timeout != 5*time.Minute || !l.ReadOnly || l.Autonomy != "off" {
 			t.Fatalf("unexpected %s default: %+v", name, l)
 		}
@@ -63,8 +63,8 @@ rules = ["glob rule"]
 	}{
 		{"src/example.go", "synthetic-exact-model", "high", []string{"repository rule", "glob rule", "exact rule"}},
 		{"src/other.go", "synthetic-glob-model", "high", []string{"repository rule", "glob rule"}},
-		{"src/nested/other.go", "synthetic-repo-model", "medium", []string{"repository rule"}},
-		{"README.md", "synthetic-repo-model", "medium", []string{"repository rule"}},
+		{"src/nested/other.go", "synthetic-repo-model", "low", []string{"repository rule"}},
+		{"README.md", "synthetic-repo-model", "low", []string{"repository rule"}},
 	} {
 		t.Run(tc.file, func(t *testing.T) {
 			layers, err := c.ForPath(tc.file)
@@ -75,8 +75,10 @@ rules = ["glob rule"]
 			if l.Model != tc.model || l.ReasoningEffort != tc.effort || l.Timeout != 90*time.Second || !reflect.DeepEqual(l.Rules, tc.rules) {
 				t.Fatalf("wrong resolved policy: %+v", l)
 			}
-			if layers["security"].Model != "gpt-6.1-sol" {
-				t.Fatal("override leaked to another layer")
+			for _, name := range []string{"security", "verification"} {
+				if layers[name].Model != "glm-5.3-flash" || layers[name].ReasoningEffort != "low" {
+					t.Fatalf("override leaked to %s", name)
+				}
 			}
 		})
 	}
@@ -86,6 +88,40 @@ rules = ["glob rule"]
 	again, _ := c.ForPath("src/example.go")
 	if again["correctness"].Rules[0] != "repository rule" {
 		t.Fatal("policy aliases returned rules")
+	}
+}
+
+func TestModelAndEffortOverrides(t *testing.T) {
+	for _, effort := range []string{"none", "off", "minimal", "low", "medium", "high", "xhigh", "max", "dynamic"} {
+		t.Run(effort, func(t *testing.T) {
+			c, err := Parse([]byte(`
+[layers.security]
+model = "synthetic-layer-model"
+reasoning_effort = "` + effort + `"
+[[paths]]
+pattern = "src/example.go"
+[paths.layers.security]
+model = "synthetic-path-model"
+`))
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, tc := range []struct{ file, model string }{
+				{"src/other.go", "synthetic-layer-model"},
+				{"src/example.go", "synthetic-path-model"},
+			} {
+				layers, err := c.ForPath(tc.file)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if layers["security"].Model != tc.model || layers["security"].ReasoningEffort != effort {
+					t.Fatalf("model override lost effort for %s: %+v", tc.file, layers["security"])
+				}
+				if layers["verification"].Model != "glm-5.3-flash" || layers["verification"].ReasoningEffort != "low" {
+					t.Fatal("override changed another layer's defaults")
+				}
+			}
+		})
 	}
 }
 

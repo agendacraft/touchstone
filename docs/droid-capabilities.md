@@ -1,8 +1,11 @@
 # Droid capability probe
 
-Verified on 2026-11-05 with Droid CLI 1.4.1, macOS arm64, model
+Initial baseline verified on 2026-11-05 with Droid CLI 1.4.1, macOS arm64, model
 `gpt-6.1-sol`, reasoning effort `low`. All inputs were invented for this
 probe, in a temporary Git repository. No real review was performed.
+The current default is `glm-5.3-flash` with `low` effort, covered by the
+separate follow-up below. The baseline measurements are retained, not
+attributed to the new model.
 
 ## Invocation
 
@@ -54,7 +57,7 @@ an enforced subprocess deadline, not a native Droid timeout response or exit
 code. The adapter must enforce its own deadline and must not require JSON on
 failure. This trial did not measure a provider-side request timeout.
 
-## Tiny schema trial
+## Tiny schema trial (initial baseline)
 
 Three independent prompts requested exact JSON keys and types, no Markdown:
 one clean report, one invented correctness finding, and one incomplete report.
@@ -68,6 +71,62 @@ success rate. No retry or repair was needed, and none is implemented.
 The application validates every report independently. Plain text, Markdown
 fences, missing or unknown keys, duplicate keys, invalid locations and types,
 and contradictory outcomes are errors, not findings or a clean result.
+
+## GLM-5.3-Flash follow-up
+
+Verified on 2026-11-05 with the same Droid 1.4.1 installation and a new
+synthetic scratch repository. Every attempt used a fresh session, `-o json`,
+`-f`, `--cwd`, `-m glm-5.3-flash`, explicit `-r`, and per-run settings with
+hooks and cloud sync disabled and autonomy `off`. Tool access was restricted
+to `Read,Grep,Glob,LS`. Each invocation had a 60-second external deadline.
+No attempt timed out or was retried.
+
+### Reasoning effort arguments
+
+A trivial prompt requested exactly `OK` at each of the nine effort values
+accepted by Touchstone's offline config validator:
+
+| Effort argument | Exit | Exact `OK` | Wall seconds |
+| --- | --- | --- | --- |
+| `none` | 0 | yes | 10.34 |
+| `off` | 0 | yes | 13.62 |
+| `minimal` | 0 | yes | 13.77 |
+| `low` | 0 | yes | 13.90 |
+| `medium` | 0 | yes | 16.88 |
+| `high` | 0 | yes | 25.83 |
+| `xhigh` | 0 | yes | 10.46 |
+| `max` | 0 | yes | 12.75 |
+| `dynamic` | 0 | yes | 13.08 |
+
+The CLI accepted **9/9** arguments and emitted successful JSON envelopes.
+However, `droid exec --help` advertises only `low`, `high`, and `max` for this
+model (native default `high`). The result envelope does not expose the
+effective effort, so acceptance does **not** establish that the other six
+values are honored rather than normalized. Touchstone defaults to `low`,
+which is both advertised and verified to execute. This is not a measured
+review-quality or performance recommendation.
+
+### Five strict-schema trials at low effort
+
+Five independent prompts used the same version-1 contract as the baseline.
+All returned exit 0. Raw envelopes were passed through the application's
+actual Droid-envelope and findings parsers, without repair or extraction:
+
+| Trial | Requested payload | Schema valid | Full request matched | Wall seconds |
+| --- | --- | --- | --- | --- |
+| 1 | clean, zero findings | yes | yes | 13.98 |
+| 2 | one correctness **error**, ID `demo-1`, line 7 | yes | **no** | 10.79 |
+| 3 | incomplete, zero findings | yes | yes | 10.23 |
+| 4 | one security warning, ID `demo-2`, line 11 | yes | yes | 11.44 |
+| 5 | clean, zero findings | yes | yes | 8.71 |
+
+Strict-schema acceptance was **5/5 (100%)**. Full requested-payload adherence
+was **4/5 (80%)**: trial 2 returned severity `warning` instead of the requested
+`error`. Both are valid schema enum values, so the parser correctly accepted
+the report; it cannot infer whether the model followed the request or whether
+an invented defect is true. This miss is retained in the results, not retried
+or hidden. The sample is too small to establish reliability, review quality,
+or production success rates. Independent verification remains follow-up work.
 
 Public references: [headless execution](https://docs.factory.com/droid-exec/overview.md)
 and [runtime settings](https://docs.factory.com/droid-cli/settings.md).
