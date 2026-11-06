@@ -45,11 +45,9 @@ coercion, invalid UTF-8, non-JSON syntax, and extra JSON containers are rejected
 
 The entire model text is capped at 1 MiB, with at most 500 findings per layer
 and JSON nesting depth 64. Limits reject the entire response, never truncate
-or salvage a subset. Code fences and prose before/after the array are accepted.
-The first `[` starts the candidate array; the parser never skips an invalid
-first array to accept a later one. Surrounding prose must not contain other
-JSON containers (`{}` before the array, or `[]{}` after it), so ambiguous
-multi-answer output fails instead of becoming a false clean result.
+or salvage a subset. The response must be exactly one JSON array, optionally
+inside one bare or `json` code fence, with only whitespace outside the fence.
+Prose, multiple fences, and extra JSON values are rejected.
 
 Malformed model text or schema violations get at most one fresh-session repair
 attempt, with the original diff and schema plus correction feedback. The

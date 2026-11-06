@@ -23,26 +23,22 @@ type Candidate struct {
 	Confidence float64 `json:"confidence"`
 }
 
-// ParseCandidates accepts a single strict array surrounded by prose or fences.
-// It never skips an invalid first array in search of a more convenient answer.
+// ParseCandidates accepts a strict array, optionally in a single code fence.
 func ParseCandidates(data []byte) ([]Candidate, error) {
 	if len(data) > MaxBytes || !utf8.Valid(data) {
 		return nil, errors.New("invalid model output size or encoding")
 	}
-	start := bytes.IndexByte(data, '[')
-	if start < 0 {
-		return nil, errors.New("missing findings array")
-	}
-	// Decode only to locate the end; Check below rejects duplicate keys,
-	// excessive depth, and all other non-strict JSON.
-	decoder := json.NewDecoder(bytes.NewReader(data[start:]))
-	var raw json.RawMessage
-	if err := decoder.Decode(&raw); err != nil {
-		return nil, errors.New("malformed findings array")
-	}
-	suffix := data[start+int(decoder.InputOffset()):]
-	if bytes.ContainsAny(data[:start], "{}") || bytes.ContainsAny(suffix, "[]{}") {
-		return nil, errors.New("ambiguous findings output")
+	raw := bytes.Trim(data, " \t\r\n")
+	if bytes.HasPrefix(raw, []byte("```")) {
+		first := bytes.IndexByte(raw, '\n')
+		last := bytes.LastIndexByte(raw, '\n')
+		if first < 0 || last <= first ||
+			(!bytes.Equal(bytes.TrimSuffix(raw[:first], []byte("\r")), []byte("```")) &&
+				!bytes.Equal(bytes.TrimSuffix(raw[:first], []byte("\r")), []byte("```json"))) ||
+			!bytes.Equal(raw[last+1:], []byte("```")) {
+			return nil, errors.New("invalid findings fence")
+		}
+		raw = raw[first+1 : last]
 	}
 	if err := jsonutil.Check(raw, MaxBytes); err != nil {
 		return nil, errors.New("invalid findings JSON")

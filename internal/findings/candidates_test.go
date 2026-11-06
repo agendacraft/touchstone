@@ -10,7 +10,7 @@ const validCandidate = `{"id":"demo-1","severity":"warning","category":"logic","
 
 // Oracle: the documented specialist array contract, not permissive decoding.
 func TestCandidateContract(t *testing.T) {
-	for _, input := range []string{"[]", "[" + validCandidate + "]", "Review:\n```json\n[" + validCandidate + "]\n```\nDone."} {
+	for _, input := range []string{"[]", "[" + validCandidate + "]", "  ```json\n[" + validCandidate + "]\n```  ", "```\n[]\n```"} {
 		result, err := ParseCandidates([]byte(input))
 		if err != nil || result == nil {
 			t.Fatalf("valid array rejected: %+v, %v", result, err)
@@ -22,7 +22,9 @@ func TestCandidateContract(t *testing.T) {
 		}
 	}
 	for name, input := range map[string]string{
-		"text": "No findings", "null": "null", "object": `{"findings":[]}`,
+		"text": "No findings", "prose clean": "No findings: []", "prose before": "Review: []", "prose after": "[] Done.",
+		"prose around fence": "Review:\n```json\n[]\n```\nDone.", "multiple fences": "```\n[]\n```\n```\n[]\n```",
+		"non-JSON whitespace": "\u00a0[]", "unsupported fence": "```js\n[]\n```", "null": "null", "object": `{"findings":[]}`,
 		"truncated": "[{", "null entry": "[null]", "two arrays": "[]\n" + "[" + validCandidate + "]",
 		"invalid first": "[not JSON] followed by []", "trailing object": "[]{}",
 		"unknown":           strings.Replace(validCandidate, `"id":`, `"extra":1,"id":`, 1),

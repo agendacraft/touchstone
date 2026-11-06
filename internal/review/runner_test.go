@@ -164,8 +164,9 @@ func TestRepairAndIncomplete(t *testing.T) {
 		name, first, second, outcome string
 		attempts                     int
 	}{
-		{"valid fenced", "Here are findings:\n```json\n" + candidate + "\n```\nEnd.", "", "findings", 1},
-		{"repair", "not JSON", candidate, "findings", 2},
+		{"valid fenced", "```json\n" + candidate + "\n```", "", "findings", 1},
+		{"repair", "No findings: []", candidate, "findings", 2},
+		{"prose exhausted", "No findings: []", "No findings: []", "incomplete", 2},
 		{"exhausted", `[{`, "still malformed", "incomplete", 2},
 		{"invalid schema", strings.Replace(candidate, `"confidence":0.95`, `"confidence":2`, 1), "[]", "clean", 2},
 	} {

@@ -136,9 +136,9 @@ tool restrictions are **not an OS sandbox**. Settings merge with local Droid
 settings. Do not run this against untrusted repositories with host credentials.
 Using Droid sends prompts and inspected content to the selected model service.
 
-The review runner extracts a findings array from the model's `result` string
-and strictly validates every entry. Fences and surrounding prose are tolerated,
-not malformed JSON, unknown fields, or duplicate keys. A second malformed
+The review runner validates a findings array in the model's `result` string.
+A single bare or `json` code fence is allowed; surrounding prose, malformed
+JSON, unknown fields, and duplicate keys are rejected. A second malformed
 response makes that layer incomplete. The foundation's strict
 [legacy report contract](docs/findings.md) remains available to adapter callers;
 the CLI uses the [review-output contract](docs/review-output.md) instead.
