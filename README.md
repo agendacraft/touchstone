@@ -5,7 +5,8 @@ A layered pull-request review CLI that drives the Droid CLI.
 **Early development.** `touchstone review` runs independent correctness and
 security specialists over a supplied diff, then a fresh skeptical verifier.
 Confirmed findings stay, rejected claims move to an audit section, and uncertain
-findings stay with lower rank. Cross-layer triage marks possible duplicates and ranks each claim before optional filtering.
+findings stay with a lower-rank label. Cross-layer triage marks possible
+duplicates and ranks each claim before optional filtering.
 Terminal, JSON, and Markdown output are available. There is no git/PR input,
 forge posting, automatic fixing, telemetry, or release yet.
 Verification is model judgment, not proof of correctness.

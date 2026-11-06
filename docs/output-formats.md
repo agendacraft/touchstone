@@ -115,8 +115,9 @@ Thresholds: severity ≥ warning; confidence ≥ 0.7.
 ```
 
 Findings are grouped by severity. Rejected and filtered findings have collapsed
-audit sections; verifier reasons remain visible when expanded. Possible duplicates are linked by their display IDs. Model text is escaped before it is
-inserted into the comment.
+audit sections; verifier reasons remain visible when expanded. Possible
+duplicates are referenced by their display IDs. Model text is escaped before it
+is inserted into the comment.
 
 The checked-in [renderer goldens](../internal/render/testdata) show complete
 fixed-fixture output, including uncertain, rejected, filtered, incomplete,

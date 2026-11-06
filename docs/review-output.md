@@ -142,8 +142,8 @@ direct pairs only; they do not change counts, rank, filtering, or verdicts.
 All claims receive unique `display_id` values in deterministic rank order
 before filtering, including rejected and filtered claims. Hints can reference
 any of these sections. Claims sort by severity (`error`, `warning`, `info`),
-descending confidence, verifier verdict (uncertain lower), file, line, layer,
-ID, category, title, evidence and reason.
+descending confidence, verifier verdict (confirmed, unverified, uncertain,
+then rejected), file, line, layer, ID, category, title, evidence and reason.
 
 `--min-severity` and `--min-confidence` filter retained claims independently.
 Bounds are inclusive; confidence must be finite and between 0 and 1. Defaults
