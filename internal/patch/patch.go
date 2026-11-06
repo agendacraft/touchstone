@@ -65,7 +65,7 @@ func IsMailbox(data []byte) bool {
 		return false
 	}
 	for _, c := range id {
-		if !('0' <= c && c <= '9') && !('a' <= c && c <= 'f') && !('A' <= c && c <= 'F') {
+		if !(('0' <= c && c <= '9') || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F')) {
 			return false
 		}
 	}
