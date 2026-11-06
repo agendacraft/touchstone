@@ -104,7 +104,7 @@ func (g Git) Diff(ctx context.Context, dir, base, head string, limit int, ignore
 		return Diff{}, err
 	}
 	result, err := g.command(ctx, dir, limit, "diff", "--no-ext-diff", "--no-textconv", "--no-color",
-		"--no-relative", "--src-prefix=a/", "--dst-prefix=b/", "--find-renames", "--submodule=short", baseID, headID, "--")
+		"--no-relative", "--src-prefix=a/", "--dst-prefix=b/", "--find-renames", "--submodule=short", "--ignore-submodules=none", baseID, headID, "--")
 	if err != nil {
 		return Diff{}, errors.New("git diff failed (git required; refs must share a valid repository)")
 	}

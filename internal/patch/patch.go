@@ -18,6 +18,11 @@ type File struct {
 }
 
 func Split(data []byte) ([]File, error) {
+	if bytes.HasPrefix(data, []byte("From ")) {
+		if i := bytes.Index(data, []byte("\ndiff --git ")); i >= 0 {
+			data = data[i+1:]
+		}
+	}
 	var files []File
 	var block bytes.Buffer
 	var hunk hunkState

@@ -64,8 +64,17 @@ enabled = false
 			}
 			return agent.Result{Output: `[{"id":"correctness:reused","verdict":"confirmed","reason":"Synthetic evidence."}]`}, nil
 		}
-		if !strings.Contains(request.Prompt, contract) || (request.Model == "correct" && !strings.Contains(request.Prompt, "Repository guidance.")) {
-			t.Error("built-in contract or additive repository guidance lost")
+		for _, required := range []string{
+			"Do not edit files or use network access", "JSON array", "[] if",
+			`"id"`, `"severity"`, `"category"`, `"file"`, `"line"`,
+			`"title"`, `"evidence"`, `"confidence"`,
+		} {
+			if !strings.Contains(request.Prompt, required) {
+				t.Errorf("specialist request missing contract requirement %q", required)
+			}
+		}
+		if request.Model == "correct" && !strings.Contains(request.Prompt, "Repository guidance.") {
+			t.Error("additive repository guidance lost")
 		}
 		file := "src/normal.go"
 		if strings.Contains(text, "src/special.go") {

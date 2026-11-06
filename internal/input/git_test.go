@@ -198,3 +198,49 @@ func TestReadFileStdinAndLimit(t *testing.T) {
 		}
 	}
 }
+
+func TestGitIncludesIgnoredSubmodulePointerChanges(t *testing.T) {
+	dir := testutil.Repo(t)
+	testutil.Write(t, dir, "seed", "first\n")
+	first := testutil.Commit(t, dir, "")
+	testutil.Write(t, dir, "seed", "second\n")
+	second := testutil.Commit(t, dir, first)
+	testutil.Write(t, dir, ".gitmodules", "[submodule \"vendor\"]\n\tpath = vendor\n\turl = ./unused\n\tignore = all\n")
+	testutil.Git(t, dir, "add", ".gitmodules")
+	testutil.Git(t, dir, "update-index", "--add", "--cacheinfo", "160000,"+first+",vendor")
+	tree := testutil.Git(t, dir, "write-tree")
+	base := testutil.Git(t, dir, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit-tree", tree, "-p", second, "-m", "base")
+	testutil.Git(t, dir, "update-ref", "refs/heads/main", base)
+	testutil.Git(t, dir, "checkout", "-b", "feature")
+	testutil.Git(t, dir, "update-index", "--cacheinfo", "160000,"+second+",vendor")
+	tree = testutil.Git(t, dir, "write-tree")
+	head := testutil.Git(t, dir, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit-tree", tree, "-p", base, "-m", "head")
+	testutil.Git(t, dir, "update-ref", "HEAD", head)
+	testutil.Git(t, dir, "config", "diff.ignoreSubmodules", "all")
+	for _, ref := range []string{base, ""} {
+		diff, err := (Git{}).Diff(context.Background(), dir, ref, "HEAD", 1<<20, nil)
+		if err != nil || !strings.Contains(string(diff.Data), "Subproject commit "+first) || !strings.Contains(string(diff.Data), "Subproject commit "+second) {
+			t.Fatalf("submodule change missing for base %q: %s %v", ref, diff.Data, err)
+		}
+	}
+}
+
+func TestReadFormatPatchWithPathFiltering(t *testing.T) {
+	dir := testutil.Repo(t)
+	testutil.Write(t, dir, "keep.txt", "old\n")
+	testutil.Write(t, dir, "skip.txt", "old\n")
+	base := testutil.Commit(t, dir, "")
+	testutil.Write(t, dir, "keep.txt", "new\n")
+	testutil.Write(t, dir, "skip.txt", "new\n")
+	testutil.Commit(t, dir, base)
+	data := testutil.Git(t, dir, "format-patch", "-1", "--stdout") + "\n"
+	file := filepath.Join(t.TempDir(), "change.patch")
+	testutil.Write(t, filepath.Dir(file), filepath.Base(file), data)
+	for _, name := range []string{"-", file} {
+		result, err := Read(context.Background(), name, strings.NewReader(data), len(data), []string{"skip.txt"})
+		files, splitErr := patch.Split(result.Data)
+		if err != nil || splitErr != nil || len(files) != 1 || files[0].Path != "keep.txt" || strings.Contains(string(result.Data), "skip.txt") || !strings.Contains(string(result.Data), "+new") {
+			t.Fatalf("format-patch filtering for %s: %s %v %v", name, result.Data, err, splitErr)
+		}
+	}
+}
