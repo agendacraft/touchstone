@@ -38,9 +38,9 @@ func TestSIGTERMCleansUpReview(t *testing.T) {
 	if err := cmd.Start(); err != nil {
 		t.Fatal(err)
 	}
-	done := make(chan error, 1)
+	done := make(chan struct{})
 	go func() {
-		done <- cmd.Wait()
+		_ = cmd.Wait()
 		close(done)
 	}()
 	defer func() {
@@ -183,8 +183,9 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 				if err := cmd.Start(); err != nil {
 					t.Fatal(err)
 				}
-				done := make(chan error, 1)
-				go func() { done <- cmd.Wait(); close(done) }()
+				done := make(chan struct{})
+				var waitErr error
+				go func() { waitErr = cmd.Wait(); close(done) }()
 				defer func() {
 					_ = cmd.Process.Kill()
 					select {
@@ -229,8 +230,8 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 				}
 				time.Sleep(200 * time.Millisecond)
 				select {
-				case err := <-done:
-					t.Fatalf("CLI exited before signal: %v", err)
+				case <-done:
+					t.Fatalf("CLI exited before signal: %v", waitErr)
 				default:
 				}
 				if err := cmd.Process.Signal(signal); err != nil {
@@ -291,13 +292,13 @@ func TestClosedOutputPipesExitWithError(t *testing.T) {
 			if err := cmd.Start(); err != nil {
 				t.Fatal(err)
 			}
-			done := make(chan error, 1)
-			go func() { done <- cmd.Wait() }()
+			done := make(chan struct{})
+			go func() { _ = cmd.Wait(); close(done) }()
 			select {
 			case <-done:
 			case <-time.After(5 * time.Second):
 				_ = cmd.Process.Kill()
-				_ = <-done
+				<-done
 				t.Fatal("CLI did not exit")
 			}
 			if cmd.ProcessState.ExitCode() != 3 {
@@ -332,8 +333,9 @@ func TestSignalUnblocksConfigFIFO(t *testing.T) {
 					if err := cmd.Start(); err != nil {
 						t.Fatal(err)
 					}
-					done := make(chan error, 1)
-					go func() { done <- cmd.Wait(); close(done) }()
+					done := make(chan struct{})
+					var waitErr error
+					go func() { waitErr = cmd.Wait(); close(done) }()
 					defer func() {
 						_ = cmd.Process.Kill()
 						select {
@@ -359,8 +361,8 @@ func TestSignalUnblocksConfigFIFO(t *testing.T) {
 					}
 					time.Sleep(200 * time.Millisecond)
 					select {
-					case err := <-done:
-						t.Fatalf("CLI exited before signal: %v", err)
+					case <-done:
+						t.Fatalf("CLI exited before signal: %v", waitErr)
 					default:
 					}
 					if err := cmd.Process.Signal(sig); err != nil {
