@@ -118,6 +118,9 @@ func Filter(data []byte, ignore []string) (Diff, error) {
 	if len(bytes.TrimSpace(data)) == 0 {
 		return Diff{}, nil
 	}
+	if patch.IsMailbox(data) {
+		return Diff{Data: data, Bytes: int64(len(data))}, nil
+	}
 	files, err := patch.Split(data)
 	if err != nil {
 		return Diff{}, err

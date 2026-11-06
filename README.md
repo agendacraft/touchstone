@@ -60,8 +60,8 @@ For `--diff` outside Git, config loads directly from `--cwd`.
 Binary patches are excluded. `[input] ignore = ["generated/*", "*.bin"]` and
 repeatable `--ignore GLOB` exclude matching files; CLI globs add to config.
 Either side of a rename can match an ignore. Globs use the path syntax below.
-Format-patch and mbox inputs have their message metadata removed before file
-patches are filtered and grouped by path policy.
+Format-patch and mbox inputs are reviewed unchanged; binary and path exclusions
+and per-path policies do not apply.
 Empty or fully excluded diffs produce a clean report with no model calls or
 local checks. Unresolvable patch paths fail rather than silently skipping files.
 

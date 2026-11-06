@@ -225,7 +225,7 @@ func TestGitIncludesIgnoredSubmodulePointerChanges(t *testing.T) {
 	}
 }
 
-func TestReadFormatPatchFiltersPaths(t *testing.T) {
+func TestReadFormatPatchRemainsOpaque(t *testing.T) {
 	dir := testutil.Repo(t)
 	testutil.Write(t, dir, "keep.txt", "old\n")
 	testutil.Write(t, dir, "skip.txt", "old\n")
@@ -238,7 +238,7 @@ func TestReadFormatPatchFiltersPaths(t *testing.T) {
 	testutil.Write(t, filepath.Dir(file), filepath.Base(file), data)
 	for _, name := range []string{"-", file} {
 		result, err := Read(context.Background(), name, strings.NewReader(data), len(data), []string{"skip.txt"})
-		if err != nil || !strings.Contains(string(result.Data), "diff --git a/keep.txt b/keep.txt") || strings.Contains(string(result.Data), "skip.txt") {
+		if err != nil || string(result.Data) != data {
 			t.Fatalf("format-patch input for %s: %s %v", name, result.Data, err)
 		}
 	}

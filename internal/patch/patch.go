@@ -18,12 +18,6 @@ type File struct {
 }
 
 func Split(data []byte) ([]File, error) {
-	if IsMailbox(data) {
-		data = mailboxPatches(data)
-		if len(data) == 0 {
-			return nil, errors.New("cannot resolve patches in mailbox input")
-		}
-	}
 	var files []File
 	var block bytes.Buffer
 	var hunk hunkState
@@ -76,42 +70,6 @@ func IsMailbox(data []byte) bool {
 		}
 	}
 	return true
-}
-
-// mailboxPatches removes message metadata and signatures before parsing files.
-// A format-patch separator is followed by a diffstat (possibly empty), a
-// blank line, and the first git diff header. Quoted diff headers in commit
-// messages do not have that framing.
-func mailboxPatches(data []byte) []byte {
-	lines := bytes.SplitAfter(data, []byte("\n"))
-	var patches bytes.Buffer
-	inPatch := false
-	var hunk hunkState
-	for i := 0; i < len(lines); i++ {
-		line := bytes.TrimRight(lines[i], "\r\n")
-		if !inPatch {
-			if !bytes.Equal(line, []byte("---")) {
-				continue
-			}
-			j := i + 1
-			for j < len(lines) && len(bytes.TrimRight(lines[j], "\r\n")) > 0 {
-				j++
-			}
-			if j+1 < len(lines) && bytes.HasPrefix(lines[j+1], []byte("diff --git ")) {
-				i = j
-				inPatch = true
-			}
-			continue
-		}
-		if !hunk.active() && (bytes.Equal(line, []byte("-- ")) || IsMailbox(lines[i])) {
-			inPatch = false
-			hunk = hunkState{}
-			continue
-		}
-		patches.Write(lines[i])
-		hunk.consume(lines[i])
-	}
-	return patches.Bytes()
 }
 
 type hunkState struct{ old, new int }

@@ -170,73 +170,29 @@ func TestChecksAreDescribedInHumanOutput(t *testing.T) {
 	}
 }
 
-func TestFormatPatchMessagesAtReviewBoundary(t *testing.T) {
+func TestFormatPatchRemainsOpaqueAtReviewBoundary(t *testing.T) {
 	dir := testutil.Repo(t)
-	testutil.Write(t, dir, "seed.txt", "seed\n")
-	parent := testutil.Commit(t, dir, "")
-	base := parent
-	for _, name := range []string{"first.txt", "second.txt"} {
-		testutil.Write(t, dir, name, "changed\n")
-		testutil.Commit(t, dir, parent)
-		tree := testutil.Git(t, dir, "rev-parse", "HEAD^{tree}")
-		parent = testutil.Git(t, dir, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit-tree", tree, "-p", parent, "-m", "change "+name, "-m", "Quoted example:\n---\ndiff --git a/phantom b/phantom\n--- a/phantom\n+++ b/phantom")
-		testutil.Git(t, dir, "update-ref", "HEAD", parent)
-	}
-	input := testutil.Git(t, dir, "format-patch", "--stdout", base+"..HEAD") + "\n"
-	file := filepath.Join(dir, "input.patch")
-	testutil.Write(t, dir, "input.patch", input)
-	testutil.Write(t, dir, config.FileName, "[layers.correctness]\nenabled = false\n[layers.security]\nenabled = false\n[[paths]]\npattern = \"*.txt\"\n[paths.layers.correctness]\nenabled = true\n")
-	var calls atomic.Int32
-	fake := agent.Fake{Respond: func(_ context.Context, request agent.Request) (agent.Result, error) {
-		data, err := os.ReadFile(filepath.Join(request.WorkingDirectory, "diff.patch"))
-		if err != nil {
-			t.Error(err)
-		}
-		if !strings.Contains(string(data), "diff --git a/first.txt b/first.txt") || !strings.Contains(string(data), "diff --git a/second.txt b/second.txt") || strings.Contains(string(data), "phantom") {
-			t.Errorf("message text or patches misclassified: %s", data)
-		}
-		calls.Add(1)
-		return agent.Result{Output: "[]"}, nil
-	}}
-	for _, name := range []string{"-", file} {
-		before := calls.Load()
-		report, code, diagnostic := runSyntheticReview(t, []string{"--cwd", dir, "--diff", name}, input, fake)
-		if code != 0 || report.Outcome != "clean" || calls.Load()-before != 1 {
-			t.Fatalf("format-patch %s: %+v %d %s", name, report, code, diagnostic)
-		}
-	}
-}
-
-func TestFormatPatchAppliesExclusionsAndPathPolicy(t *testing.T) {
-	dir := testutil.Repo(t)
-	testutil.Write(t, dir, "src/skip.txt", "old\n")
-	testutil.Write(t, dir, "keep.txt", "old\n")
-	testutil.Write(t, dir, "image.bin", "\x00old\n")
+	testutil.Write(t, dir, "skip.txt", "old\n")
 	base := testutil.Commit(t, dir, "")
-	testutil.Write(t, dir, "src/skip.txt", "new\n")
-	testutil.Write(t, dir, "keep.txt", "new\n")
-	testutil.Write(t, dir, "image.bin", "\x00new\n")
+	testutil.Write(t, dir, "skip.txt", "new\n")
 	testutil.Commit(t, dir, base)
 	data := testutil.Git(t, dir, "format-patch", "-1", "--stdout") + "\n"
 	testutil.Write(t, dir, "input.patch", data)
-	testutil.Write(t, dir, config.FileName, "[layers.correctness]\nenabled = false\n[layers.security]\nenabled = false\n[[paths]]\npattern = \"keep.txt\"\n[paths.layers.correctness]\nenabled = true\n")
+	testutil.Write(t, dir, config.FileName, "[layers.security]\nenabled = false\n[[paths]]\npattern = \"*.txt\"\n[paths.layers.correctness]\nenabled = false\n")
 	var calls atomic.Int32
 	fake := agent.Fake{Respond: func(_ context.Context, request agent.Request) (agent.Result, error) {
 		patchData, err := os.ReadFile(filepath.Join(request.WorkingDirectory, "diff.patch"))
-		if err != nil {
-			t.Error(err)
-		}
-		if !strings.Contains(string(patchData), "diff --git a/keep.txt b/keep.txt") || strings.Contains(string(patchData), "diff --git a/src/skip.txt") || strings.Contains(string(patchData), "diff --git a/image.bin") {
-			t.Errorf("incorrect filtered patch: %s", patchData)
+		if err != nil || string(patchData) != data {
+			t.Errorf("mailbox changed: %s %v", patchData, err)
 		}
 		calls.Add(1)
 		return agent.Result{Output: "[]"}, nil
 	}}
 	for _, name := range []string{"-", filepath.Join(dir, "input.patch")} {
 		before := calls.Load()
-		report, code, diagnostic := runSyntheticReview(t, []string{"--cwd", dir, "--diff", name, "--ignore", "src/*"}, data, fake)
-		if code != 0 || report.Outcome != "clean" || calls.Load()-before != 1 {
-			t.Errorf("mailbox policy for %s: %+v %d %s calls=%d", name, report, code, diagnostic, calls.Load()-before)
+		report, code, diagnostic := runSyntheticReview(t, []string{"--cwd", dir, "--diff", name, "--ignore", "*.txt"}, data, fake)
+		if code != 0 || report.Outcome != "clean" || calls.Load()-before != 1 || len(report.Notices) != 1 {
+			t.Errorf("opaque mailbox for %s: %+v %d %s calls=%d", name, report, code, diagnostic, calls.Load()-before)
 		}
 	}
 }
