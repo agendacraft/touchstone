@@ -112,3 +112,112 @@ func TestSIGTERMCleansUpReview(t *testing.T) {
 		t.Fatalf("scratch not removed: %v, %v", entries, err)
 	}
 }
+
+func TestSignalUnblocksCLIIO(t *testing.T) {
+	dir := t.TempDir()
+	binary := filepath.Join(dir, "touchstone")
+	if out, err := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); err != nil {
+		t.Fatalf("build CLI: %v\n%s", err, out)
+	}
+	for _, signal := range []syscall.Signal{syscall.SIGTERM, syscall.SIGINT} {
+		for _, mode := range []string{"stdin", "fifo-open", "fifo-read", "stdout", "stderr"} {
+			t.Run(signal.String()+"/"+mode, func(t *testing.T) {
+				fifo := filepath.Join(t.TempDir(), "diff")
+				args := []string{"review", "--diff", "-"}
+				if strings.HasPrefix(mode, "fifo-") {
+					if err := syscall.Mkfifo(fifo, 0o600); err != nil {
+						t.Fatal(err)
+					}
+					args[2] = fifo
+				}
+				if mode == "stdout" {
+					args = []string{"version"}
+				}
+				if mode == "stderr" {
+					args = []string{"unknown"}
+				}
+				cmd := exec.Command(binary, args...)
+				cmd.Dir = dir
+				input, err := cmd.StdinPipe()
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer input.Close()
+				if mode == "stdout" || mode == "stderr" {
+					read, write, err := os.Pipe()
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer read.Close()
+					defer write.Close()
+					writeFD := int(write.Fd())
+					if err := syscall.SetNonblock(writeFD, true); err != nil {
+						t.Fatal(err)
+					}
+					buf := make([]byte, 4096)
+					for {
+						_, err := syscall.Write(writeFD, buf)
+						if err == syscall.EAGAIN {
+							break
+						}
+						if err != nil {
+							t.Fatal(err)
+						}
+					}
+					if err := syscall.SetNonblock(writeFD, false); err != nil {
+						t.Fatal(err)
+					}
+					if mode == "stdout" {
+						cmd.Stdout = write
+					} else {
+						cmd.Stderr = write
+					}
+				}
+				if err := cmd.Start(); err != nil {
+					t.Fatal(err)
+				}
+				done := make(chan error, 1)
+				go func() { done <- cmd.Wait(); close(done) }()
+				defer func() {
+					_ = cmd.Process.Kill()
+					select {
+					case <-done:
+					case <-time.After(5 * time.Second):
+					}
+				}()
+				if mode == "fifo-read" {
+					deadline := time.Now().Add(5 * time.Second)
+					var fd int
+					for {
+						fd, err = syscall.Open(fifo, syscall.O_WRONLY|syscall.O_NONBLOCK, 0)
+						if err == nil || time.Now().After(deadline) {
+							break
+						}
+						time.Sleep(10 * time.Millisecond)
+					}
+					if err != nil {
+						t.Fatalf("open FIFO writer: %v", err)
+					}
+					defer syscall.Close(fd)
+				}
+				time.Sleep(200 * time.Millisecond)
+				select {
+				case err := <-done:
+					t.Fatalf("CLI exited before signal: %v", err)
+				default:
+				}
+				if err := cmd.Process.Signal(signal); err != nil {
+					t.Fatal(err)
+				}
+				select {
+				case <-done:
+				case <-time.After(5 * time.Second):
+					t.Fatal("CLI remained blocked after signal")
+				}
+				if cmd.ProcessState.ExitCode() != 3 {
+					t.Fatalf("expected command error exit, got %v", cmd.ProcessState)
+				}
+			})
+		}
+	}
+}
