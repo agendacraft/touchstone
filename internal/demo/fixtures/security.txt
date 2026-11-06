@@ -1,0 +1,24 @@
+```json
+[
+  {
+    "id": "issue-1",
+    "severity": "error",
+    "category": "logic",
+    "file": "ledger.go",
+    "line": 11,
+    "title": "Average divides by zero on empty slice",
+    "evidence": "The len(cents) == 0 guard was removed, so Average([]) now computes total / len(cents) with len == 0, causing an integer division-by-zero panic in any caller passing an empty ledger entry list.",
+    "confidence": 0.98
+  },
+  {
+    "id": "issue-2",
+    "severity": "error",
+    "category": "authorization",
+    "file": "ledger.go",
+    "line": 17,
+    "title": "CanRead grants access to any signed-in user regardless of ownership",
+    "evidence": "The check changed from signedIn && user == owner to signedIn || user == owner, so any authenticated user (attacker-controlled 'user' not matching 'owner') passes, exposing ledger contents to non-owners.",
+    "confidence": 0.99
+  }
+]
+```

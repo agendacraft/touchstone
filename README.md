@@ -21,9 +21,65 @@ Verification is model judgment, not proof of correctness.
   may incur charges. Follow Factory's authentication instructions; never put
   credentials in `touchstone.toml`.
 
-Building, running `version` or `config validate`, and the default test suite do
+Building, running `version`, `config validate`, or `demo --replay`, and the default test suite do
 **not** need Droid, an account, or live model calls. The adapter was probed against
 Droid 1.4.1; see [verified capabilities and limits](docs/droid-capabilities.md).
+
+## Try the demo
+
+One command from a fresh checkout, with Go and Git but no credentials:
+
+```sh
+go run ./cmd/touchstone demo --replay
+```
+
+To run live with an authenticated Droid CLI, use `go run ./cmd/touchstone demo`.
+Live calls use the default models and may incur charges. Both modes run the
+real review pipeline on a bundled synthetic repository, never your current
+checkout. Replay substitutes captured agent responses only and is labelled
+as recorded. A complete demo exits 0 even though planted bugs are found.
+
+The two specialists independently found the same two defects; all four claims
+remain separate. The local check below validates whitespace only. These are
+recorded model judgments, not a correctness guarantee; the security layer's
+imprecise line numbers are preserved. See [demo details and reproduction
+instructions](docs/demo.md). CI compares the command's full output with
+[the checked-in sample](docs/demo-output.txt):
+
+```text
+Touchstone demo
+RECORDED REPLAY: bundled agent responses, not live model judgment; no credentials needed.
+Synthetic repository: ledger.go (empty-average panic and authorization bypass).
+Local check: Git whitespace validation, not a correctness test.
+
+Touchstone: findings
+4 shown | 0 rejected | 0 filtered (min severity: info, confidence: 0)
+  correctness: complete
+  security: complete
+  deterministic: complete
+  verifier: complete
+  Local check whitespace: complete | executed locally: true | argv: ["git","-c","core.whitespace=blank-at-eol,blank-at-eof,space-before-tab","diff","--check","--no-ext-diff","--no-textconv"]
+
+  [ERROR] [f1] ledger.go:9 Division by zero for empty input
+    confidence 0.99 | confirmed | layer: correctness
+    Evidence: The guard `if len(cents) == 0 { return 0 }` was removed, so Average([]int{}) now reaches `return total / len(cents)` with len 0, panicking with a runtime division-by-zero. The d...
+    Verifier: The diff removes the guard `if len(cents) == 0 { return 0 }`, so Average([]int{}) reaches `return total / len(cents)` with len 0, a Go integer division-by-zero panic. The doc co...
+
+  [ERROR] [f2] ledger.go:14 Authorization check weakened from AND to OR
+    confidence 0.99 | confirmed | layer: correctness
+    Evidence: CanRead changed from `signedIn && user == owner` to `signedIn || user == owner`. Any signed-in user can now read a ledger they do not own (signedIn=true, user!="owner"), and any...
+    Verifier: The diff changes CanRead from `return signedIn && user == owner` to `return signedIn || user == owner`. With signedIn=true and user!="owner" it now returns true (non-owner reads...
+
+  [ERROR] [f3] ledger.go:17 CanRead grants access to any signed-in user regardless of ownership
+    confidence 0.99 | confirmed | layer: security
+    Evidence: The check changed from signedIn && user == owner to signedIn || user == owner, so any authenticated user (attacker-controlled 'user' not matching 'owner') passes, exposing ledge...
+    Verifier: The diff's `signedIn || user == owner` lets any signed-in user (regardless of 'user' vs 'owner') pass the authorization check, a direct weakening from the prior `signedIn && use...
+
+  [ERROR] [f4] ledger.go:11 Average divides by zero on empty slice
+    confidence 0.98 | confirmed | layer: security
+    Evidence: The len(cents) == 0 guard was removed, so Average([]) now computes total / len(cents) with len == 0, causing an integer division-by-zero panic in any caller passing an empty led...
+    Verifier: Same removed guard at ledger.go: the deleted lines `if len(cents) == 0 { return 0 }` mean an empty slice reaches `total / len(cents)` with len == 0, causing an integer division-...
+```
 
 ## Build and review
 

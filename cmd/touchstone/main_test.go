@@ -85,4 +85,42 @@ func TestProcessExitCodes(t *testing.T) {
 			}
 		})
 	}
+	t.Run("demo without Droid", func(t *testing.T) {
+		git, err := exec.LookPath("git")
+		if err != nil {
+			t.Fatal(err)
+		}
+		gitOnly := t.TempDir()
+		if err := os.Symlink(git, filepath.Join(gitOnly, "git")); err != nil {
+			t.Fatal(err)
+		}
+		sample, err := os.ReadFile("../../docs/demo-output.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, replay := range []bool{false, true} {
+			args := []string{"demo"}
+			wantCode := 3
+			if replay {
+				args = append(args, "--replay")
+				wantCode = 0
+			}
+			cmd := exec.Command(binary, args...)
+			cmd.Dir = dir
+			cmd.Env = append(os.Environ(), "PATH="+gitOnly)
+			var out, stderr bytes.Buffer
+			cmd.Stdout, cmd.Stderr = &out, &stderr
+			_ = cmd.Run()
+			if cmd.ProcessState == nil || cmd.ProcessState.ExitCode() != wantCode {
+				t.Fatalf("replay=%t: wrong process exit: %v, stderr %q", replay, cmd.ProcessState, stderr.String())
+			}
+			if replay {
+				if !bytes.Equal(out.Bytes(), sample) || stderr.Len() != 0 {
+					t.Fatalf("credential-free process replay drifted:\n%s\n%s", out.String(), stderr.String())
+				}
+			} else if out.Len() != 0 || !strings.Contains(stderr.String(), "demo --replay") {
+				t.Fatal("missing Droid did not offer replay as a diagnostic")
+			}
+		}
+	})
 }

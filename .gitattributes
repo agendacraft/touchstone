@@ -1,0 +1,2 @@
+# Unified diff context requires space-only lines and a space before source tabs.
+internal/demo/fixtures/buggy.patch whitespace=-blank-at-eol,-space-before-tab

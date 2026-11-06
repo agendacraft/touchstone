@@ -21,6 +21,7 @@ Usage:
                     [--format terminal|json|markdown] [--min-severity info|warning|error]
                     [--min-confidence 0..1]
   touchstone version
+  touchstone demo [--replay]
   touchstone config validate [--cwd DIRECTORY]
 `
 
@@ -43,6 +44,8 @@ func RunContext(ctx context.Context, args []string, in io.Reader, out, stderr io
 		return err
 	case "review":
 		return runReview(ctx, args[1:], in, out, stderr, a)
+	case "demo":
+		return runDemo(ctx, args[1:], out, stderr, a)
 	case "config":
 		if len(args) < 2 || args[1] != "validate" {
 			return errors.New("expected: touchstone config validate [--cwd DIRECTORY]")
