@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "9c5e6f195e1b8ff7c4835496acb6b98bf81a335c23324c36f26f69ff0d2282cb",
+  "captured_at": "2026-11-06T18:03:46Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "71469190b8922284b378eecebf1d539d11a20b44f633f96b9661f55b8363b232",
+        "output": "[\n  {\"id\":\"issue-1\",\"severity\":\"error\",\"category\":\"logic\",\"file\":\"sample.go\",\"line\":7,\"title\":\"Missing-token lookup reports success and returns user 0\",\"evidence\":\"The diff replaces the two-value map lookup with `id := users[token]`; for a token absent from the map this yields the zero value 0 and `id \u003e= 0` is true, so Lookup returns (0, true). Since the doc comment states user zero is a real account, unknown tokens now authenticate as user 0 instead of failing as the old `id, ok := users[token]; return id, ok` did. The ok check must come from the map's existence value, not a sign test on the id.\",\"confidence\":0.95}\n]",
+        "usage": {
+          "input_tokens": 4680,
+          "output_tokens": 207,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 376,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "4627f3947e39248f54c33a6a00ce48bc755faf04b1ecfc6f7867f9fdbb894109",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"auth-bypass\",\n    \"file\": \"sample.go\",\n    \"line\": 8,\n    \"title\": \"Authentication bypass: any unknown token authenticates as user 0\",\n    \"evidence\": \"The old code returned ok=false for a token not present in the map. The new code drops the map existence check: for an unlisted token, users[token] yields the zero value 0, and the function returns (0, true) since 0 \u003e= 0. The doc comment 'user zero is a real account' confirms id 0 is a valid account, so an attacker sending any arbitrary/unregistered token is authenticated as user 0. Additionally, any real account with a negative id now fails authentication (id \u003e= 0 is false) even with the correct token.\",\n    \"confidence\": 0.98\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 4670,
+          "output_tokens": 303,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 395,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "24f29c55726819013ba94baf4be61ada8396464c13b64df596f7ff3a6a41ba59",
+        "output": "[{\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"The diff replaces `id, ok := users[token]; return id, ok` with `id := users[token]; return id, id \u003e= 0`. For a token absent from the map, Go's map index yields the zero value 0, and 0 \u003e= 0 is true, so Lookup returns (0, true) for unknown tokens, where the old code returned (0, false). The doc comment 'user zero is a real account' confirms this reports a successful authentication for a real account. Attempted disproof: the only way (0, true) could be correct for a missing token is if no user 0 existed, but the comment states user zero is real, and no other lines in the diff mitigate this.\"},{\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same concrete change: the map existence check is dropped and success is derived from `id \u003e= 0`. Any token not in the map yields id=0 and returns (0, true), authenticating an arbitrary unregistered token as user 0, which the doc comment declares a real account. The additional claim is also supported by the diff: a real account whose stored id is negative (e.g. users[token] \u003c 0) now returns false with the correct token, whereas the old code returned true. Attempted disproof via assumptions that ids are never negative or that user 0 is not real would contradict the diff's own doc comment and the changed expression; no diff evidence supports either.\"}]",
+        "usage": {
+          "input_tokens": 5093,
+          "output_tokens": 420,
+          "cache_read_input_tokens": 4480,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 445,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

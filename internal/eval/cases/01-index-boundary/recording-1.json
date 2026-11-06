@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "case_sha256": "54f7dc6dd3a8a7575e32054bee46271de6cad06a946827376d499f2335184fc0",
+  "captured_at": "2026-11-06T17:53:59Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "d186c9cdec4620a7a94e1faa26b2d3367c44d8aad9527501d67b405ad9485595",
+        "output": "[\n  {\"id\":\"issue-1\",\"severity\":\"error\",\"category\":\"logic\",\"file\":\"sample.go\",\"line\":4,\"title\":\"Out-of-bounds access for i == len(xs)\",\"evidence\":\"The bounds check was changed from `i \u003e= len(xs)` to `i \u003e len(xs)`, so `At` now returns `xs[i], true` when `i == len(xs)`, which is out of range and will panic on index. Previously this case was correctly rejected.\"}\n]",
+        "usage": {
+          "input_tokens": 9102,
+          "output_tokens": 152,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 578,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "1b819cb7e6c8d2d1d5f32cfeaefd0c8486e3f79ecae0fac2e1dd3d5971825c1e",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 5,\n    \"title\": \"Out-of-bounds access: index equal to length is incorrectly accepted\",\n    \"evidence\": \"The bounds check was changed from `i \u003e= len(xs)` to `i \u003e len(xs)`. When `i == len(xs)`, the function returns `xs[i], true` instead of `0, false`, but `xs[i]` is out of range for a slice of length `len(xs)`, so `At(xs, len(xs))` now panics with an index-out-of-range runtime error on any input (including the empty slice, where `At(nil, 0)` or `At([]int{}, 0)` panics).\",\n    \"confidence\": 1.0\n  }\n]",
+        "usage": {
+          "input_tokens": 4672,
+          "output_tokens": 262,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 386,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "1d6c54f3bc0ad02cbe3836a81c31c9cfea573133b7b9260a330f5754897c3ac8",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 4,\n    \"title\": \"Off-by-one bounds check allows out-of-range index, causing panic\",\n    \"evidence\": \"The guard changed from `i \u003e= len(xs)` to `i \u003e len(xs)`, so `At(xs, len(xs))` passes the check and executes `xs[i]` with i == len(xs), which panics with index out of range. Any caller that passes user-controlled indexes (e.g., an index from request input) can trigger a runtime panic and crash the process.\",\n    \"confidence\": 0.98\n  }\n]",
+        "usage": {
+          "input_tokens": 4598,
+          "output_tokens": 241,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 378,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "131c1b181466ac04f7a7e0a3fdec8ad08ee5e286a48d64c91c9f1d94e2bff2d7",
+        "output": "```json\n[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff changes the guard from `i \u003c 0 || i \u003e= len(xs)` to `i \u003c 0 || i \u003e len(xs)`. For i == len(xs) the new check passes and the function evaluates `return xs[i], true`, but the largest valid index is len(xs)-1, so At(xs, len(xs)) panics with index out of range (including At(nil, 0) / At([]int{}, 0), since 0 \u003e 0 is false). Attempted disproof via overflow/negative-i paths fails: negative i is still rejected and valid indices i \u003c len(xs) behave identically, so the only behavioral change is the out-of-range case.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same concrete diff evidence at sample.go line 4: the guard `i \u003e= len(xs)` became `i \u003e len(xs)`, so an index equal to len(xs) reaches `xs[i]` and panics. The security claim (an attacker-supplied index triggering a crash) requires callers passing user-controlled indexes, which the diff alone does not show; however the panic on At(xs, len(xs)) is directly caused by this diff and constitutes the described defect, so the finding stands on the confirmed off-by-one rather than on speculative caller assumptions.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 9551,
+          "output_tokens": 403,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 654,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

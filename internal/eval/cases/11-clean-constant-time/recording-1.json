@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "case_sha256": "804783ca567ca0e103fb8481e62a3501117ae858bbef16499365257e8105239b",
+  "captured_at": "2026-11-06T17:59:49Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "3c89de3088fc5414360cd63ecbe49342ae2af44acba47dd06ef79af7a51fe8de",
+        "output": "[]",
+        "usage": {
+          "input_tokens": 4667,
+          "output_tokens": 60,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 346,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "534709038516da066c2bd6aefb427303b3fbbd4cf5bd6b4c2d019203e8be1f32",
+        "output": "[]",
+        "usage": {
+          "input_tokens": 4657,
+          "output_tokens": 87,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 351,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

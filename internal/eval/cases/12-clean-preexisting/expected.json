@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "difficulty": "hard",
+  "holdout": true,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "Only a local variable is renamed. Nonempty, bounded input and truncation are explicit API requirements. Neither integer division nor empty-input behavior is a new defect.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 4,
+      "end": 8,
+      "category": "arithmetic",
+      "aliases": [
+        "logic",
+        "correctness",
+        "division-by-zero",
+        "overflow",
+        "panic"
+      ],
+      "kind": "must-not-flag"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "case_sha256": "b8e254e33159406070027e059bb6ad1b3fc01c785389216ef8036f4b1571a419",
+  "captured_at": "2026-11-06T17:56:15Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "fa952755944e94741d092ec3a2cd47444bc857779b6f0fa5f8f5ea3abcd599ef",
+        "output": "This changes `Valid` semantics: originally false when `now == expires` (strictly before). The new form is true when `now == expires` (`!After`), altering the boundary condition — contradicting the comment \"false at or after expires.\"\n\n```json\n[{\"id\":\"issue-1\",\"severity\":\"error\",\"category\":\"logic\",\"file\":\"sample.go\",\"line\":8,\"title\":\"Boundary condition inverted: expires timestamp now reports valid\",\"evidence\":\"The doc comment states Valid is \\\"false at or after expires\\\". Original code `now.Before(expires)` returns false when now == expires. The replacement `!now.After(expires)` returns true when now == expires, so a credential expiring exactly at `expires` is now treated as valid, contradicting both the comment and prior behavior.\",\"confidence\":0.95}]\n```",
+        "usage": {
+          "input_tokens": 4667,
+          "output_tokens": 222,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 379,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "862a47f9337c6740b022e7ea05f35c538ad3d1ab8d2cf88faef16e3a7ed7af2c",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 7,\n    \"title\": \"Boundary inversion: now == expires is now treated as valid, contradicting documented contract\",\n    \"evidence\": \"The function's doc comment states \\\"Valid is false at or after expires\\\". The old code, now.Before(expires), returns false when now == expires. The new code, !now.After(expires), returns true when now == expires because After is false for equal times. This flips the boundary: an expiry exactly equal to the current time now passes validation, directly violating the documented at-or-after semantics. Any caller relying on the documented behavior (e.g., a token expiring exactly at 'now' should be rejected) will incorrectly accept it.\",\n    \"confidence\": 0.95\n  }\n]",
+        "usage": {
+          "input_tokens": 4653,
+          "output_tokens": 270,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 387,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "787702ff56c4e3cf88fb11c91d1726548318b42f368358a505c6538e385a3ba5",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"warning\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 8,\n    \"title\": \"Expiry boundary changed so a credential is valid at its expiration instant\",\n    \"evidence\": \"The doc comment states 'Valid is false at or after expires', but the change replaces now.Before(expires) with !now.After(expires), which returns true when now == expires. Any caller using Valid to gate access to an expiring token/session now permits use at the exact expiration timestamp, contradicting the documented contract and extending the credential's effective lifetime.\",\n    \"confidence\": 0.8\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 4657,
+          "output_tokens": 288,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 392,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "e1a0d24f1fe66e633947614dd7b4a59bb4897d9be7711e9412b1891f38dabe99",
+        "output": "Both findings cite the same boundary change and are directly supported by the diff: the old expression `now.Before(expires)` returns false when `now == expires`, while the new `!now.After(expires)` returns true at that instant, contradicting the doc comment \"Valid is false at or after expires\". I attempted to disprove by checking `time.Time.After` semantics (false for equal times), which confirms rather than refutes the flip.\n\n```json\n[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff changes `return now.Before(expires)` to `return !now.After(expires)` in sample.go. Old code returns false when now == expires (Before is false for equal times); new code returns true (After is false for equal times, so negated to true). This flips the exact-boundary case, contradicting the unchanged doc comment 'Valid is false at or after expires'. Attempted disproof via checking time.Time.After semantics for equality failed: the behavior change at now == expires is real and caused by this diff.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same diff evidence: replacing now.Before(expires) with !now.After(expires) makes Valid return true at now == expires, extending a credential's validity to its exact expiration instant, contrary to the documented 'false at or after expires' contract. Disproof attempt (verifying After is false for equal times, and that the doc comment is unchanged in the diff) confirmed the boundary extension rather than refuting it.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 5043,
+          "output_tokens": 438,
+          "cache_read_input_tokens": 4544,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 446,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "d56c2cdc20b3488906a9c576c1bc82c6c84d3c39dd6d52f61146ba0157e7b848",
+        "output": "[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"The diff changes `return now.Before(expires)` to `return !now.After(expires)` in sample.go. Old behavior: now == expires → Before is false → invalid, matching the doc comment 'Valid is false at or after expires'. New behavior: now == expires → After is false → !false → true → valid. The equality boundary is flipped, directly contradicting the documented contract. Attempted disproof failed: no caller-side guard or comment change in the diff restores the exclusive boundary; the doc comment remains unchanged asserting 'at or after' is invalid.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same concrete change in sample.go line 8: `now.Before(expires)` → `!now.After(expires)`. At now == expires the new code returns true, so a credential is accepted at its exact expiration instant, extending its effective lifetime and violating the unchanged documented invariant 'false at or after expires'. Attempted disproof: checked for compensating checks elsewhere in the diff; none exist, the diff contains only this one-line change.\"}\n]",
+        "usage": {
+          "input_tokens": 5029,
+          "output_tokens": 339,
+          "cache_read_input_tokens": 4544,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 425,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

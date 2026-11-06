@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "0419163aad0dcc6ffa0107a8c28f2f28c357fe9a60830c47d741dacdf671dc8a",
+  "captured_at": "2026-11-06T18:06:40Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "97945b69f106c8ef11765cdeb93dfcefa82df34e3fd3fff531abcf91eba4a0e9",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 4,\n    \"title\": \"Authorization check weakened from AND to OR, allowing unauthenticated users to edit\",\n    \"evidence\": \"The function previously returned signedIn \u0026\u0026 user == owner, requiring both sign-in and ownership. Changing to signedIn || user == owner means any user who is signed in (even a non-owner, since user == owner is no longer required for that branch) can edit, and any caller where user == owner (e.g., a spoofed or default user value) can edit without being signed in (signedIn == false). This is a privilege-escalation defect in the permission boundary.\",\n    \"confidence\": 0.95\n  }\n]",
+        "usage": {
+          "input_tokens": 4903,
+          "output_tokens": 227,
+          "cache_read_input_tokens": 4096,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 390,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "fa3acd080195e39c2cba24c98324f782bbeb52adb66770a84e47eb4ebb75b9e8",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"authorization\",\n    \"file\": \"sample.go\",\n    \"line\": 6,\n    \"title\": \"Authorization check weakened: any signed-in user can edit anyone's content\",\n    \"evidence\": \"The change replaces 'signedIn \u0026\u0026 user == owner' with 'signedIn || user == owner'. CanEdit now returns true for any authenticated user regardless of ownership, so a signed-in user editing another user's resource (user != owner) is authorized. Attacker-controlled input is the 'user' identity of any signed-in session; observable impact is privilege escalation allowing unauthorized edits of other users' content.\",\n    \"confidence\": 0.99\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 4651,
+          "output_tokens": 232,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 380,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "0327d50559793a42be6293ff9c62cd40f926857213f3bd617ad3ac853971247e",
+        "output": "[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff changes `return signedIn \u0026\u0026 user == owner` to `return signedIn || user == owner` in sample.go's CanEdit. Attempted disproof fails: with signedIn=true and user!=owner the new expression returns true where the old returned false, and with signedIn=false, user==owner it also returns true. Both are new behaviors introduced solely by this diff, so the AND-to-OR authorization weakening is real.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same changed line (sample.go, `signedIn || user == owner`). For any signed-in user (signedIn=true) CanEdit now returns true regardless of user == owner, whereas the old `signedIn \u0026\u0026 user == owner` denied it. This grants any authenticated user edit rights over others' content, a privilege-escalation defect caused directly by the diff. The speculation about spoofed/default user values is unnecessary; the confirmed signed-in non-owner case alone establishes the defect.\"}\n]",
+        "usage": {
+          "input_tokens": 5413,
+          "output_tokens": 319,
+          "cache_read_input_tokens": 4096,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 438,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

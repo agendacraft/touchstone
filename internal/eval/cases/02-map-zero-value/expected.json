@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "difficulty": "hard",
+  "holdout": false,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "Zero is a valid user ID. With no comma-ok check, an absent token now authenticates as user 0.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 5,
+      "end": 6,
+      "category": "authentication",
+      "aliases": [
+        "auth",
+        "authorization",
+        "security",
+        "logic",
+        "correctness",
+        "auth-bypass",
+        "authentication-bypass"
+      ],
+      "kind": "must-find",
+      "severity": "error"
+    }
+  ]
+}

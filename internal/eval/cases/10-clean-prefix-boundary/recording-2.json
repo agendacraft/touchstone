@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "case_sha256": "757cca49bf7d4fce6d224a008dec1bb4e0da6bcd5bda59977239dfd880f47eb8",
+  "captured_at": "2026-11-06T18:09:16Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "337d7489c3c584e79d850db27d01911b8c2ad7a099771ecc6bb254f14e91ec5e",
+        "output": "The diff rewrites `Inside` to use an explicit `if` with early return instead of a short-circuit `||`. The two forms are semantically identical for all inputs: `name == root` returns true in both, otherwise both evaluate `strings.HasPrefix(name, root+\"/\")`. No boundary condition, error path, or state transition changes.\n\n[]",
+        "usage": {
+          "input_tokens": 993,
+          "output_tokens": 160,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 190,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "7ce0897d956e294e1b245699b6d124cb9ed2f3f83d3954bd10416727f07fd437",
+        "output": "[]",
+        "usage": {
+          "input_tokens": 993,
+          "output_tokens": 91,
+          "cache_read_input_tokens": 8192,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 178,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "7fc2eecdcb9ae9b7188d8aa0a865a649d791d40ad4c523ef19e8e2a464ffac0d",
+        "output": "[]",
+        "usage": {
+          "input_tokens": 983,
+          "output_tokens": 117,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 181,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

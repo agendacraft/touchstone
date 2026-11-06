@@ -1,0 +1,6097 @@
+{
+  "version": 1,
+  "margin": 0,
+  "complete": false,
+  "cases": {
+    "01-index-boundary/1": {
+      "case_sha256": "54f7dc6dd3a8a7575e32054bee46271de6cad06a946827376d499f2335184fc0",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "01-index-boundary/2": {
+      "case_sha256": "54f7dc6dd3a8a7575e32054bee46271de6cad06a946827376d499f2335184fc0",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "01-index-boundary/3": {
+      "case_sha256": "54f7dc6dd3a8a7575e32054bee46271de6cad06a946827376d499f2335184fc0",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "02-map-zero-value/1": {
+      "case_sha256": "9c5e6f195e1b8ff7c4835496acb6b98bf81a335c23324c36f26f69ff0d2282cb",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "02-map-zero-value/2": {
+      "case_sha256": "9c5e6f195e1b8ff7c4835496acb6b98bf81a335c23324c36f26f69ff0d2282cb",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "02-map-zero-value/3": {
+      "case_sha256": "9c5e6f195e1b8ff7c4835496acb6b98bf81a335c23324c36f26f69ff0d2282cb",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 3,
+            "correct": 0,
+            "false_positives": 3,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 3,
+          "rejected": 1,
+          "rejected_correctly": 1,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0.3333333333333333
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 2,
+            "rejected": 1,
+            "rejected_correctly": 1,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0.5
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "03-slice-alias/1": {
+      "case_sha256": "f945ef6dcaf7c441887fa62568de213355b7dc82821666ae43ef6a92bda24f0b",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "03-slice-alias/2": {
+      "case_sha256": "f945ef6dcaf7c441887fa62568de213355b7dc82821666ae43ef6a92bda24f0b",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "03-slice-alias/3": {
+      "case_sha256": "f945ef6dcaf7c441887fa62568de213355b7dc82821666ae43ef6a92bda24f0b",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "04-expiry-boundary/1": {
+      "case_sha256": "b8e254e33159406070027e059bb6ad1b3fc01c785389216ef8036f4b1571a419",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "04-expiry-boundary/2": {
+      "case_sha256": "b8e254e33159406070027e059bb6ad1b3fc01c785389216ef8036f4b1571a419",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "04-expiry-boundary/3": {
+      "case_sha256": "b8e254e33159406070027e059bb6ad1b3fc01c785389216ef8036f4b1571a419",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "05-path-prefix/1": {
+      "case_sha256": "e9fc416a9c44cadfe399d1fb9edb8ad1cb65b7d78f84cf2a2da2c13d33ce321e",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "05-path-prefix/2": {
+      "case_sha256": "e9fc416a9c44cadfe399d1fb9edb8ad1cb65b7d78f84cf2a2da2c13d33ce321e",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "05-path-prefix/3": {
+      "case_sha256": "e9fc416a9c44cadfe399d1fb9edb8ad1cb65b7d78f84cf2a2da2c13d33ce321e",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "06-owner-check/1": {
+      "case_sha256": "0419163aad0dcc6ffa0107a8c28f2f28c357fe9a60830c47d741dacdf671dc8a",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "06-owner-check/2": {
+      "case_sha256": "0419163aad0dcc6ffa0107a8c28f2f28c357fe9a60830c47d741dacdf671dc8a",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "06-owner-check/3": {
+      "case_sha256": "0419163aad0dcc6ffa0107a8c28f2f28c357fe9a60830c47d741dacdf671dc8a",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "07-comparator-overflow/1": {
+      "case_sha256": "9e7783e16595aa029b3114862b53519886ee42ce9f2916264e1cc2a78341cefd",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "07-comparator-overflow/2": {
+      "case_sha256": "9e7783e16595aa029b3114862b53519886ee42ce9f2916264e1cc2a78341cefd",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 1,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "07-comparator-overflow/3": {
+      "case_sha256": "9e7783e16595aa029b3114862b53519886ee42ce9f2916264e1cc2a78341cefd",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "08-clean-empty-guard/1": {
+      "case_sha256": "a83264be46a6a787d17816fd810421f62ce0c9d8b83c99f3f221a6abd03184cf",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "08-clean-empty-guard/2": {
+      "case_sha256": "a83264be46a6a787d17816fd810421f62ce0c9d8b83c99f3f221a6abd03184cf",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "08-clean-empty-guard/3": {
+      "case_sha256": "a83264be46a6a787d17816fd810421f62ce0c9d8b83c99f3f221a6abd03184cf",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 1,
+        "incomplete_rate": 1,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": true,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "incomplete",
+            "error": "invalid_output"
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "09-clean-defensive-copy/1": {
+      "case_sha256": "3bfb31c1b876c60a2e6adf2858f8b2242489128952fb3f455054656e548115c8",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "09-clean-defensive-copy/2": {
+      "case_sha256": "3bfb31c1b876c60a2e6adf2858f8b2242489128952fb3f455054656e548115c8",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "09-clean-defensive-copy/3": {
+      "case_sha256": "3bfb31c1b876c60a2e6adf2858f8b2242489128952fb3f455054656e548115c8",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "10-clean-prefix-boundary/1": {
+      "case_sha256": "757cca49bf7d4fce6d224a008dec1bb4e0da6bcd5bda59977239dfd880f47eb8",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 1,
+        "incomplete_rate": 1,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": true,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "incomplete",
+            "error": "invalid_output"
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "10-clean-prefix-boundary/2": {
+      "case_sha256": "757cca49bf7d4fce6d224a008dec1bb4e0da6bcd5bda59977239dfd880f47eb8",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "10-clean-prefix-boundary/3": {
+      "case_sha256": "757cca49bf7d4fce6d224a008dec1bb4e0da6bcd5bda59977239dfd880f47eb8",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "11-clean-constant-time/1": {
+      "case_sha256": "804783ca567ca0e103fb8481e62a3501117ae858bbef16499365257e8105239b",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "11-clean-constant-time/2": {
+      "case_sha256": "804783ca567ca0e103fb8481e62a3501117ae858bbef16499365257e8105239b",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "11-clean-constant-time/3": {
+      "case_sha256": "804783ca567ca0e103fb8481e62a3501117ae858bbef16499365257e8105239b",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "12-clean-preexisting/1": {
+      "case_sha256": "050d532d2699dd18613205c7ba836d6b02c1e78d1f40e5738f525f92810dd2d0",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "12-clean-preexisting/2": {
+      "case_sha256": "050d532d2699dd18613205c7ba836d6b02c1e78d1f40e5738f525f92810dd2d0",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "12-clean-preexisting/3": {
+      "case_sha256": "050d532d2699dd18613205c7ba836d6b02c1e78d1f40e5738f525f92810dd2d0",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "overall": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          },
+          "security": {
+            "bugs": 0,
+            "found": 0,
+            "claims": 0,
+            "correct": 0,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 1,
+            "clean_false_positives": 0,
+            "recall": null,
+            "precision": null,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": 0
+          }
+        },
+        "verifier": {
+          "claims": 0,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": null
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          },
+          "security": {
+            "claims": 0,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": null
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "not_needed",
+          "error": ""
+        }
+      }
+    },
+    "13-public-ip-leading-zero/1": {
+      "case_sha256": "e1e1a46ed3f6af0263cf47bac7040f1b41ec6edded9d3914c40963e983b86c21",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "13-public-ip-leading-zero/2": {
+      "case_sha256": "e1e1a46ed3f6af0263cf47bac7040f1b41ec6edded9d3914c40963e983b86c21",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 2,
+            "correct": 0,
+            "false_positives": 2,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 0,
+            "claims": 1,
+            "correct": 0,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 0,
+            "precision": 0,
+            "severity_accuracy": null,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "13-public-ip-leading-zero/3": {
+      "case_sha256": "e1e1a46ed3f6af0263cf47bac7040f1b41ec6edded9d3914c40963e983b86c21",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 0.5,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 0,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 0,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 2,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 0.5,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 2,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "14-public-url-controls/1": {
+      "case_sha256": "1240a125e2b08abbe8034610a202515f4048be63f17992b27dc8d10ff71eccbc",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 3,
+            "correct": 2,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.6666666666666666,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 3,
+            "correct": 2,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.6666666666666666,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 3,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 2,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "14-public-url-controls/2": {
+      "case_sha256": "1240a125e2b08abbe8034610a202515f4048be63f17992b27dc8d10ff71eccbc",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 3,
+            "correct": 2,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.6666666666666666,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 4,
+            "correct": 3,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 3,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.75,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 3,
+            "correct": 2,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.6666666666666666,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 4,
+            "correct": 3,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 3,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.75,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 4,
+          "rejected": 0,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 0,
+          "rejection_rate": 0
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 3,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    },
+    "14-public-url-controls/3": {
+      "case_sha256": "1240a125e2b08abbe8034610a202515f4048be63f17992b27dc8d10ff71eccbc",
+      "scores": {
+        "reviews": 1,
+        "incomplete": 0,
+        "incomplete_rate": 0,
+        "before_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 3,
+            "correct": 2,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.6666666666666666,
+            "severity_accuracy": 0.5,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 4,
+            "correct": 3,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.75,
+            "severity_accuracy": 0.6666666666666666,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "after_verifier": {
+          "correctness": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 2,
+            "correct": 1,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.5,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "overall": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 3,
+            "correct": 2,
+            "false_positives": 1,
+            "must_not_flags": 0,
+            "severity_correct": 2,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 0.6666666666666666,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          },
+          "security": {
+            "bugs": 1,
+            "found": 1,
+            "claims": 1,
+            "correct": 1,
+            "false_positives": 0,
+            "must_not_flags": 0,
+            "severity_correct": 1,
+            "clean_cases": 0,
+            "clean_false_positives": 0,
+            "recall": 1,
+            "precision": 1,
+            "severity_accuracy": 1,
+            "false_positives_per_clean_case": null
+          }
+        },
+        "verifier": {
+          "claims": 4,
+          "rejected": 1,
+          "rejected_correctly": 0,
+          "rejected_real_bugs": 1,
+          "rejection_rate": 0.25
+        },
+        "verifier_by_layer": {
+          "correctness": {
+            "claims": 3,
+            "rejected": 1,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 1,
+            "rejection_rate": 0.3333333333333333
+          },
+          "security": {
+            "claims": 1,
+            "rejected": 0,
+            "rejected_correctly": 0,
+            "rejected_real_bugs": 0,
+            "rejection_rate": 0
+          }
+        }
+      },
+      "completion": {
+        "incomplete": false,
+        "layers": [
+          {
+            "name": "correctness",
+            "status": "complete",
+            "error": ""
+          },
+          {
+            "name": "security",
+            "status": "complete",
+            "error": ""
+          }
+        ],
+        "verifier": {
+          "name": "verification",
+          "status": "complete",
+          "error": ""
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+diff --git a/sample.go b/sample.go
+--- a/sample.go
++++ b/sample.go
+@@ -1,7 +1,8 @@
+ package sample
+ 
+ import "crypto/hmac"
+ 
+ func EqualMAC(a, b []byte) bool {
++	if len(a) != len(b) { return false }
+ 	return hmac.Equal(a, b)
+ }

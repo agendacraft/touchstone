@@ -22,6 +22,9 @@ Usage:
                     [--min-confidence 0..1]
   touchstone version
   touchstone demo [--replay]
+  touchstone eval [--replay] [--cases DIRECTORY] [--repeats N]
+                  [--record DIRECTORY | --recordings DIRECTORY]
+                  [--baseline FILE] [--margin N] [--write-baseline FILE]
   touchstone config validate [--cwd DIRECTORY]
 `
 
@@ -46,6 +49,8 @@ func RunContext(ctx context.Context, args []string, in io.Reader, out, stderr io
 		return runReview(ctx, args[1:], in, out, stderr, a)
 	case "demo":
 		return runDemo(ctx, args[1:], out, stderr, a)
+	case "eval":
+		return runEval(ctx, args[1:], out, stderr, a)
 	case "config":
 		if len(args) < 2 || args[1] != "validate" {
 			return errors.New("expected: touchstone config validate [--cwd DIRECTORY]")

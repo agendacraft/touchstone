@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "difficulty": "medium",
+  "holdout": false,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "Inputs are clean absolute slash paths without symlinks, and root is non-root with no trailing slash. /safe-other/x must not be inside /safe; removing the slash boundary admits it.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 7,
+      "end": 8,
+      "category": "path-traversal",
+      "aliases": [
+        "security",
+        "authorization",
+        "logic",
+        "correctness",
+        "path-validation",
+        "input-validation"
+      ],
+      "kind": "must-find",
+      "severity": "error"
+    }
+  ]
+}

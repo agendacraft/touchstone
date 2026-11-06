@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "difficulty": "hard",
+  "holdout": true,
+  "source": "CPython, PSF-2.0 (see ../PYTHON-LICENSE.txt), Copyright Python Software Foundation and contributors. Reversed runtime and constant hunks from https://github.com/python/cpython/commit/2f630e1ce18ad2e07428296532a68b11dc66ad10 by Illia Volochii. Documentation-only hunk omitted and hunk positions adjusted for that omission. fix.patch is the answer. No private source.",
+  "rationale": "The upstream test passes leading C0 controls plus a URL and expects the original scheme and host. Removing sanitization causes parser disagreement and blocklist bypass (CVE-2023-24329). The inverse patch restores the public fix.",
+  "findings": [
+    {
+      "file": "Lib/urllib/parse.py",
+      "start": 466,
+      "end": 478,
+      "category": "input-validation",
+      "aliases": [
+        "security",
+        "validation",
+        "parsing",
+        "logic",
+        "correctness",
+        "url-parsing",
+        "ssrf",
+        "ip-parsing"
+      ],
+      "kind": "must-find",
+      "severity": "error"
+    }
+  ]
+}

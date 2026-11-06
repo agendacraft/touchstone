@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "9e7783e16595aa029b3114862b53519886ee42ce9f2916264e1cc2a78341cefd",
+  "captured_at": "2026-11-06T17:58:32Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "52b87a1044b5d7e2f4fef6431e955999b9ab169b2b4fecac1a0fe3dc3f1864d8",
+        "output": "[{\"id\":\"issue-1\",\"severity\":\"error\",\"category\":\"logic\",\"file\":\"sample.go\",\"line\":4,\"title\":\"Signed integer overflow makes Less incorrect for large inputs\",\"evidence\":\"`a-b` overflows for extreme values: Less(MinInt, 5) computes MinInt-5 which wraps to a large positive number, returning false even though a \u003c b (and MinInt \u003c 5 is true). Likewise Less(MaxInt, 0) overflows and can return true despite a \u003e b. The original `a \u003c b` was correct for all inputs.\",\"confidence\":0.95}]",
+        "usage": {
+          "input_tokens": 4573,
+          "output_tokens": 176,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 364,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "9490162cd88c462ac9b116878ad26c2d9f3c678824774a09629923d05e3bc24a",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 4,\n    \"title\": \"Integer overflow in Less breaks comparison\",\n    \"evidence\": \"Replacing 'a \u003c b' with 'a-b \u003c 0' overflows on 64-bit two's-complement ints. Attacker-controlled a=math.MinInt64 (-9223372036854775808) and b=1: a \u003c b is true, but a-b wraps to +9223372036854775807, so Less returns false. The same wraparound occurs for a=math.MaxInt64 and b=-1 (a\u003cb is false but a-b wraps negative, returning true). Any sort or conditional branching on Less can thus be manipulated to produce wrong ordering or bypass comparisons.\",\n    \"confidence\": 0.95\n  }\n]",
+        "usage": {
+          "input_tokens": 4641,
+          "output_tokens": 305,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 394,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "098d6593e67b8e680f3fc056a9296fd3569d85fa8f55b0316e71d2af8519ebd6",
+        "output": "```json\n[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff changes `return a \u003c b` to `return a-b \u003c 0` in sample.go's Less. In Go, signed int arithmetic wraps on overflow. For a=MinInt, b=5: a-b = MinInt-5 wraps to a large positive value, so a-b \u003c 0 is false even though a \u003c b is true. For a=MaxInt, b=-1: a-b = MaxInt+1 wraps to MinInt (negative), so Less returns true even though a \u003e b. Attempted disproof via Go's no-overflow-guarantee for signed ints fails; the original a \u003c b had no such failure mode. Confirmed defect introduced by this diff.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same changed expression `a-b \u003c 0` in sample.go. With a=math.MinInt64 and b=1, a-b wraps to +9223372036854775807, so Less returns false though a \u003c b is true; with a=math.MaxInt64 and b=-1, a-b wraps negative and Less returns true though a \u003e b. Any caller (e.g., sort.Slice using Less) relying on a transitive, correct comparison can be fed extreme values to force wrong ordering. The security framing (attacker-controlled inputs) is plausible but secondary; the underlying incorrectness introduced by the diff is concrete and confirmed.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 5074,
+          "output_tokens": 506,
+          "cache_read_input_tokens": 4544,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 462,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

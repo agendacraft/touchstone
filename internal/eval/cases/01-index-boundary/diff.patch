@@ -1,0 +1,13 @@
+diff --git a/sample.go b/sample.go
+--- a/sample.go
++++ b/sample.go
+@@ -1,8 +1,8 @@
+ package sample
+ 
+ func At(xs []int, i int) (int, bool) {
+-	if i < 0 || i >= len(xs) {
++	if i < 0 || i > len(xs) {
+ 		return 0, false
+ 	}
+ 	return xs[i], true
+ }

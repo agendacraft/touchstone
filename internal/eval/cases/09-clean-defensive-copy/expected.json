@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "difficulty": "medium",
+  "holdout": false,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "The refactor still copies every input element before appending. Changing the result cannot change xs.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 4,
+      "end": 8,
+      "category": "aliasing",
+      "aliases": [
+        "logic",
+        "correctness",
+        "mutation",
+        "data-corruption"
+      ],
+      "kind": "must-not-flag"
+    }
+  ]
+}

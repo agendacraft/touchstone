@@ -1,0 +1,17 @@
+diff --git a/sample.go b/sample.go
+--- a/sample.go
++++ b/sample.go
+@@ -1,9 +1,9 @@
+ package sample
+ 
+ // Mean returns zero for empty input; integer truncation is intentional.
+ func Mean(xs []int) int {
+-	total := 0
+-	for _, x := range xs { total += x }
+-	if len(xs) > 0 { return total / len(xs) }
+-	return 0
++	if len(xs) == 0 { return 0 }
++	total := 0
++	for _, x := range xs { total += x }
++	return total / len(xs)
+ }

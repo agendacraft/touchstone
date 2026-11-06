@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "case_sha256": "757cca49bf7d4fce6d224a008dec1bb4e0da6bcd5bda59977239dfd880f47eb8",
+  "captured_at": "2026-11-06T17:59:28Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "337d7489c3c584e79d850db27d01911b8c2ad7a099771ecc6bb254f14e91ec5e",
+        "output": "[]",
+        "usage": {
+          "input_tokens": 4705,
+          "output_tokens": 59,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 348,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "7fc2eecdcb9ae9b7188d8aa0a865a649d791d40ad4c523ef19e8e2a464ffac0d",
+        "output": "[]\n\nThe diff rewrites `Inside` into an equivalent form: `name == root` is identical to the original equality check, and the prefix check `root+\"/\"` is unchanged. No attacker-controlled input is introduced, no paths, secrets, or authorization logic are altered, so there are no concrete exploitable defects to report.",
+        "usage": {
+          "input_tokens": 4695,
+          "output_tokens": 144,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 365,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "da9f2f8b74dda2fbeb84327802951660241acdac99581f0a8edb2ed0334a65fa",
+        "output": "The diff is a semantically equivalent refactor of `Inside` (the added `name == root` check duplicates the original first operand, and the prefix check is unchanged). No injection, authorization, path, or secret-exposure defect is introduced.\n\n[]",
+        "usage": {
+          "input_tokens": 4681,
+          "output_tokens": 166,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 368,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

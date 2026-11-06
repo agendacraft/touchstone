@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "case_sha256": "e1e1a46ed3f6af0263cf47bac7040f1b41ec6edded9d3914c40963e983b86c21",
+  "captured_at": "2026-11-06T18:10:52Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "9ce5c510c71e3449a9f6952f91b9344c193711b34467355a41148d2ab33192d9",
+        "output": "[{\"id\":\"issue-1\",\"severity\":\"error\",\"category\":\"security\",\"file\":\"Lib/ipaddress.py\",\"line\":1223,\"title\":\"Removal of leading-zero rejection reintroduces ambiguous octet parsing (bpo-36384)\",\"evidence\":\"The hunk deletes the check `if octet_str != '0' and octet_str[0] == '0': raise ValueError(\\\"Leading zeros are not permitted...\\\")`, whose comment explicitly cites security bug bpo-36384. After the change, `_parse_octet` accepts strings like '010', '001', '000' and parses them via `int(octet_str, 10)` as decimal, reintroducing the ambiguity (some libraries interpret leading-zero octets as octal, e.g. '010' as 8) that the check was added to prevent, and allowing '000' where previously only '0' was valid.\",\"confidence\":0.9}]",
+        "usage": {
+          "input_tokens": 7161,
+          "output_tokens": 246,
+          "cache_read_input_tokens": 2048,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 505,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "63edf58df19a8883bbd8f2f40ae63395a970df3caf9f4cf68b0cbc34d6feea1d",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"security\",\n    \"file\": \"Lib/ipaddress.py\",\n    \"line\": 1233,\n    \"title\": \"Reintroduces CVE-2021-29921: leading-zero IPv4 octets accepted, enabling octet misinterpretation\",\n    \"evidence\": \"The diff removes the check that rejected leading zeros in IPv4 octets (added for bpo-36384 / CVE-2021-29921). After this change, ipaddress.ip_address('011.020.1.2') and IPv4Address('017.0.0.1') parse successfully instead of raising ValueError. The int(octet_str, 10) conversion treats '017' as decimal 17, while glibc inet_pton, many URL parsers, and other consumers treat leading-zero octets as octal (017 -\u003e 15, 011.020 -\u003e 9.16). Attacker-controlled strings that pass through this parser (e.g. IPs validated by Python then used in allowlists, ACLs, or SSRF checks) can therefore resolve to a different address downstream: an attacker submits '017.0.0.1', the validator sees 17.0.0.1 and permits it, but downstream octal interpretation yields 15.0.0.1, or the validator maps a forbidden address like 0127.0.0.1 vs 127.0.0.1 consistently/unexpectedly, bypassing access control. Observable impact: access-control/SSRF filter bypass via inconsistent octet interpretation.\",\n    \"confidence\": 0.95\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 1072,
+          "output_tokens": 452,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 254,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "78745133d51af97ad424691fae62b625ab85bcab3316d499526ff8eca4e7d1f0",
+        "output": "Both findings trace to the same removed block in `Lib/ipaddress.py` (`_parse_octet`). The diff deletes the only guard against leading-zero octets (the block whose comment cites bpo-36384), and the remaining code `int(octet_str, 10)` unconditionally parses leading-zero strings as decimal, so inputs like `'017'`, `'010'`, `'000'` that previously raised `ValueError` now parse successfully. I attempted to disprove by looking for any compensating check elsewhere in the diff: none exists — the hunk only removes lines, and the length/digits/`\u003e 255` checks do not reject leading zeros. The misinterpretation scenario (decimal here vs. octal downstream) follows directly from `int(octet_str, 10)` accepting what glibc `inet_pton`-style parsers read as octal, which is exactly the ambiguity the removed check's own comment said it prevented.\n\n```json\n[\n  {\"id\": \"correctness:issue-1\", \"verdict\": \"confirmed\", \"reason\": \"The hunk in Lib/ipaddress.py `_parse_octet` deletes the check `if octet_str != '0' and octet_str[0] == '0': raise ValueError(\\\"Leading zeros are not permitted...\\\")` whose comment cites security bug bpo-36384. Attempted disproof: the diff contains no replacement guard — the remaining code is `int(octet_str, 10)` plus the `\u003e 255` range check, neither of which rejects leading zeros, and no other hunk compensates. After the change, '010', '001', and '000' are accepted and parsed as decimal (10, 1, 0) where they previously raised ValueError, reintroducing the leading-zero ambiguity the deleted check existed to prevent.\"},\n  {\"id\": \"security:issue-1\", \"verdict\": \"confirmed\", \"reason\": \"Same removal in `_parse_octet` (Lib/ipaddress.py, hunk at ~line 1223): the leading-zero rejection is deleted with no compensating validation. Evidence from the diff: the new code path is solely `octet_int = int(octet_str, 10)`, so IPv4 octets like '017' or '011' parse as decimal 17/9 instead of raising, whereas glibc inet_pton and many downstream URL/ACL parsers read the same strings as octal (15/9) — precisely the CVE-2021-29921/bpo-36384 inconsistency the removed comment references. Disproof attempts failed: the diff shows no other change that would reject these inputs, so validator-vs-downstream octal/decimal divergence on attacker-controlled strings is reintroduced by this diff.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 5413,
+          "output_tokens": 1018,
+          "cache_read_input_tokens": 4480,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 583,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "435570091aeb953aded92c15caf645ecb5dc29799fbb0ec552160f138a2a6afe",
+        "output": "```json\n[\n  {\"id\": \"correctness:issue-1\", \"verdict\": \"confirmed\", \"reason\": \"The hunk in Lib/ipaddress.py deletes the exact guard `if octet_str != '0' and octet_str[0] == '0': raise ValueError(\\\"Leading zeros are not permitted in %r\\\")` (with comment citing bpo-36384), leaving `octet_int = int(octet_str, 10)` as the only parse. Attempted disproof: I checked whether some other added code re-rejects leading zeros — the diff adds nothing, and the remaining code ('we know digits are legal', the \u003e255 check) does not. So '010'/'001'/'000' now parse as decimal 10/1/0 instead of raising. The behavior change is concrete and caused solely by this deletion.\"},\n  {\"id\": \"security:issue-1\", \"verdict\": \"confirmed\", \"reason\": \"Same deleted guard (the removed `raise ValueError` for leading-zero octets) previously made IPv4Address('017.0.0.1') raise; after the diff, `_parse_octet` returns int('017', 10) == 17. The decimal interpretation diverges from octal-interpreting consumers (017 -\u003e 15), which is precisely the CVE-2021-29921/bpo-36384 inconsistency the removed check existed to prevent, so validator-vs-downstream address confusion becomes possible again. I could not disprove this: the diff contains no replacement check, warning, or normalization, and the surviving `int(octet_str, 10)` confirms decimal parsing of leading-zero octets. The downstream-bypass scenario is an inference, but the reintroduced parsing inconsistency itself is directly evidenced by the deleted lines.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 1779,
+          "output_tokens": 1272,
+          "cache_read_input_tokens": 8256,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 462,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

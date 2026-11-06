@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "difficulty": "easy",
+  "holdout": false,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "At i == len(xs), the new bound permits an out-of-range access. The API promises false for every invalid index.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 4,
+      "end": 7,
+      "category": "bounds",
+      "aliases": [
+        "logic",
+        "correctness",
+        "off-by-one",
+        "out-of-bounds",
+        "panic"
+      ],
+      "kind": "must-find",
+      "severity": "error"
+    }
+  ]
+}

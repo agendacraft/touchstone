@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "case_sha256": "e9fc416a9c44cadfe399d1fb9edb8ad1cb65b7d78f84cf2a2da2c13d33ce321e",
+  "captured_at": "2026-11-06T18:15:47Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "75a4ac06aadb65e3f9307280da4ac78198e0aa662077a32b6b0e16729693c8c6",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 9,\n    \"title\": \"Inside now accepts sibling paths sharing a root prefix\",\n    \"evidence\": \"The change removes the root+\\\"/\\\" boundary. Inside(\\\"/home/user1\\\", \\\"/home/user10/file\\\") returns true because \\\"/home/user10/file\\\" has prefix \\\"/home/user1\\\". It also now returns true for root == \\\"/home\\\" and name == \\\"/homeSUFFIX\\\" (any sibling whose name extends the root string), violating the documented contract of accepting only root itself or descendants.\",\n    \"confidence\": 0.95\n  }\n]",
+        "usage": {
+          "input_tokens": 976,
+          "output_tokens": 210,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 199,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "999074928603b8bd05464b82dde65aec6bb18b351879d8de7b4d8e6db27265a3",
+        "output": "[{\"id\":\"issue-1\",\"severity\":\"error\",\"category\":\"path-traversal\",\"file\":\"sample.go\",\"line\":7,\"title\":\"Path prefix check drops separator, allowing sibling-directory escape\",\"evidence\":\"The check changed from `name == root || strings.HasPrefix(name, root+\\\"/\\\")` to `strings.HasPrefix(name, root)`, removing the path-separator boundary. An attacker-controlled `name` outside the root that merely shares a prefix passes: Inside(\\\"/app\\\", \\\"/application/secrets\\\") returns true because \\\"/application/secrets\\\" has prefix \\\"/app\\\". Any caller using Inside to authorize file access (per its documented contract of accepting 'only root itself or descendants') will grant access to files in sibling directories whose names share the root's prefix, a classic path-confusion escape. The removed `name == root` branch also breaks the documented case of accepting the root itself (Inside(\\\"/app\\\", \\\"/app\\\") still matches via prefix, but the intent of exact-root acceptance is now incidental).\",\"confidence\":0.95}]",
+        "usage": {
+          "input_tokens": 966,
+          "output_tokens": 284,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 213,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "a70add409236e8c17c14d23616361a71bc652679a5f62eb235f2ab6c54c10c28",
+        "output": "```json\n[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"The diff replaces `name == root || strings.HasPrefix(name, root+\\\"/\\\")` with `strings.HasPrefix(name, root)`, removing the separator boundary. The doc comment still says 'It accepts only root itself or descendants.' For Inside(\\\"/home/user1\\\", \\\"/home/user10/file\\\") the new code returns true because \\\"/home/user10/file\\\" has the string prefix \\\"/home/user1\\\", though it is a sibling descendant, contradicting the documented contract. Attempted disproof via root==\\\"/\\\" is excluded by the comment (root != \\\"/\\\"), and no other new code compensates.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same concrete change at sample.go: the old check `strings.HasPrefix(name, root+\\\"/\\\")` enforced a path-separator boundary; the new `strings.HasPrefix(name, root)` accepts any string sharing the root's prefix. Inside(\\\"/app\\\", \\\"/application/secrets\\\") now returns true even though \\\"/application/secrets\\\" is outside \\\"/app\\\", so any caller relying on Inside for access control can be tricked into authorizing sibling directories whose names extend the root string (path confusion). The exact-root case `name == root` was removed but is still matched incidentally via HasPrefix, so no functional regression there; the confirmed defect is the sibling-escape.\"},\n  {\"id\":\"correctness:issue-2\",\"verdict\":\"rejected\",\"reason\":\"No candidate with this id exists in the supplied findings file; the file contains only correctness:issue-1 and security:issue-1.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 5573,
+          "output_tokens": 450,
+          "cache_read_input_tokens": 4096,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 475,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "fe23a19810cb8a43d299afd904bcf7576626f65510d6d3cd76d9d7b34017346a",
+        "output": "```json\n[\n  {\n    \"id\": \"correctness:issue-1\",\n    \"verdict\": \"confirmed\",\n    \"reason\": \"The diff removes both the root+\\\"/\\\" separator and the exact-root check, leaving strings.HasPrefix(name, root). Old code rejected \\\"/home/user10/file\\\" for root \\\"/home/user1\\\" (no match against \\\"/home/user1/\\\" and not equal), new code accepts it since \\\"/home/user10/file\\\" starts with \\\"/home/user1\\\". This directly contradicts the doc comment stating it accepts only root itself or descendants. Sibling-prefix acceptance is concretely caused by the changed expression.\"\n  },\n  {\n    \"id\": \"security:issue-1\",\n    \"verdict\": \"confirmed\",\n    \"reason\": \"Same diff evidence: `strings.HasPrefix(name, root)` without the \\\"/\\\" boundary lets attacker-controlled names outside root pass, e.g. Inside(\\\"/app\\\", \\\"/application/secrets\\\") returns true, enabling sibling-directory escape for callers relying on the documented 'only root itself or descendants' contract. The exact-root acceptance point is secondary but accurate: `name == root` is now accepted only incidentally via HasPrefix, not by an explicit boundary check. Defect is introduced by this diff.\"\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 1477,
+          "output_tokens": 366,
+          "cache_read_input_tokens": 8256,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 262,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "case_sha256": "804783ca567ca0e103fb8481e62a3501117ae858bbef16499365257e8105239b",
+  "captured_at": "2026-11-06T18:09:48Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "3c89de3088fc5414360cd63ecbe49342ae2af44acba47dd06ef79af7a51fe8de",
+        "output": "[]",
+        "usage": {
+          "input_tokens": 948,
+          "output_tokens": 57,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 167,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "534709038516da066c2bd6aefb427303b3fbbd4cf5bd6b4c2d019203e8be1f32",
+        "output": "I reviewed the diff. It adds an explicit length check before `hmac.Equal`, which already performs a length-aware constant-time comparison internally (`subtle.ConstantTimeCompare` returns immediately for mismatched lengths, without reading the data). The change does not introduce attacker-controlled injection paths, authorization changes, path handling, or secret exposure, and it does not meaningfully weaken the comparison beyond behavior already inherent to `hmac.Equal`. No concrete exploitable defect is supported by the diff.\n\n[]",
+        "usage": {
+          "input_tokens": 4572,
+          "output_tokens": 231,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 375,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "c0b08a044d0c1aa3d623cc41c12b3e1e00185e99ed1ec41764ce2c60f61da40b",
+        "output": "[]",
+        "usage": {
+          "input_tokens": 4636,
+          "output_tokens": 84,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 349,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

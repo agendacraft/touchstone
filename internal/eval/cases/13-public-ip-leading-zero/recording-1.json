@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "case_sha256": "e1e1a46ed3f6af0263cf47bac7040f1b41ec6edded9d3914c40963e983b86c21",
+  "captured_at": "2026-11-06T18:00:14Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "9ce5c510c71e3449a9f6952f91b9344c193711b34467355a41148d2ab33192d9",
+        "output": "[{\"id\":\"issue-1\",\"severity\":\"error\",\"category\":\"security\",\"file\":\"Lib/ipaddress.py\",\"line\":1226,\"title\":\"Reintroduced leading-zero octet parsing regression (bpo-36384 / CVE-2021-29921)\",\"evidence\":\"The diff deletes the guard `if octet_str != '0' and octet_str[0] == '0': raise ValueError(...)` from _parse_octet, which was added per the deleted comment 'Handle leading zeros as strict as glibc's inet_pton() / See security bug bpo-36384'. After this change, inputs like '0123', '00', or '010' are accepted: int('0123', 10) == 123, so IPv4('192.168.012.3') parses octet '012' as 12 and ambiguous octets like '0123' are silently interpreted as decimal instead of being rejected or treated as octal like inet_pton, allowing filter/ACL bypasses that relied on strict parsing. The subsequent '\u003e 255' check does not catch this since 0123 \u003c= 255.\",\"confidence\":0.95}]",
+        "usage": {
+          "input_tokens": 4722,
+          "output_tokens": 408,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 419,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "63edf58df19a8883bbd8f2f40ae63395a970df3caf9f4cf68b0cbc34d6feea1d",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"security\",\n    \"file\": \"Lib/ipaddress.py\",\n    \"line\": 1226,\n    \"title\": \"Reintroduces CVE-2021-29921: leading zeros in IPv4 octets parsed as decimal\",\n    \"evidence\": \"The diff deletes the check that rejected leading zeros in octets (bpo-36384 / CVE-2021-29921). After the change, '0177.0.0.1' parses successfully via int(octet_str, 10) as 127.0.0.1, but many external parsers/ACLs interpret leading-zero octets as octal (0177 = 127) or reject them. This creates inconsistent interpretation of attacker-supplied IP strings between applications using ipaddress for validation and downstream components (SSRF filters, access-control allow/deny lists, log analysis), enabling authorization bypasses such as '010.0.0.1' or '0177.0.0.1' being treated as loopback/private by one parser and as a public/allowed address by another. Observable impact: ipaddress.ip_address('0177.0.0.1') now returns IPv4Address('127.0.0.1') instead of raising ValueError, so validation code relying on strict parsing accepts ambiguous inputs that were previously blocked.\"\n  },\n  {\n    \"id\": \"issue-2\",\n    \"severity\": \"warning\",\n    \"category\": \"security\",\n    \"file\": \"Lib/ipaddress.py\",\n    \"line\": 1226,\n    \"title\": \"IPv4-in-IPv6 and mapped-address validation ambiguity restored for octet strings\",\n    \"evidence\": \"With the leading-zero rejection removed, _parse_octet accepts inputs like '00' or '000' and up to three leading-zero-padded octets (e.g. '001.002.003.004'). Downstream code that compares parsed IPv4Address values to string forms, or embeds them in security decisions (e.g. checking is_private/is_loopback on addresses parsed from untrusted Host headers or X-Forwarded-For), will now process octet forms whose canonical and non-canonical representations diverge across the surrounding toolchain. Attacker-controlled input such as X-Forwarded-For: 010.000.000.001 can therefore evade exact-match denylists built on canonical strings while still resolving to a private address at parse time. Confidence moderate because exploitability depends on callers using this parser on untrusted input, which is its documented purpose.\"\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 4730,
+          "output_tokens": 665,
+          "cache_read_input_tokens": 4476,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 472,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "92911ed034f6c3086c18f814a931b7dbfae5eb1ef982dfcd4d56723712c6bb55",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"security\",\n    \"file\": \"Lib/ipaddress.py\",\n    \"line\": 1226,\n    \"title\": \"Removal of leading-zero rejection reintroduces CVE-2021-29921 IP parsing confusion\",\n    \"evidence\": \"The deleted block enforced that IPv4 octets like '017' are rejected (bpo-36384/CVE-2021-29921, added to match glibc inet_pton strictness). With the check removed, _parse_octet now accepts octet_str[0] == '0' and int(octet_str, 10) parses '017' as 17, so ipaddress.IPv4Address('017.0.0.1') returns 17.0.0.1 instead of raising. Other network layers (e.g., inet_aton-based resolvers, proxies, access-control filters) interpret leading-zero octets as octal (017 -\u003e 15), so attacker input like http://017.0.0.1/ can pass an ipaddress-based blocklist check for one host while being routed to another, enabling SSRF/authorization bypass.\",\n    \"confidence\": 0.9\n  }\n]",
+        "usage": {
+          "input_tokens": 4776,
+          "output_tokens": 414,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 424,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "251d1c86898826f1beedf766a95fad4165a79b56b49687baa3e0f8dff889f061",
+        "output": "Both findings rest on the same concrete evidence in the diff. Attempted disproof: I checked whether the surrounding code still rejects leading zeros elsewhere (e.g., the `\u003e 255` check or `int(octet_str, 10)`), but `int('017', 10) == 17` and `int('0123', 10) == 123`, so no remaining check rejects them; the deleted block was the sole guard, as shown by its removal lines and the deleted comment referencing bpo-36384. Nothing in the diff adds a replacement check.\n\n```json\n[\n  {\"id\": \"correctness:issue-1\", \"verdict\": \"confirmed\", \"reason\": \"The diff deletes the guard `if octet_str != '0' and octet_str[0] == '0': raise ValueError(...)` (and its comment citing bpo-36384) from Lib/ipaddress.py _parse_octet. The only remaining checks are len\u003e3, the \u003e255 cap, and int(octet_str, 10). Since int('0123', 10) == 123 and int('012', 10) == 12, inputs like '012', '010', '00', and '0123' are now silently accepted as decimal instead of raising. The \u003e255 check cannot catch these (123 \u003c= 255), so the diff demonstrably reintroduces the leading-zero parsing behavior the guard was added to prevent (bpo-36384/CVE-2021-29921).\"},\n  {\"id\": \"security:issue-1\", \"verdict\": \"confirmed\", \"reason\": \"Same diff evidence: removal of the leading-zero rejection in _parse_octet means '017' now passes through to int(octet_str, 10) == 17, so IPv4Address('017.0.0.1') returns 17.0.0.1 instead of raising. I looked for any compensating check in the retained code (length, \u003e255) and found none. The differential-decoding confusion with octal-interpreting consumers (017 -\u003e 15) is the documented rationale of the deleted guard, whose comment explicitly cites the security bug; the removed expressions match the claim exactly.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 5392,
+          "output_tokens": 699,
+          "cache_read_input_tokens": 4480,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 518,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "a82dc1e95b6f79a2725948c459d4f0f5075a1abf7455b622d856ef69b3c56c5c",
+        "output": "[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"The diff deletes the guard `if octet_str != '0' and octet_str[0] == '0': raise ValueError(msg % octet_str)` (with its comment referencing bpo-36384) from _parse_octet in Lib/ipaddress.py. After the change, octet_str goes directly to `int(octet_str, 10)`, so '0123' parses as 123, '012' as 12, and '017' as 17, and only the `octet_int \u003e 255` check remains. Leading-zero octets are now silently accepted and interpreted as decimal, exactly the behavior the deleted guard was added to prevent. Attempted disproof fails: no other added check in the diff compensates, and the length check only rejects octets longer than 3 characters.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same concrete diff evidence: removal of the leading-zero rejection in _parse_octet means IPv4Address('017.0.0.1') now yields 17.0.0.1 (int('017', 10) == 17) instead of raising, whereas other parsers such as inet_aton interpret '017' as octal 15. This reintroduces the decimal/octal interpretation mismatch behind CVE-2021-29921 that the deleted check (comment 'Handle leading zeros as strict as glibc's inet_pton() / See security bug bpo-36384') existed to block, enabling filter/ACL bypass scenarios. Nothing in the diff restores equivalent rejection, and the remaining length and \u003e255 checks do not prevent it.\"}\n]",
+        "usage": {
+          "input_tokens": 5470,
+          "output_tokens": 491,
+          "cache_read_input_tokens": 4544,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 482,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

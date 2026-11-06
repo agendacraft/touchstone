@@ -1,0 +1,13 @@
+diff --git a/sample.go b/sample.go
+--- a/sample.go
++++ b/sample.go
+@@ -1,8 +1,8 @@
+ package sample
+ 
+ import "time"
+ 
+ // Valid is false at or after expires.
+ func Valid(now, expires time.Time) bool {
+-	return now.Before(expires)
++	return !now.After(expires)
+ }

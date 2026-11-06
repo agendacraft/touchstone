@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "0419163aad0dcc6ffa0107a8c28f2f28c357fe9a60830c47d741dacdf671dc8a",
+  "captured_at": "2026-11-06T17:57:55Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "97945b69f106c8ef11765cdeb93dfcefa82df34e3fd3fff531abcf91eba4a0e9",
+        "output": "[{\"id\":\"issue-1\",\"severity\":\"error\",\"category\":\"logic\",\"file\":\"sample.go\",\"line\":5,\"title\":\"Authorization check inverted: OR allows anonymous owner access and non-owner edits\",\"evidence\":\"The permission function changed from `signedIn \u0026\u0026 user == owner` to `signedIn || user == owner`. With OR, an anonymous non-owner (signedIn=false, user!=\\\"owner\\\") still cannot edit only because both operands fail, but a signed-out user matching owner (signedIn=false, user==owner) or a signed-in non-owner (signedIn=true, user!=\\\"owner\\\") now gains edit rights. Signed-in non-owners being able to edit is a direct privilege-escalation break of the original AND semantics; the signed-in requirement is no longer enforced as a gate.\",\"confidence\":0.95}]",
+        "usage": {
+          "input_tokens": 4583,
+          "output_tokens": 220,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 374,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "fa3acd080195e39c2cba24c98324f782bbeb52adb66770a84e47eb4ebb75b9e8",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"authorization\",\n    \"file\": \"sample.go\",\n    \"line\": 5,\n    \"title\": \"Authorization check changed from AND to OR, allowing any signed-in user to edit anyone's content\",\n    \"evidence\": \"CanEdit previously required signedIn \u0026\u0026 user == owner. The change to signedIn || user == owner means any authenticated user (signedIn=true) can edit resources they do not own, since the OR short-circuits the ownership requirement. Attacker-controlled input: an authenticated session (signedIn=true) with user != owner. Observable impact: complete bypass of object-level ownership authorization, letting any signed-in user edit other users' content.\",\n    \"confidence\": 0.99\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 9067,
+          "output_tokens": 233,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 592,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "580ba15906b53a212cc6e308c46557f3061b404bb08e6b7c95fce9550c88da28",
+        "output": "[\n  {\n    \"id\": \"correctness:issue-1\",\n    \"verdict\": \"confirmed\",\n    \"reason\": \"The diff replaces `return signedIn \u0026\u0026 user == owner` with `return signedIn || user == owner` in sample.go:5. Attempted disproof: check whether OR preserves original semantics. It does not — for signedIn=true, user!=\\\"owner\\\" the old code returned false but the new code returns true, so a signed-in non-owner can edit, a direct logic break. Also signedIn=false, user==owner now returns true, contradicting the original signed-in gate. No counterexample in the diff supports keeping OR; both escalation cases are concrete.\"\n  },\n  {\n    \"id\": \"security:issue-1\",\n    \"verdict\": \"confirmed\",\n    \"reason\": \"Same diff evidence: sample.go line 5 changes the authorization gate from `signedIn \u0026\u0026 user == owner` to `signedIn || user == owner`. Any authenticated user with signedIn=true and user!=\\\"owner\\\" now passes CanEdit, bypassing the ownership requirement that previously returned false in that case. Attempted disproof via short-circuit or edge-case analysis fails: nothing in the diff adds a compensating check elsewhere, so the privilege-escalation impact stands.\"\n  }\n]",
+        "usage": {
+          "input_tokens": 5076,
+          "output_tokens": 377,
+          "cache_read_input_tokens": 4544,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 436,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

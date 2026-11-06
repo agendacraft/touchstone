@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "case_sha256": "9c5e6f195e1b8ff7c4835496acb6b98bf81a335c23324c36f26f69ff0d2282cb",
+  "captured_at": "2026-11-06T17:54:51Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "71469190b8922284b378eecebf1d539d11a20b44f633f96b9661f55b8363b232",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 7,\n    \"title\": \"Unknown or empty token is now authenticated as user zero\",\n    \"evidence\": \"Original code used the two-value map lookup `id, ok := users[token]; return id, ok`, so a token absent from the map returned (0, false). The new code does `id := users[token]; return id, id \u003e= 0`. A missing map key yields the zero value 0, and `0 \u003e= 0` is true, so any unknown (or empty) token authenticates successfully as user 0, which the comment states is a real account. E.g. Lookup(map[string]int{\\\"alice\\\": 1}, \\\"bob\\\") now returns (0, true) instead of (0, false).\",\n    \"confidence\": 0.98\n  }\n]",
+        "usage": {
+          "input_tokens": 5014,
+          "output_tokens": 296,
+          "cache_read_input_tokens": 4096,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 410,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "4627f3947e39248f54c33a6a00ce48bc755faf04b1ecfc6f7867f9fdbb894109",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"auth\",\n    \"file\": \"sample.go\",\n    \"line\": 7,\n    \"title\": \"Authentication bypass: any missing token authenticates as user zero\",\n    \"evidence\": \"Lookup no longer checks map presence. For any token not in the map, users[token] returns the zero value 0, and the new check `id \u003e= 0` is always true, so it returns (0, true). Since the comment states user zero is a real account, an attacker can authenticate as user 0 with any unknown token (e.g., an empty or arbitrary string). The previous code returned ok=false for missing tokens.\",\n    \"confidence\": 0.98\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 4624,
+          "output_tokens": 250,
+          "cache_read_input_tokens": 4476,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 382,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "32b219fd0c5453d944f1a0f7ea056587d39b6c637c124467755f916f3b700440",
+        "output": "Both findings describe the same defect from different angles, and the diff confirms each directly. The old code `id, ok := users[token]; return id, ok` returned `ok=false` for missing tokens. The new code `id := users[token]; return id, id \u003e= 0` yields `0` for any missing key and `0 \u003e= 0` is always true, so `Lookup(map[string]int{\"alice\": 1}, \"bob\")` returns `(0, true)`. I attempted to disprove by looking for a path where the check fails for a missing key; none exists since Go map lookups return the zero value for absent keys and all int values are `\u003e= 0` for real accounts, meaning the predicate is unconditionally true. This is a regression introduced by this diff, not pre-existing behavior.\n\n```json\n[\n  {\"id\": \"correctness:issue-1\", \"verdict\": \"confirmed\", \"reason\": \"Diff changes `id, ok := users[token]; return id, ok` to `id := users[token]; return id, id \u003e= 0`. A missing key returns the zero value 0, and 0 \u003e= 0 is true, so unknown/empty tokens now return (0, true) instead of (0, false). Attempted disproof: no missing-key path can make id \u003e= 0 false, and pre-diff code explicitly used the two-value lookup to avoid this; the regression is caused by this diff.\"},\n  {\"id\": \"security:issue-1\", \"verdict\": \"confirmed\", \"reason\": \"Same diff evidence: the new single-value lookup `id := users[token]` plus `id \u003e= 0` is unconditionally true for any absent token (zero value 0), authenticating an attacker as user 0, which the in-function comment states is a real account. The pre-diff two-value lookup returned ok=false for missing tokens; the diff removes that check, so the auth bypass is new behavior introduced here.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 5110,
+          "output_tokens": 547,
+          "cache_read_input_tokens": 4480,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 471,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "3d7fa03e598b602e680c853e56ae04d01efeebc565412bcd536d26aa5e2c3e30",
+        "output": "[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff replaces `id, ok := users[token]; return id, ok` with `id := users[token]; return id, id \u003e= 0`. In Go, a missing map key yields the zero value 0, and `0 \u003e= 0` is true, so unknown tokens (including empty) now return (0, true) instead of (0, false). The comment `user zero is a real account` confirms user 0 is a valid identity, so Lookup(map[string]int{\\\"alice\\\": 1}, \\\"bob\\\") changes from (0, false) to (0, true). Attempted disproof via a negative sentinel value (e.g., users mapping to -1) fails since the map stores user IDs where 0 is a real account, and the old code still returned ok=false for it, showing behavior changed.\"},{\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same diff evidence: `id := users[token]; return id, id \u003e= 0` drops the presence check. Any token absent from the map returns the zero value 0 with `0 \u003e= 0` true, so authentication succeeds as user 0, which the retained comment `user zero is a real account` identifies as a valid account. Previously `id, ok := users[token]` returned ok=false for missing tokens. This is an authentication bypass introduced by the changed lines in sample.go.\"}\n]",
+        "usage": {
+          "input_tokens": 622,
+          "output_tokens": 409,
+          "cache_read_input_tokens": 9024,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 229,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

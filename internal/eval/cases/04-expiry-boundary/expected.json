@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "difficulty": "medium",
+  "holdout": true,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "A credential expires at exactly expires. Changing Before to !After accepts it at the expiry instant.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 6,
+      "end": 7,
+      "category": "expiration",
+      "aliases": [
+        "logic",
+        "correctness",
+        "security",
+        "authentication",
+        "authorization",
+        "boundary",
+        "off-by-one"
+      ],
+      "kind": "must-find",
+      "severity": "warning"
+    }
+  ]
+}

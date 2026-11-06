@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "1240a125e2b08abbe8034610a202515f4048be63f17992b27dc8d10ff71eccbc",
+  "captured_at": "2026-11-06T18:19:33Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "01a6123ad3491222ad84dc7054e2d7f5fdf03f1b3eba1f2d3d471c7d4b6de016",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"Lib/urllib/parse.py\",\n    \"line\": 466,\n    \"title\": \"urlsplit no longer strips leading spaces/controls, breaking scheme parsing for URLs with leading whitespace\",\n    \"evidence\": \"The diff removes `url = url.lstrip(_WHATWG_C0_CONTROL_OR_SPACE)` from urlsplit. Previously urlsplit(' https://example.com') returned ParseResult(scheme='https', netloc='example.com', ...); without the strip, the leading space prevents scheme detection (scheme chars must be alphanumeric/+-.), so the result becomes scheme='' with the whole string as path, changing behavior for all callers relying on WHATWG stripping.\",\n    \"confidence\": 0.9\n  },\n  {\n    \"id\": \"issue-2\",\n    \"severity\": \"warning\",\n    \"category\": \"error-handling\",\n    \"file\": \"Lib/urllib/parse.py\",\n    \"line\": 467,\n    \"title\": \"scheme argument no longer sanitized, so whitespace in scheme yields invalid results\",\n    \"evidence\": \"The diff removes `scheme = scheme.strip(_WHATWG_C0_CONTROL_OR_SPACE)`. Previously urlsplit('example.com', scheme=' https') coerced the default scheme to 'https'; now the scheme is used as-is with embedded spaces/controls, producing results that downstream usesurlsplit/urlunsplit round-trips cannot handle as a valid scheme.\",\n    \"confidence\": 0.8\n  },\n  {\n    \"id\": \"issue-3\",\n    \"severity\": \"warning\",\n    \"category\": \"logic\",\n    \"file\": \"Lib/urllib/parse.py\",\n    \"line\": 466,\n    \"title\": \"Removal of stripping breaks stripping of trailing control chars except space, diverging from prior behavior\",\n    \"evidence\": \"The removed code stripped both leading and trailing C0 controls and space from url (lstrip only, but _WHATWG_C0_CONTROL_OR_SPACE included trailing handling comments; the constant covered \\\\x00-\\\\x1f and space). After removal, inputs like '\\\\x00https://example.com' or 'https://example.com\\\\x00' keep control bytes in the parsed components, whereas the unsafe-bytes removal loop below only strips \\\\t, \\\\r, \\\\n, leaving other controls embedded in netloc/path results.\",\n    \"confidence\": 0.7\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 1239,
+          "output_tokens": 768,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 327,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "82ee97c350d36b0087cb3892185d94b7b40aa0e67aa5b69363dfb5f07c469890",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"input-validation\",\n    \"file\": \"Lib/urllib/parse.py\",\n    \"line\": 466,\n    \"title\": \"urlsplit no longer strips leading C0 control characters and spaces, enabling scheme-check bypass\",\n    \"evidence\": \"The diff deletes the WHATWG stripping step in urlsplit(): 'url = url.lstrip(_WHATWG_C0_CONTROL_OR_SPACE)' and 'scheme = scheme.strip(_WHATWG_C0_CONTROL_OR_SPACE)' are removed. Consequently urlsplit(\\\" javascript:alert(1)\\\") (leading space) or urlsplit(\\\"\\\\x00javascript:...\\\") returns scheme='' with the whole string in path, instead of scheme='javascript'. Any caller that validates a URL by checking the parsed scheme (SSRF guards, blocklists for file:/gopher:/javascript:, safe-redirect handlers that compare netloc/scheme) will classify an attacker-supplied URL beginning with a space or C0 control byte as scheme-less/safe while downstream consumers (browsers, curl, requests) still strip leading whitespace/controls and execute or fetch the hidden scheme. This reintroduces the parsing-differential class fixed in CVE-2023-24329. The removal of scheme.strip likewise lets a caller-provided default scheme like ' https' pass through with a leading space, defeating exact-match scheme comparisons.\",\n    \"confidence\": 0.85\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 4941,
+          "output_tokens": 508,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 453,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "0c31f79bdd20762daf33b62c284631a097eefd274200881bb16264f846e22aef",
+        "output": "```json\n[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"The diff deletes `url = url.lstrip(_WHATWG_C0_CONTROL_OR_SPACE)` from urlsplit (removed hunk at Lib/urllib/parse.py ~line 467). Before, a leading space/C0 control was removed before parsing, so ' https://example.com' yielded scheme='https'; after the change the leading space remains, and since the scheme-detection loop only accepts letters/digits/'+-.' before ':', the result is scheme='' with the whole string as path. I tried to disprove by checking whether any other code in the diff compensates: the only remaining sanitization is the _UNSAFE_URL_BYTES_TO_REMOVE loop, which replaces only \\\\t, \\\\r, \\\\n — not space or other C0 controls. The behavior change is directly caused by the removed lines.\"},\n  {\"id\":\"correctness:issue-2\",\"verdict\":\"confirmed\",\"reason\":\"The diff deletes `scheme = scheme.strip(_WHATWG_C0_CONTROL_OR_SPACE)`. Previously urlsplit('example.com', scheme=' https') coerced the default scheme to 'https'; now ' https' is used verbatim (it is only passed through _coerce_args, which does not strip or validate characters). A scheme containing a space is invalid, so downstream urlunsplit raises ValueError ('Scheme must be alphanumeric') or scheme comparisons fail. I attempted disproof by looking for replacement sanitation in the diff: none exists — the _UNSAFE_URL_BYTES_TO_REMOVE loop only touches the url argument, not the scheme parameter. The change is directly attributable to the removed line.\"},\n  {\"id\":\"correctness:issue-3\",\"verdict\":\"rejected\",\"reason\":\"The claim's core premise is contradicted by the diff: the removed code was `url.lstrip(...)`, which only stripped LEADING characters; trailing C0 controls/space were never stripped by this line (the comment even notes trailing space was deliberately preserved). So the alleged prior stripping of trailing controls like 'https://example.com\\\\x00' never existed, and its 'loss' is not a regression from this diff. The leading-control half ('\\\\x00https://...' now keeps the control byte) is real but duplicates correctness:issue-1 and does not save the stated trailing-divergence claim.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Concrete diff evidence: both `url = url.lstrip(_WHATWG_C0_CONTROL_OR_SPACE)` and `scheme = scheme.strip(_WHATWG_C0_CONTROL_OR_SPACE)` are deleted from urlsplit, and `_WHATWG_C0_CONTROL_OR_SPACE` (covering \\\\x00-\\\\x1f and space) is removed entirely. After the change, urlsplit(' javascript:alert(1)') or urlsplit('\\\\x1ajavascript:...') yields scheme='' with the payload in path, since scheme parsing requires valid scheme chars immediately followed by ':'. This is exactly the parsing differential CVE-2023-24329 addressed (this diff is a revert of that fix): a validator that trusts the parsed scheme sees 'no scheme' while downstream consumers strip the leading whitespace/control and act on the hidden scheme. I attempted disproof by searching the diff for any substitute sanitization; only the \\\\t/\\\\r/\\\\n removal loop remains, which does not cover space or other C0 controls, so the bypass stands. The scheme.strip removal likewise lets ' https' as a caller-supplied default scheme pass through unvalidated.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 5789,
+          "output_tokens": 1203,
+          "cache_read_input_tokens": 4544,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 644,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}
