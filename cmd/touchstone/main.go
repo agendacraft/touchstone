@@ -27,7 +27,7 @@ func main() {
 		code = 3
 	}
 	if code == 3 {
-		fmt.Fprintln(stderr, "touchstone:", err)
+		_, _ = fmt.Fprintln(stderr, "touchstone:", err)
 	}
 	if code != 0 {
 		os.Exit(code)

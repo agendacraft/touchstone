@@ -46,7 +46,7 @@ func TestSIGTERMCleansUpReview(t *testing.T) {
 	defer func() {
 		_ = cmd.Process.Kill()
 		select {
-		case <-done:
+		case _ = <-done:
 		case <-time.After(5 * time.Second):
 		}
 	}()
@@ -80,7 +80,7 @@ func TestSIGTERMCleansUpReview(t *testing.T) {
 		t.Fatal(err)
 	}
 	select {
-	case <-done:
+	case _ = <-done:
 	case <-time.After(5 * time.Second):
 		t.Fatal("CLI did not exit after SIGTERM")
 	}
@@ -149,14 +149,14 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				defer input.Close()
+				defer func() { _ = input.Close() }()
 				if mode == "stdout" || mode == "stderr" || mode == "review-output" {
 					read, write, err := os.Pipe()
 					if err != nil {
 						t.Fatal(err)
 					}
-					defer read.Close()
-					defer write.Close()
+					defer func() { _ = read.Close() }()
+					defer func() { _ = write.Close() }()
 					writeFD := int(write.Fd())
 					if err := syscall.SetNonblock(writeFD, true); err != nil {
 						t.Fatal(err)
@@ -188,7 +188,7 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 				defer func() {
 					_ = cmd.Process.Kill()
 					select {
-					case <-done:
+					case _ = <-done:
 					case <-time.After(5 * time.Second):
 					}
 				}()
@@ -225,7 +225,7 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 					if err != nil {
 						t.Fatalf("open FIFO writer: %v", err)
 					}
-					defer syscall.Close(fd)
+					defer func() { _ = syscall.Close(fd) }()
 				}
 				time.Sleep(200 * time.Millisecond)
 				select {
@@ -237,7 +237,7 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 					t.Fatal(err)
 				}
 				select {
-				case <-done:
+				case _ = <-done:
 				case <-time.After(5 * time.Second):
 					t.Fatal("CLI remained blocked after signal")
 				}
@@ -278,7 +278,7 @@ func TestClosedOutputPipesExitWithError(t *testing.T) {
 			if err := read.Close(); err != nil {
 				t.Fatal(err)
 			}
-			defer write.Close()
+			defer func() { _ = write.Close() }()
 			cmd := exec.Command(binary, tc.args...)
 			cmd.Dir = dir
 			cmd.Env = append(os.Environ(), "PATH="+dir+string(os.PathListSeparator)+os.Getenv("PATH"))
@@ -294,10 +294,10 @@ func TestClosedOutputPipesExitWithError(t *testing.T) {
 			done := make(chan error, 1)
 			go func() { done <- cmd.Wait() }()
 			select {
-			case <-done:
+			case _ = <-done:
 			case <-time.After(5 * time.Second):
 				_ = cmd.Process.Kill()
-				<-done
+				_ = <-done
 				t.Fatal("CLI did not exit")
 			}
 			if cmd.ProcessState.ExitCode() != 3 {
@@ -337,7 +337,7 @@ func TestSignalUnblocksConfigFIFO(t *testing.T) {
 					defer func() {
 						_ = cmd.Process.Kill()
 						select {
-						case <-done:
+						case _ = <-done:
 						case <-time.After(5 * time.Second):
 						}
 					}()
@@ -355,7 +355,7 @@ func TestSignalUnblocksConfigFIFO(t *testing.T) {
 						if err != nil {
 							t.Fatalf("open config FIFO writer: %v", err)
 						}
-						defer syscall.Close(fd)
+						defer func() { _ = syscall.Close(fd) }()
 					}
 					time.Sleep(200 * time.Millisecond)
 					select {
@@ -367,7 +367,7 @@ func TestSignalUnblocksConfigFIFO(t *testing.T) {
 						t.Fatal(err)
 					}
 					select {
-					case <-done:
+					case _ = <-done:
 					case <-time.After(5 * time.Second):
 						t.Fatal("CLI remained blocked loading configuration")
 					}
