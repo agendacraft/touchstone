@@ -1,0 +1,8 @@
+```json
+[
+  {"id":"correctness:issue-1","verdict":"confirmed","reason":"The diff removes the guard `if len(cents) == 0 { return 0 }`, so Average([]int{}) reaches `return total / len(cents)` with len 0, a Go integer division-by-zero panic. The doc comment still says 'Average returns zero for an empty list', so the new behavior contradicts the documented contract. Attempted disproof (e.g., len>0 elsewhere) fails since no new guard or early return was added."},
+  {"id":"correctness:issue-2","verdict":"confirmed","reason":"The diff changes CanRead from `return signedIn && user == owner` to `return signedIn || user == owner`. With signedIn=true and user!=\"owner\" it now returns true (non-owner reads), and with signedIn=false and user==owner it also returns true, both violating the doc comment 'requires a signed-in user who owns the ledger'. No compensating check appears in the diff."},
+  {"id":"security:issue-1","verdict":"confirmed","reason":"Same removed guard at ledger.go: the deleted lines `if len(cents) == 0 { return 0 }` mean an empty slice reaches `total / len(cents)` with len == 0, causing an integer division-by-zero panic for any caller passing an empty list."},
+  {"id":"security:issue-2","verdict":"confirmed","reason":"The diff's `signedIn || user == owner` lets any signed-in user (regardless of 'user' vs 'owner') pass the authorization check, a direct weakening from the prior `signedIn && user == owner`; no ownership requirement remains for signed-in users."}
+]
+```

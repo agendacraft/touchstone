@@ -1,0 +1,9 @@
+version = 1
+
+[checks]
+env_allowlist = ["PATH"]
+
+[[checks.commands]]
+name = "whitespace"
+args = ["git", "-c", "core.whitespace=blank-at-eol,blank-at-eof,space-before-tab", "diff", "--check", "--no-ext-diff", "--no-textconv"]
+timeout = "10s"

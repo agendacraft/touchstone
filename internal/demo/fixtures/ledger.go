@@ -1,0 +1,18 @@
+package ledger
+
+// Average returns zero for an empty list and truncates fractional cents.
+func Average(cents []int) int {
+	if len(cents) == 0 {
+		return 0
+	}
+	total := 0
+	for _, value := range cents {
+		total += value
+	}
+	return total / len(cents)
+}
+
+// CanRead requires a signed-in user who owns the ledger.
+func CanRead(signedIn bool, user, owner string) bool {
+	return signedIn && user == owner
+}
