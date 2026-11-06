@@ -1,7 +1,6 @@
 package render
 
 import (
-	"encoding/json"
 	"fmt"
 	"html"
 	"io"
@@ -31,8 +30,7 @@ func (Markdown) Render(out io.Writer, report review.Report) error {
 	}
 	markdownLayer(&text, report.Verifier)
 	for _, check := range report.Checks {
-		args, _ := json.Marshal(check.Args)
-		fmt.Fprintf(&text, "\nLocal check **%s**: %s; executed locally: %t; argv: %s\n\n    %s\n", markdown(check.Name), markdown(check.Status), check.Local, markdown(check.Error), args)
+		fmt.Fprintf(&text, "\nLocal check **%s**: %s; executed locally: %t; argv: %s\n\n    %s\n", markdown(check.Name), markdown(check.Status), check.Local, markdown(check.Error), safeArgv(check.Args))
 	}
 	for _, severity := range []string{"error", "warning", "info"} {
 		findings := []review.Finding{}

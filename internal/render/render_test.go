@@ -2,6 +2,7 @@ package render
 
 import (
 	"bytes"
+	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"flag"
@@ -12,6 +13,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"unicode"
 
 	"github.com/agendacraft/touchstone/internal/config"
 	"github.com/agendacraft/touchstone/internal/findings"
@@ -349,5 +351,60 @@ func TestMarkdownCheckArgvRenderedAsCode(t *testing.T) {
 	const want = `["tool","a  b","tab\there","\u001b[31m","` + "```" + ` *markup* \u003cscript\u003e"]` + "\n"
 	if code.String() != want {
 		t.Fatalf("rendered code = %q, want %q", code.String(), want)
+	}
+}
+
+func TestHumanCheckArgvRoundTripsControls(t *testing.T) {
+	args := []string{"tool", "a  b", "\t\n", "\x1b[31m", "\u007f", "\u0085", "\u009b2J", "`<tag>"}
+	report := review.Report{Checks: []review.CheckResult{{Name: "fixture", Status: "pass", Local: true, Args: args}}}
+	for _, renderer := range []Renderer{Terminal{}, Markdown{}} {
+		var output bytes.Buffer
+		if err := renderer.Render(&output, report); err != nil {
+			t.Fatal(err)
+		}
+		for _, c := range output.String() {
+			if unicode.IsControl(c) && c != '\n' {
+				t.Fatalf("%T emitted raw control %U", renderer, c)
+			}
+		}
+		var encoded string
+		switch renderer.(type) {
+		case Terminal:
+			_, tail, found := strings.Cut(output.String(), " | argv: ")
+			if !found {
+				t.Fatal("terminal argv missing")
+			}
+			encoded, _, _ = strings.Cut(tail, "\n")
+		case Markdown:
+			var rendered bytes.Buffer
+			if err := goldmark.New(goldmark.WithExtensions(extension.GFM)).Convert(output.Bytes(), &rendered); err != nil {
+				t.Fatal(err)
+			}
+			decoder := xml.NewDecoder(strings.NewReader("<root>" + rendered.String() + "</root>"))
+			var stack []string
+			for {
+				token, err := decoder.Token()
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					t.Fatal(err)
+				}
+				switch token := token.(type) {
+				case xml.StartElement:
+					stack = append(stack, token.Name.Local)
+				case xml.EndElement:
+					stack = stack[:len(stack)-1]
+				case xml.CharData:
+					if len(stack) >= 2 && stack[len(stack)-2] == "pre" && stack[len(stack)-1] == "code" {
+						encoded += string(token)
+					}
+				}
+			}
+		}
+		var decoded []string
+		if err := json.Unmarshal([]byte(encoded), &decoded); err != nil || !slices.Equal(decoded, args) {
+			t.Fatalf("%T argv %q decoded as %#v: %v", renderer, encoded, decoded, err)
+		}
 	}
 }

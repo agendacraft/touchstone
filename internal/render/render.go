@@ -99,6 +99,19 @@ func confidence(value float64) string {
 	return strconv.FormatFloat(value, 'f', -1, 64)
 }
 
+func safeArgv(args []string) string {
+	data, _ := json.Marshal(args)
+	var result strings.Builder
+	for _, c := range string(data) {
+		if unicode.IsControl(c) {
+			fmt.Fprintf(&result, "\\u%04x", c)
+		} else {
+			result.WriteRune(c)
+		}
+	}
+	return result.String()
+}
+
 func plain(value string) string {
 	value = strings.Map(func(c rune) rune {
 		if unicode.IsControl(c) {

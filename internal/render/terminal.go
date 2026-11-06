@@ -1,7 +1,6 @@
 package render
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -25,8 +24,7 @@ func (r Terminal) Render(out io.Writer, report review.Report) error {
 		s.Shown, s.Rejected, s.Filtered, s.MinSeverity, confidence(s.MinConfidence))
 	writeLayerStatus(&text, report)
 	for _, check := range report.Checks {
-		args, _ := json.Marshal(check.Args)
-		fmt.Fprintf(&text, "  Local check %s: %s | executed locally: %t | argv: %s", plain(check.Name), plain(check.Status), check.Local, string(args))
+		fmt.Fprintf(&text, "  Local check %s: %s | executed locally: %t | argv: %s", plain(check.Name), plain(check.Status), check.Local, safeArgv(check.Args))
 		if check.Error != "" {
 			fmt.Fprintf(&text, " (%s)", plain(check.Error))
 		}
