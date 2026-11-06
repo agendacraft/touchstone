@@ -259,3 +259,34 @@ func TestMarkdownDisplaysIDsInEverySection(t *testing.T) {
 		}
 	}
 }
+
+func TestHumanConfidencePrecision(t *testing.T) {
+	report := syntheticReport(false)
+	report.Findings[0].Confidence = 0.804
+	report.Findings[1].Confidence = 0.803
+	report.Rejected[0].Confidence = 0.8030000000000002
+	report = review.Triage(report, config.Thresholds{MinSeverity: "info", MinConfidence: 0.804})
+	if len(report.Findings) != 1 || len(report.Filtered) != 2 {
+		t.Fatalf("unexpected filtering: %+v", report)
+	}
+	for _, tc := range []struct {
+		name     string
+		renderer Renderer
+		values   []string
+	}{
+		{"terminal", Terminal{}, []string{"confidence: 0.804)", "confidence 0.804 |", "confidence 0.803 |", "confidence 0.8030000000000002 |", "Filtered (below thresholds):"}},
+		{"markdown", Markdown{}, []string{"confidence ≥ 0.804.", "confidence: 0.804;", "confidence: 0.803;", "confidence: 0.8030000000000002;", "Filtered findings (below thresholds)"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var out bytes.Buffer
+			if err := tc.renderer.Render(&out, report); err != nil {
+				t.Fatal(err)
+			}
+			for _, value := range tc.values {
+				if !strings.Contains(out.String(), value) {
+					t.Fatalf("missing %q in %s", value, out.String())
+				}
+			}
+		})
+	}
+}

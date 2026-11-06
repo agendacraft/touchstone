@@ -17,8 +17,8 @@ func (r Terminal) Render(out io.Writer, report review.Report) error {
 		fmt.Fprintln(&text, banner)
 	}
 	s := summary(report)
-	fmt.Fprintf(&text, "%d shown | %d rejected | %d filtered (min severity: %s, confidence: %.2f)\n",
-		s.Shown, s.Rejected, s.Filtered, s.MinSeverity, s.MinConfidence)
+	fmt.Fprintf(&text, "%d shown | %d rejected | %d filtered (min severity: %s, confidence: %s)\n",
+		s.Shown, s.Rejected, s.Filtered, s.MinSeverity, confidence(s.MinConfidence))
 	writeLayerStatus(&text, report)
 	for _, f := range report.Findings {
 		fmt.Fprintln(&text)
@@ -62,7 +62,7 @@ func (r Terminal) finding(text *strings.Builder, f review.Finding) {
 		marker = "\x1b[" + color + "m" + marker + "\x1b[0m"
 	}
 	fmt.Fprintf(text, "  %s [%s] %s %s\n", marker, plain(f.DisplayID), plain(location(f)), plain(f.Title))
-	fmt.Fprintf(text, "    confidence %.2f | %s | layer: %s\n", f.Confidence, plain(f.Verification.Verdict), plain(f.Layer))
+	fmt.Fprintf(text, "    confidence %s | %s | layer: %s\n", confidence(f.Confidence), plain(f.Verification.Verdict), plain(f.Layer))
 	fmt.Fprintf(text, "    Evidence: %s\n", short(f.Evidence))
 	if f.Verification.Reason != "" {
 		fmt.Fprintf(text, "    Verifier: %s\n", short(f.Verification.Reason))

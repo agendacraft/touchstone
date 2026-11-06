@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | 2 | 1 | 1 |
 
-Thresholds: severity ≥ warning; confidence ≥ 0.70.
+Thresholds: severity ≥ warning; confidence ≥ 0.7.
 
 | Layer | Status | Error |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 ### WARNING
 
 - **f3 — src/read.go:14**: Synthetic partial-read
-  - Severity: warning; confidence: 0.80; verdict: uncertain; layer: correctness.
+  - Severity: warning; confidence: 0.8; verdict: uncertain; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: The diff supports this verdict.
 
@@ -32,7 +32,7 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 <summary>Rejected findings (verifier reasons) (1)</summary>
 
 - **f2 — src/calc.go:3**: Synthetic old-behavior
-  - Severity: error; confidence: 0.70; verdict: rejected; layer: correctness.
+  - Severity: error; confidence: 0.7; verdict: rejected; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: This behavior existed before the synthetic diff.
 
@@ -42,7 +42,7 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 <summary>Filtered findings (below thresholds) (1)</summary>
 
 - **f4 — src/read.go:20**: Synthetic small-risk
-  - Severity: info; confidence: 0.30; verdict: confirmed; layer: correctness.
+  - Severity: info; confidence: 0.3; verdict: confirmed; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: The diff supports this verdict.
 

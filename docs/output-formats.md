@@ -15,7 +15,7 @@ Example excerpt from an incomplete review:
 ```text
 Touchstone: incomplete
 INCOMPLETE: a specialist layer or required verifier failed; this is not a clean review.
-2 shown | 1 rejected | 1 filtered (min severity: warning, confidence: 0.70)
+2 shown | 1 rejected | 1 filtered (min severity: warning, confidence: 0.7)
   correctness: complete
   security: incomplete (timeout)
   verifier: complete
@@ -88,7 +88,7 @@ Example excerpt suitable for copying into a PR comment:
 | --- | --- | --- |
 | 2 | 1 | 1 |
 
-Thresholds: severity ≥ warning; confidence ≥ 0.70.
+Thresholds: severity ≥ warning; confidence ≥ 0.7.
 
 | Layer | Status | Error |
 | --- | --- | --- |
@@ -107,7 +107,7 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 <summary>Rejected findings (verifier reasons) (1)</summary>
 
 - **f2 — src/calc.go:3**: Synthetic old-behavior
-  - Severity: error; confidence: 0.70; verdict: rejected; layer: correctness.
+  - Severity: error; confidence: 0.7; verdict: rejected; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: This behavior existed before the synthetic diff.
 

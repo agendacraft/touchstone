@@ -1,5 +1,5 @@
 Touchstone: findings
-3 shown | 1 rejected | 1 filtered (min severity: warning, confidence: 0.70)
+3 shown | 1 rejected | 1 filtered (min severity: warning, confidence: 0.7)
   correctness: complete
   security: complete
   verifier: complete
@@ -17,18 +17,18 @@ Touchstone: findings
     Possible duplicate of: f1
 
   [33m[WARNING][0m [f4] src/read.go:14 Synthetic partial-read
-    confidence 0.80 | uncertain | layer: correctness
+    confidence 0.8 | uncertain | layer: correctness
     Evidence: The synthetic change removes a required guard.
     Verifier: The diff supports this verdict.
 
 Rejected (verifier audit):
   [31m[ERROR][0m [f2] src/calc.go:3 Synthetic old-behavior
-    confidence 0.70 | rejected | layer: correctness
+    confidence 0.7 | rejected | layer: correctness
     Evidence: The synthetic change removes a required guard.
     Verifier: This behavior existed before the synthetic diff.
 
 Filtered (below thresholds):
   [36m[INFO][0m [f5] src/read.go:20 Synthetic small-risk
-    confidence 0.30 | confirmed | layer: correctness
+    confidence 0.3 | confirmed | layer: correctness
     Evidence: The synthetic change removes a required guard.
     Verifier: The diff supports this verdict.

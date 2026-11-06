@@ -20,7 +20,7 @@ func (Markdown) Render(out io.Writer, report review.Report) error {
 	s := summary(report)
 	fmt.Fprintf(&text, "\n| Shown | Rejected | Filtered |\n| --- | --- | --- |\n| %d | %d | %d |\n",
 		s.Shown, s.Rejected, s.Filtered)
-	fmt.Fprintf(&text, "\nThresholds: severity ≥ %s; confidence ≥ %.2f.\n", markdown(s.MinSeverity), s.MinConfidence)
+	fmt.Fprintf(&text, "\nThresholds: severity ≥ %s; confidence ≥ %s.\n", markdown(s.MinSeverity), confidence(s.MinConfidence))
 	fmt.Fprintln(&text, "\n| Layer | Status | Error |\n| --- | --- | --- |")
 	for _, layer := range report.Layers {
 		markdownLayer(&text, layer)
@@ -53,8 +53,8 @@ func markdownLayer(text *strings.Builder, layer review.LayerResult) {
 
 func markdownFinding(text *strings.Builder, f review.Finding) {
 	fmt.Fprintf(text, "\n- **%s — %s**: %s\n", markdown(f.DisplayID), markdown(location(f)), markdown(f.Title))
-	fmt.Fprintf(text, "  - Severity: %s; confidence: %.2f; verdict: %s; layer: %s.\n",
-		markdown(f.Severity), f.Confidence, markdown(f.Verification.Verdict), markdown(f.Layer))
+	fmt.Fprintf(text, "  - Severity: %s; confidence: %s; verdict: %s; layer: %s.\n",
+		markdown(f.Severity), confidence(f.Confidence), markdown(f.Verification.Verdict), markdown(f.Layer))
 	fmt.Fprintf(text, "  - Evidence: %s\n", markdown(f.Evidence))
 	if f.Verification.Reason != "" {
 		fmt.Fprintf(text, "  - Verifier: %s\n", markdown(f.Verification.Reason))

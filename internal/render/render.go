@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -84,6 +85,10 @@ func unverified(f review.Finding) bool {
 
 func location(f review.Finding) string {
 	return fmt.Sprintf("%s:%d", f.File, f.Line)
+}
+
+func confidence(value float64) string {
+	return strconv.FormatFloat(value, 'f', -1, 64)
 }
 
 func plain(value string) string {
