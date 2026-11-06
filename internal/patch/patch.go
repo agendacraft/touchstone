@@ -22,8 +22,6 @@ func Split(data []byte) ([]File, error) {
 	var block bytes.Buffer
 	var hunk hunkState
 	sawNewHeader := false
-	mail := formatMessageStart(bytes.SplitN(data, []byte("\n"), 2)[0])
-	inMessage, inPatch := mail, !mail
 	finish := func() error {
 		if len(bytes.TrimSpace(block.Bytes())) == 0 {
 			return nil
@@ -37,33 +35,6 @@ func Split(data []byte) ([]File, error) {
 		return nil
 	}
 	for line := range bytes.Lines(data) {
-		if mail && !hunk.active() && formatMessageStart(bytes.TrimRight(line, "\r\n")) {
-			if err := finish(); err != nil {
-				return nil, err
-			}
-			inMessage, inPatch = true, false
-			hunk, sawNewHeader = hunkState{}, false
-			continue
-		}
-		if inMessage {
-			if bytes.Equal(bytes.TrimRight(line, "\r\n"), []byte("---")) {
-				inMessage = false
-			}
-			continue
-		}
-		if mail && !inPatch {
-			if !bytes.HasPrefix(line, []byte("diff --git ")) {
-				continue
-			}
-			inPatch = true
-		}
-		if mail && !hunk.active() && bytes.Equal(bytes.TrimRight(line, "\r\n"), []byte("-- ")) {
-			if err := finish(); err != nil {
-				return nil, err
-			}
-			inPatch = false
-			continue
-		}
 		gitHeader := bytes.HasPrefix(line, []byte("diff --git "))
 		plainHeader := !hunk.active() && sawNewHeader && bytes.HasPrefix(line, []byte("--- "))
 		if gitHeader || plainHeader {
@@ -84,17 +55,17 @@ func Split(data []byte) ([]File, error) {
 	return files, nil
 }
 
-func formatMessageStart(line []byte) bool {
-	const suffix = " Mon Sep 17 00:00:00 2001"
-	if !bytes.HasPrefix(line, []byte("From ")) || !bytes.HasSuffix(line, []byte(suffix)) {
+func IsMailbox(data []byte) bool {
+	line, _, _ := bytes.Cut(data, []byte("\n"))
+	if !bytes.HasPrefix(line, []byte("From ")) {
 		return false
 	}
-	id := line[len("From ") : len(line)-len(suffix)]
-	if len(id) != 40 && len(id) != 64 {
+	id, _, found := bytes.Cut(line[len("From "):], []byte(" "))
+	if !found || (len(id) != 40 && len(id) != 64) {
 		return false
 	}
 	for _, c := range id {
-		if !('0' <= c && c <= '9') && !('a' <= c && c <= 'f') {
+		if !('0' <= c && c <= '9') && !('a' <= c && c <= 'f') && !('A' <= c && c <= 'F') {
 			return false
 		}
 	}

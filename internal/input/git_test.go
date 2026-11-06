@@ -225,7 +225,7 @@ func TestGitIncludesIgnoredSubmodulePointerChanges(t *testing.T) {
 	}
 }
 
-func TestReadFormatPatchWithPathFiltering(t *testing.T) {
+func TestReadFormatPatchPreservesInput(t *testing.T) {
 	dir := testutil.Repo(t)
 	testutil.Write(t, dir, "keep.txt", "old\n")
 	testutil.Write(t, dir, "skip.txt", "old\n")
@@ -238,9 +238,8 @@ func TestReadFormatPatchWithPathFiltering(t *testing.T) {
 	testutil.Write(t, filepath.Dir(file), filepath.Base(file), data)
 	for _, name := range []string{"-", file} {
 		result, err := Read(context.Background(), name, strings.NewReader(data), len(data), []string{"skip.txt"})
-		files, splitErr := patch.Split(result.Data)
-		if err != nil || splitErr != nil || len(files) != 1 || files[0].Path != "keep.txt" || strings.Contains(string(result.Data), "skip.txt") || !strings.Contains(string(result.Data), "+new") {
-			t.Fatalf("format-patch filtering for %s: %s %v %v", name, result.Data, err, splitErr)
+		if err != nil || string(result.Data) != data {
+			t.Fatalf("format-patch input for %s: %s %v", name, result.Data, err)
 		}
 	}
 }

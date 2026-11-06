@@ -14,6 +14,9 @@ type Terminal struct{ Color bool }
 func (r Terminal) Render(out io.Writer, report review.Report) error {
 	var text strings.Builder
 	fmt.Fprintf(&text, "Touchstone: %s\n", report.Outcome)
+	for _, notice := range report.Notices {
+		fmt.Fprintln(&text, plain(notice))
+	}
 	for _, banner := range banners(report) {
 		fmt.Fprintln(&text, banner)
 	}

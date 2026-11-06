@@ -15,6 +15,7 @@ import (
 	"github.com/agendacraft/touchstone/internal/agent"
 	"github.com/agendacraft/touchstone/internal/config"
 	"github.com/agendacraft/touchstone/internal/findings"
+	"github.com/agendacraft/touchstone/internal/patch"
 )
 
 const MaxDiffBytes = config.DefaultMaxDiffBytes
@@ -68,6 +69,7 @@ type LayerResult struct {
 // Report is the versioned CLI review contract, separate from the legacy adapter.
 // IDs remain scoped to their source group and layer, including rejected findings.
 type Report struct {
+	Notices       []string      `json:"notices,omitempty"`
 	SchemaVersion int           `json:"schema_version"`
 	Outcome       string        `json:"outcome"`
 	Findings      []Finding     `json:"findings"`
@@ -101,6 +103,13 @@ func (r Runner) Run(ctx context.Context, diff []byte, cfg config.Config) (Report
 	}
 	if len(bytes.TrimSpace(diff)) == 0 {
 		return EmptyReport(), nil
+	}
+	if patch.IsMailbox(diff) {
+		report, err := r.runSingle(ctx, diff, cfg)
+		if err == nil {
+			report.Notices = append(report.Notices, "Per-path rules were not applied to mailbox input.")
+		}
+		return report, err
 	}
 	if cfg.HasPaths() {
 		return r.runGroups(ctx, diff, cfg)

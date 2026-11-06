@@ -179,19 +179,20 @@ func TestFormatPatchMessagesAtReviewBoundary(t *testing.T) {
 		testutil.Write(t, dir, name, "changed\n")
 		testutil.Commit(t, dir, parent)
 		tree := testutil.Git(t, dir, "rev-parse", "HEAD^{tree}")
-		parent = testutil.Git(t, dir, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit-tree", tree, "-p", parent, "-m", "change "+name, "-m", "Quoted example:\ndiff --git a/phantom b/phantom\n--- a/phantom\n+++ b/phantom")
+		parent = testutil.Git(t, dir, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit-tree", tree, "-p", parent, "-m", "change "+name, "-m", "Quoted example:\n---\ndiff --git a/phantom b/phantom\n--- a/phantom\n+++ b/phantom")
 		testutil.Git(t, dir, "update-ref", "HEAD", parent)
 	}
 	input := testutil.Git(t, dir, "format-patch", "--stdout", base+"..HEAD") + "\n"
 	file := filepath.Join(dir, "input.patch")
 	testutil.Write(t, dir, "input.patch", input)
+	testutil.Write(t, dir, config.FileName, "[[paths]]\npattern = \"*.txt\"\n[paths.layers.correctness]\nenabled = false\n")
 	var calls atomic.Int32
 	fake := agent.Fake{Respond: func(_ context.Context, request agent.Request) (agent.Result, error) {
 		data, err := os.ReadFile(filepath.Join(request.WorkingDirectory, "diff.patch"))
 		if err != nil {
 			t.Error(err)
 		}
-		if !strings.Contains(string(data), "first.txt") || !strings.Contains(string(data), "second.txt") || strings.Contains(string(data), "phantom") {
+		if string(data) != input {
 			t.Errorf("message text or patches misclassified: %s", data)
 		}
 		calls.Add(1)
@@ -200,8 +201,15 @@ func TestFormatPatchMessagesAtReviewBoundary(t *testing.T) {
 	for _, name := range []string{"-", file} {
 		before := calls.Load()
 		report, code, diagnostic := runSyntheticReview(t, []string{"--cwd", dir, "--diff", name}, input, fake)
-		if code != 0 || report.Outcome != "clean" || calls.Load()-before != 2 {
+		if code != 0 || report.Outcome != "clean" || calls.Load()-before != 2 || len(report.Notices) != 1 || !strings.Contains(report.Notices[0], "Per-path rules were not applied") {
 			t.Fatalf("format-patch %s: %+v %d %s", name, report, code, diagnostic)
+		}
+	}
+	for _, format := range []string{"terminal", "markdown"} {
+		var out bytes.Buffer
+		err := RunContext(context.Background(), []string{"review", "--cwd", dir, "--diff", "-", "--format", format}, strings.NewReader(input), &out, io.Discard, "test", fake)
+		if err != nil || !strings.Contains(out.String(), "Per-path rules were not applied") {
+			t.Fatalf("missing notice in %s: %s %v", format, out.String(), err)
 		}
 	}
 }

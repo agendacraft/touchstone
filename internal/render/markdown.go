@@ -15,6 +15,9 @@ type Markdown struct{}
 func (Markdown) Render(out io.Writer, report review.Report) error {
 	var text strings.Builder
 	fmt.Fprintf(&text, "## Touchstone review: %s\n", markdown(report.Outcome))
+	for _, notice := range report.Notices {
+		fmt.Fprintf(&text, "\n%s\n", markdown(notice))
+	}
 	for _, banner := range banners(report) {
 		fmt.Fprintf(&text, "\n> **%s**\n", markdown(banner))
 	}
