@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "9c5e6f195e1b8ff7c4835496acb6b98bf81a335c23324c36f26f69ff0d2282cb",
+  "captured_at": "2026-11-06T18:13:56Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "71469190b8922284b378eecebf1d539d11a20b44f633f96b9661f55b8363b232",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 8,\n    \"title\": \"Missing token reported as authenticated user 0\",\n    \"confidence\": 0.95,\n    \"evidence\": \"The map lookup now ignores the presence flag: for a token not in users, users[token] returns 0, and `id \u003e= 0` is true, so Lookup returns (0, true) for any unknown token. Previously the `ok` flag correctly returned false for missing tokens.\"\n  },\n  {\n    \"id\": \"issue-2\",\n    \"severity\": \"error\",\n    \"category\": \"boundary\",\n    \"file\": \"sample.go\",\n    \"line\": 8,\n    \"title\": \"User ID 0 can never authenticate as a real account\",\n    \"confidence\": 0.95,\n    \"evidence\": \"The function's own doc comment states 'user zero is a real account', yet the new return `id \u003e= 0` is false for id == 0, so any valid user mapped to 0 now returns false even when present in the map.\"\n  }\n]",
+        "usage": {
+          "input_tokens": 918,
+          "output_tokens": 342,
+          "cache_read_input_tokens": 8192,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 223,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "4627f3947e39248f54c33a6a00ce48bc755faf04b1ecfc6f7867f9fdbb894109",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"auth-bypass\",\n    \"file\": \"sample.go\",\n    \"line\": 7,\n    \"title\": \"Any token authenticates as user zero\",\n    \"evidence\": \"Lookup previously returned users[token] with existence via ok. The new code drops the map lookup check: an unknown token yields the zero value 0 (since a missing key returns 0 for int), and 0 \u003e= 0 is true, so Lookup returns (0, true) for any attacker-supplied string. The comment states user zero is a real account, so an arbitrary forged token authenticates as that user.\",\n    \"confidence\": 0.98\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 912,
+          "output_tokens": 255,
+          "cache_read_input_tokens": 8188,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 205,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "d821e4cb3afa11e9ef0f6dcb026bdd60483d41e062b8cca4a3a3456f415396ab",
+        "output": "[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff replaces `id, ok := users[token]; return id, ok` with `id := users[token]; return id, id \u003e= 0`. For a token absent from the map, Go returns the zero value 0, and 0 \u003e= 0 is true, so Lookup returns (0, true) instead of the old (0, false). Attempted disproof failed: no other code path checks key presence, so the missing-token case is genuinely misreported as authenticated.\"},\n  {\"id\":\"correctness:issue-2\",\"verdict\":\"rejected\",\"reason\":\"Contradicted by the diff itself: the new expression is `id \u003e= 0`, which is true for id == 0 (0 \u003e= 0), not false. A user mapped to 0 is returned as (0, true), so user zero is not excluded. The finding's premise that `id \u003e= 0` is false at id == 0 is factually wrong.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same concrete evidence: the diff drops the existence flag. An arbitrary unknown token yields users[token] == 0 and `id \u003e= 0` evaluates true, so Lookup returns (0, true) for any string. Since the function's own comment states user zero is a real account, any forged token now authenticates as user 0, a behavior change from the old `ok`-based return. Attempted disproof found no remaining presence check or token validation in the changed code.\"}\n]",
+        "usage": {
+          "input_tokens": 1430,
+          "output_tokens": 479,
+          "cache_read_input_tokens": 8256,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 282,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

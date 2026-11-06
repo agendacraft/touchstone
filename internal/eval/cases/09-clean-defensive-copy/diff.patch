@@ -1,0 +1,13 @@
+diff --git a/sample.go b/sample.go
+--- a/sample.go
++++ b/sample.go
+@@ -1,6 +1,8 @@
+ package sample
+ 
+ // WithMarker returns an independent copy followed by a marker.
+ func WithMarker(xs []int) []int {
+-	return append(append([]int(nil), xs...), 7)
++	out := make([]int, len(xs), len(xs)+1)
++	copy(out, xs)
++	return append(out, 7)
+ }

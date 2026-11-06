@@ -1,0 +1,10 @@
+diff --git a/sample.go b/sample.go
+--- a/sample.go
++++ b/sample.go
+@@ -1,5 +1,5 @@
+ package sample
+ 
+ func CanEdit(signedIn bool, user, owner string) bool {
+-	return signedIn && user == owner
++	return signedIn || user == owner
+ }

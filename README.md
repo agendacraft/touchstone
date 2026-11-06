@@ -21,7 +21,7 @@ Verification is model judgment, not proof of correctness.
   may incur charges. Follow Factory's authentication instructions; never put
   credentials in `touchstone.toml`.
 
-Building, running `version`, `config validate`, or `demo --replay`, and the default test suite do
+Building, running `version`, `config validate`, `demo --replay`, or `eval --replay`, and the default test suite do
 **not** need Droid, an account, or live model calls. The adapter was probed against
 Droid 1.4.1; see [verified capabilities and limits](docs/droid-capabilities.md).
 
@@ -80,6 +80,22 @@ Touchstone: findings
     Evidence: The len(cents) == 0 guard was removed, so Average([]) now computes total / len(cents) with len == 0, causing an integer division-by-zero panic in any caller passing an empty led...
     Verifier: Same removed guard at ledger.go: the deleted lines `if len(cents) == 0 { return 0 }` mean an empty slice reaches `total / len(cents)` with len == 0, causing an integer division-...
 ```
+
+## Measure review quality
+
+```sh
+go build -o /tmp/touchstone ./cmd/touchstone
+/tmp/touchstone eval --replay --baseline internal/eval/baseline.json
+```
+
+The 14-case public corpus includes five clean changes, subtle synthetic bugs,
+and two reversed public CPython fixes. Three repetitions report precision,
+recall, severity accuracy, clean-code noise, verifier impact, and incomplete
+rate, with holdout scores and repeat spreads. Replay is explicitly recorded
+and needs no credentials. Known invalid model outputs remain incomplete
+(exit 2); baseline regressions exit 1. Live runs are manual and may incur charges.
+See [eval format, matching, baseline, and external sets](docs/evals.md) and
+[the measured baseline](docs/eval-baseline.md).
 
 ## Build and review
 

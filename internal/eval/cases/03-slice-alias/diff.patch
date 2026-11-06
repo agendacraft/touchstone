@@ -1,0 +1,11 @@
+diff --git a/sample.go b/sample.go
+--- a/sample.go
++++ b/sample.go
+@@ -1,6 +1,6 @@
+ package sample
+ 
+ // WithMarker returns a copy and must not change xs or its backing array.
+ func WithMarker(xs []int) []int {
+-	return append(append([]int(nil), xs...), 7)
++	return append(xs, 7)
+ }

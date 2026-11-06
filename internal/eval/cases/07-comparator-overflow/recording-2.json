@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "9e7783e16595aa029b3114862b53519886ee42ce9f2916264e1cc2a78341cefd",
+  "captured_at": "2026-11-06T18:07:35Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "52b87a1044b5d7e2f4fef6431e955999b9ab169b2b4fecac1a0fe3dc3f1864d8",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 4,\n    \"title\": \"Replaced comparison overflows for extreme values\",\n    \"evidence\": \"Changing `a \u003c b` to `a-b \u003c 0` fails when the subtraction overflows int: for example Less(math.MaxInt64, math.MinInt64+1) should be false, but a-b wraps to 0 so it returns true; conversely Less(math.MinInt64, math.MaxInt64) should be true but a-b wraps to 1, returning false.\",\n    \"confidence\": 1.0\n  }\n]",
+        "usage": {
+          "input_tokens": 4644,
+          "output_tokens": 206,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 373,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "9490162cd88c462ac9b116878ad26c2d9f3c678824774a09629923d05e3bc24a",
+        "output": "[]",
+        "usage": {
+          "input_tokens": 9050,
+          "output_tokens": 50,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 554,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "fe1d6be3a5cbcab7a7e3001c66858f5c2769e5231f7ae14e084a2c36aa218891",
+        "output": "[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff replaces `return a \u003c b` with `return a-b \u003c 0` in sample.go Less(). In Go, int subtraction wraps on overflow (two's complement, no trap). Less(math.MaxInt64, math.MinInt64+1): true a-b is 2^64-2, which wraps to -2, so -2 \u003c 0 returns true, but MaxInt64 \u003e MinInt64+1 so the correct answer is false. Less(math.MinInt64, math.MaxInt64): a-b is -(2^64-1), which wraps to 1, so 1 \u003c 0 returns false, but MinInt64 \u003c MaxInt64 so the correct answer is true. Both extreme-value cases give wrong results; ordinary non-overflowing inputs behave identically, so the defect is specific to the changed expression. The candidate's intermediate value 'wraps to 0' for the first example is slightly off (it wraps to -2), but the claimed incorrect return value (true) is correct.\"}\n]",
+        "usage": {
+          "input_tokens": 4844,
+          "output_tokens": 610,
+          "cache_read_input_tokens": 4480,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 468,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

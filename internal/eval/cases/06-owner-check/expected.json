@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "difficulty": "easy",
+  "holdout": false,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "A signed-in non-owner is now authorized. Both authentication and ownership were required.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 3,
+      "end": 4,
+      "category": "authorization",
+      "aliases": [
+        "security",
+        "logic",
+        "correctness",
+        "auth",
+        "access-control",
+        "authorization-bypass"
+      ],
+      "kind": "must-find",
+      "severity": "error"
+    }
+  ]
+}

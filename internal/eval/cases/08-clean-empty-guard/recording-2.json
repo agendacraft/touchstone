@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "case_sha256": "a83264be46a6a787d17816fd810421f62ce0c9d8b83c99f3f221a6abd03184cf",
+  "captured_at": "2026-11-06T18:08:17Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "10175eab50dafc98429be7d94f9b1b8029ed03d5fd0d4317db7f9697d5991b12",
+        "output": "No behavioral defect: the refactor reorders the empty-input guard but produces identical results for all inputs (empty returns 0; non-empty returns `total/len(xs)` with the same truncation semantics).\n\n[]",
+        "usage": {
+          "input_tokens": 1015,
+          "output_tokens": 100,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 180,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "925ce35f9ee21a099b8aa22f1651b8174de3dc95696d6aa267a62aa41e279666",
+        "output": "[]",
+        "usage": {
+          "input_tokens": 311,
+          "output_tokens": 61,
+          "cache_read_input_tokens": 8896,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 139,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "6bfcdd4bc5d8ca1ba9b081190ad79086b8be01bb5ffe6c1fba7cd5bad35474c9",
+        "output": "[]",
+        "usage": {
+          "input_tokens": 4639,
+          "output_tokens": 58,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 344,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

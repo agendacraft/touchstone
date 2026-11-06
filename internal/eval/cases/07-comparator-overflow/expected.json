@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "difficulty": "hard",
+  "holdout": true,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "For a=max int and b=-1, subtraction overflows and reverses the ordering. The old direct comparison is safe for all ints.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 3,
+      "end": 4,
+      "category": "overflow",
+      "aliases": [
+        "integer-overflow",
+        "logic",
+        "correctness",
+        "sorting",
+        "arithmetic"
+      ],
+      "kind": "must-find",
+      "severity": "error"
+    }
+  ]
+}

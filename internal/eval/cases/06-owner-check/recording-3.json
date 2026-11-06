@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "0419163aad0dcc6ffa0107a8c28f2f28c357fe9a60830c47d741dacdf671dc8a",
+  "captured_at": "2026-11-06T18:16:39Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "97945b69f106c8ef11765cdeb93dfcefa82df34e3fd3fff531abcf91eba4a0e9",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 5,\n    \"title\": \"Authorization check flipped from AND to OR, allowing unauthorized edits\",\n    \"evidence\": \"Original: `return signedIn \u0026\u0026 user == owner`. New: `return signedIn || user == owner`. Any signed-in user can now edit resources they do not own (signedIn=true, user!=\\\"owner\\\" returns true), and a signed-out user who matches owner (signedIn=false, user==owner) also returns true. Both are authorization bypasses.\",\n    \"confidence\": 0.99\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 4944,
+          "output_tokens": 208,
+          "cache_read_input_tokens": 4096,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 389,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "fa3acd080195e39c2cba24c98324f782bbeb52adb66770a84e47eb4ebb75b9e8",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"authorization\",\n    \"file\": \"sample.go\",\n    \"line\": 5,\n    \"title\": \"Authorization check inverted: any signed-in user can edit anything\",\n    \"evidence\": \"CanEdit changed from `signedIn \u0026\u0026 user == owner` to `signedIn || user == owner`. With `\u0026\u0026` replaced by `||`, any authenticated user (`signedIn=true`) is granted edit rights regardless of whether they are the owner, so `CanEdit(true, \\\"attacker\\\", \\\"victim\\\")` returns true. This is an ownership/authorization bypass on every caller that gates edits with this function.\",\n    \"confidence\": 1.0\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 4651,
+          "output_tokens": 220,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 378,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "30d08f27a329b36b440fd96ee246de975106db418180f8b0becb7ad9ba7498b2",
+        "output": "```json\n[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff shows line 3 changed from `return signedIn \u0026\u0026 user == owner` to `return signedIn || user == owner`. Attempted disproof fails: with signedIn=true and user!=\\\"owner\\\", old code returned false, new code returns true (auth bypass for non-owners); with signedIn=false and user==owner, old code returned false, new code returns true (edit allowed while signed out). Both cases are behavior changes caused solely by this diff.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same concrete change in sample.go line 3: `\u0026\u0026` replaced by `||`. CanEdit(true, \\\"attacker\\\", \\\"victim\\\") evaluates signedIn=true short-circuits the OR and returns true, whereas the old `\u0026\u0026` required user==owner. Authorization bypass confirmed by the diff; disproof attempts only find cases where the new code grants access the old code denied.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 1308,
+          "output_tokens": 311,
+          "cache_read_input_tokens": 8256,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 241,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

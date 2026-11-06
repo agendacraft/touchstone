@@ -1,0 +1,15 @@
+diff --git a/sample.go b/sample.go
+--- a/sample.go
++++ b/sample.go
+@@ -1,8 +1,8 @@
+ package sample
+ 
+ // Average accepts 1..100 values in 0..1000, truncating toward zero.
+ func Average(xs []int) int {
+-	sum := 0
+-	for _, x := range xs { sum += x }
+-	return sum / len(xs)
++	total := 0
++	for _, x := range xs { total += x }
++	return total / len(xs)
+ }

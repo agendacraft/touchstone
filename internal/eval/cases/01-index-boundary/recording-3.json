@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "54f7dc6dd3a8a7575e32054bee46271de6cad06a946827376d499f2335184fc0",
+  "captured_at": "2026-11-06T18:13:20Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "d186c9cdec4620a7a94e1faa26b2d3367c44d8aad9527501d67b405ad9485595",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 5,\n    \"title\": \"Off-by-one allows out-of-bounds index access\",\n    \"evidence\": \"The bounds check changed from `i \u003e= len(xs)` to `i \u003e len(xs)`, so calling At with i == len(xs) passes the guard and executes `return xs[i], true`, which panics with index out of range (valid indices are 0..len(xs)-1). Example: At([]int{1,2,3}, 3) now panics instead of returning (0, false).\",\n    \"confidence\": 0.99\n  }\n]",
+        "usage": {
+          "input_tokens": 4615,
+          "output_tokens": 229,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 377,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "1d6c54f3bc0ad02cbe3836a81c31c9cfea573133b7b9260a330f5754897c3ac8",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 4,\n    \"title\": \"Off-by-one allows index == len(xs), causing slice bounds panic\",\n    \"evidence\": \"The bounds check changed from `i \u003e= len(xs)` to `i \u003e len(xs)`, so `At(xs, len(xs))` now passes the guard and executes `xs[i]`, panicking with 'index out of range' at runtime. Any caller passing a user-controlled index equal to the slice length (e.g., validating an element position before access) can crash the process with a panic instead of receiving (0, false).\",\n    \"confidence\": 0.98\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 4605,
+          "output_tokens": 254,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 382,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "f39043c81c9c7561ec6f673ec38c8d7232cd11b050f4ba6c54383bd45f07b4f2",
+        "output": "[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff changes the guard from `i \u003c 0 || i \u003e= len(xs)` to `i \u003c 0 || i \u003e len(xs)` in sample.go's At. With i == len(xs), the new condition `i \u003e len(xs)` is false while the old `i \u003e= len(xs)` was true, so execution now reaches `return xs[i], true`. Valid indices are 0..len(xs)-1, so xs[len(xs)] panics with index out of range. Attempted disproof failed: len(xs)==0 gives i==0, and `xs[0]` on an empty slice also panics, so the empty-slice case doesn't rescue it; for i \u003c len(xs) behavior is unchanged.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same diff evidence: guard loosened from `i \u003e= len(xs)` to `i \u003e len(xs)` in sample.go line 4, so At(xs, len(xs)) passes the bounds check and evaluates xs[i], panicking with 'index out of range' instead of returning (0, false). The panic on an attacker-influenced index is a real crash-inducing behavior change introduced by this diff; attempted disproof via empty-slice (len 0, i 0) also panics, so no path avoids it.\"}\n]",
+        "usage": {
+          "input_tokens": 3478,
+          "output_tokens": 394,
+          "cache_read_input_tokens": 6144,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 362,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

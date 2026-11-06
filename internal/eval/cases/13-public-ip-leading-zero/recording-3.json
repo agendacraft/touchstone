@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "e1e1a46ed3f6af0263cf47bac7040f1b41ec6edded9d3914c40963e983b86c21",
+  "captured_at": "2026-11-06T18:19:01Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "9ce5c510c71e3449a9f6952f91b9344c193711b34467355a41148d2ab33192d9",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"warning\",\n    \"category\": \"logic\",\n    \"file\": \"Lib/ipaddress.py\",\n    \"line\": 1226,\n    \"title\": \"Removal of leading-zero rejection reintroduces ambiguous octet parsing\",\n    \"evidence\": \"The deleted guard (`if octet_str != '0' and octet_str[0] == '0': raise ValueError(...)` referencing bpo-36384) previously rejected octets like '010', '001', and '0_1' before `int(octet_str, 10)`. After the change, `_parse_octet('010')` silently returns 10 and `'0_1'` returns 1 via `int(octet_str, 10)` (Python int literals allow underscores), so IPv4 strings with leading-zero octets now parse successfully with decimal interpretation. This is the exact behavior the referenced security fix was added to prevent, and callers relying on the previous ValueError (e.g., strict address validation) now observe a successful parse instead of an error.\",\n    \"confidence\": 0.75\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 1074,
+          "output_tokens": 974,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 358,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "63edf58df19a8883bbd8f2f40ae63395a970df3caf9f4cf68b0cbc34d6feea1d",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"security\",\n    \"file\": \"Lib/ipaddress.py\",\n    \"line\": 1226,\n    \"title\": \"Removal of leading-zero rejection reintroduces CVE-2021-29921 (bpo-36384)\",\n    \"evidence\": \"The diff deletes the check that raises ValueError when an IPv4 octet has a leading zero (the fix for bpo-36384 / CVE-2021-29921, kept 'as strict as glibc's inet_pton()'). With the check gone, _parse_octet parses octets via int(octet_str, 10), so strings like '0x7f.0x00.0x00.0x01'? No—decimal only, but '127.000.000.001' and '08.08.08.008' now parse to 127.0.0.1 and 8.8.8.8 instead of raising. Attackers can supply IP strings with leading zeros to bypass access-control/SSRF filters that compare the textual form (e.g. blocklist matches '127.0.0.1' but the request resolves '127.000.000.001' to loopback), causing requests to reach hosts the application intended to block. Observable impact: IPv4Address('010.0.0.1') now succeeds (equals 10.0.0.1) where it previously raised ValueError, and ipaddress.ip_address('127.000.000.001') yields loopback.\",\n    \"confidence\": 0.95\n  }\n]",
+        "usage": {
+          "input_tokens": 1064,
+          "output_tokens": 446,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 252,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "2ed8176533e31cd81176da8b1e7b059e7dcca7f4fe12932cc0f34fde9cd43934",
+        "output": "```json\n[\n  {\n    \"id\": \"correctness:issue-1\",\n    \"verdict\": \"confirmed\",\n    \"reason\": \"The diff at Lib/ipaddress.py, _parse_octet, deletes exactly the guard 'if octet_str != '0' and octet_str[0] == '0': raise ValueError(\\\"Leading zeros are not permitted...\\\")' (the bpo-36384 fix). No replacement check appears anywhere in the diff; the only remaining validation is the \u003e3-characters check and 'int(octet_str, 10)'. Attempted disproof: I looked for compensating logic in the changed hunks and found none. After the change, '010' is not rejected and int('010', 10) yields 10; '0_1' is not rejected and int('0_1', 10) yields 1 (Python 3 allows underscores between digits in int() with an explicit base), so IPv4 octets that previously raised ValueError now parse silently. The diff cannot show the surrounding callers, but the deletion alone is sufficient evidence for the parsing-regression claim.\"\n  },\n  {\n    \"id\": \"security:issue-1\",\n    \"verdict\": \"confirmed\",\n    \"reason\": \"Same concrete diff evidence: the hunk removes the glibc-inet_pton-strict leading-zero rejection (comment references security bug bpo-36384 / CVE-2021-29921), leaving only the length check and 'octet_int = int(octet_str, 10)'. Therefore IPv4Address('127.000.000.001') now parses to 127.0.0.1 and '08.08.08.008' to 8.8.8.8 where the old code raised ValueError; '010.0.0.1' equals 10.0.0.1. Attempted disproof: no new normalization or rejection of leading zeros exists in the diff, and the candidate's own aside correctly retracts the hex-octet claim ('0x7f...' would fail the digits check before this point anyway). The specific SSRF/allowlist-bypass scenario is downstream and application-dependent, but the reintroduced behavior that enables it is directly evidenced by the deleted lines, so the finding stands.\"\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 1703,
+          "output_tokens": 1026,
+          "cache_read_input_tokens": 8256,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 408,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

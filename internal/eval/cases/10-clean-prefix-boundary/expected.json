@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "difficulty": "medium",
+  "holdout": true,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "The guard excludes lexical prefix siblings. Inputs are explicitly clean absolute paths, without symlinks; root is neither slash nor trailing-slash.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 7,
+      "end": 10,
+      "category": "path-traversal",
+      "aliases": [
+        "security",
+        "logic",
+        "correctness",
+        "input-validation"
+      ],
+      "kind": "must-not-flag"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+diff --git a/sample.go b/sample.go
+--- a/sample.go
++++ b/sample.go
+@@ -1,9 +1,10 @@
+ package sample
+ 
+ import "strings"
+ 
+ // Inside receives clean absolute slash paths, no symlinks, root != "/".
+ // Root has no trailing slash. It accepts only root itself or descendants.
+ func Inside(root, name string) bool {
+-	return name == root || strings.HasPrefix(name, root+"/")
++	if name == root { return true }
++	return strings.HasPrefix(name, root+"/")
+ }

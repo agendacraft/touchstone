@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "difficulty": "easy",
+  "holdout": false,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "Returning early on empty input preserves the promised zero result and prevents division by zero.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 5,
+      "end": 9,
+      "category": "logic",
+      "aliases": [
+        "correctness",
+        "panic",
+        "division-by-zero"
+      ],
+      "kind": "must-not-flag"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "case_sha256": "f945ef6dcaf7c441887fa62568de213355b7dc82821666ae43ef6a92bda24f0b",
+  "captured_at": "2026-11-06T17:55:32Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "2bbe744c925a750d6605f9e38085119951193323eeb5d47ad10ef55dcc620d5a",
+        "output": "[{\"id\":\"issue-1\",\"severity\":\"error\",\"category\":\"logic\",\"file\":\"sample.go\",\"line\":6,\"title\":\"Mutates caller's slice by writing into its spare capacity\",\"evidence\":\"The change replaces a defensive copy (append([]int(nil), xs...)) with append(xs, 7). When xs has unused capacity (len \u003c cap, e.g. xs := make([]int, 1, 2)), append writes 7 into xs[len(xs)] of the shared backing array. The doc comment states the function 'must not change xs or its backing array', so this is an observable violation: the caller's backing array is modified, and any other slice aliasing that array sees the value 7 appear.\",\"confidence\":0.95}]",
+        "usage": {
+          "input_tokens": 4997,
+          "output_tokens": 206,
+          "cache_read_input_tokens": 4096,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 391,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "4e1dce98bf9eeff16bd68c53bd2e1bffc8daa28d3978ed138d9f4b8afed909c6",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 7,\n    \"title\": \"append on caller's slice mutates shared backing array, violating the documented no-mutation contract\",\n    \"evidence\": \"The doc comment states WithMarker \\\"must not change xs or its backing array\\\", and the old code copied xs into a fresh nil slice before appending. The new code calls append(xs, 7) directly; when cap(xs) \u003e len(xs), the element after xs's length is overwritten in place and the returned slice aliases the caller's backing array. Attacker-controlled or upstream input that shares the buffer observes corruption: for s := make([]int, 1, 2); s[0]=1; _ = WithMarker(s), the slice extended as s[:2] now contains 7, and any aliasing slice (including future appends by the caller) sees the mutated value. This also breaks the copy semantics for any caller holding another view of the same array.\",\n    \"confidence\": 0.95\n  }\n]",
+        "usage": {
+          "input_tokens": 4667,
+          "output_tokens": 314,
+          "cache_read_input_tokens": 4416,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 397,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "af3bf0c1a9dc4c112a1804ae142b7e2bb85149cbec26d573b88c02bd1d321530",
+        "output": "Both findings describe the same concrete regression: the diff removes the defensive copy and appends directly to the caller's slice, violating the documented contract when `cap(xs) \u003e len(xs)`.\n\n```json\n[\n  {\n    \"id\": \"correctness:issue-1\",\n    \"verdict\": \"confirmed\",\n    \"reason\": \"The diff changes `return append(append([]int(nil), xs...), 7)` to `return append(xs, 7)`. The old code copied xs into a fresh backing array, so the caller's array was untouched. The new code appends in place whenever cap(xs) \u003e len(xs): for xs := make([]int, 1, 2), append writes 7 into xs[1] of the caller's backing array, so a slice xs[:2] or any alias sees 7. This directly contradicts the doc comment in the same hunk: \\\"WithMarker returns a copy and must not change xs or its backing array\\\". Disproof attempts fail: no capacity check or copy remains in the new expression, and the documented contract is part of the supplied diff itself.\"\n  },\n  {\n    \"id\": \"security:issue-1\",\n    \"verdict\": \"confirmed\",\n    \"reason\": \"Same root cause as issue-1, with correct evidence. The new `append(xs, 7)` at sample.go line 7 aliases the caller's backing array and overwrites the element at index len(xs) in place when spare capacity exists, while the diff's doc comment requires \\\"must not change xs or its backing array\\\". The example (s := make([]int, 1, 2); s[0]=1; WithMarker(s) leaving s[:2][1] == 7) follows directly from Go append semantics shown in the changed expression. The only overstatement is the speculative framing about attacker-controlled input; the underlying contract violation and shared-buffer mutation are real and caused by this diff, so the finding stands.\"\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 5130,
+          "output_tokens": 539,
+          "cache_read_input_tokens": 4480,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 470,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "7f9a9b31ba5c92221e922436a0798281ff94cb2293f7e38d8b8dac4d9a7cb774",
+        "output": "```json\n[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff replaces the defensive copy append(append([]int(nil), xs...), 7) with append(xs, 7). When cap(xs) \u003e len(xs), append writes 7 into the caller's backing array at index len(xs) without allocating, violating the doc comment 'must not change xs or its backing array'. E.g. make([]int, 1, 2): xs[:2] becomes {1, 7} after the call. Attempted disproof: appending cannot mutate if cap == len, but the diff cannot guarantee that, so the mutation path is real and observable through aliased slices.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same diff evidence as issue-1: the new append(xs, 7) aliases and mutates the caller's backing array whenever spare capacity exists, contradicting the documented contract on the preceding unchanged line. The concrete example (make([]int, 1, 2); s[:2] observes 7) follows directly from append semantics. I discount the speculative 'attacker-controlled input' framing as unproven from the diff alone, but the core defect (in-place mutation of a shared buffer breaking the documented copy semantics) is confirmed.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 5130,
+          "output_tokens": 374,
+          "cache_read_input_tokens": 4544,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 438,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

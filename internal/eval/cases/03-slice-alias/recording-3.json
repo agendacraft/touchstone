@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "case_sha256": "f945ef6dcaf7c441887fa62568de213355b7dc82821666ae43ef6a92bda24f0b",
+  "captured_at": "2026-11-06T18:14:26Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "2bbe744c925a750d6605f9e38085119951193323eeb5d47ad10ef55dcc620d5a",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 6,\n    \"title\": \"WithMarker mutates the caller's slice backing array\",\n    \"evidence\": \"The old code copied xs into a fresh slice via append([]int(nil), xs...) before appending 7, so the input was never modified. The new code returns append(xs, 7), which writes 7 into xs's backing array whenever cap(xs) \u003e len(xs). Example failure: s := make([]int, 1, 2); s[0] = 1; _ = WithMarker(s); s now has length 1 but its backing array holds {1, 7}, so a subsequent s = append(s, 99) yields [1 7 99] instead of [1 99]. This directly violates the documented contract 'must not change xs or its backing array'.\",\n    \"confidence\": 0.99\n  }\n]",
+        "usage": {
+          "input_tokens": 4572,
+          "output_tokens": 285,
+          "cache_read_input_tokens": 4436,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 386,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "4e1dce98bf9eeff16bd68c53bd2e1bffc8daa28d3978ed138d9f4b8afed909c6",
+        "output": "```json\n[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"sample.go\",\n    \"line\": 6,\n    \"title\": \"append(xs, 7) mutates the caller's backing array, violating the documented contract\",\n    \"evidence\": \"The doc comment states WithMarker 'must not change xs or its backing array', and the old code guaranteed this by copying (append(append([]int(nil), xs...), 7)). The new code returns append(xs, 7): when cap(xs) \u003e len(xs), the element at xs[len(xs)] is overwritten in place. Example: s := make([]int, 1, 2); s[0] = 1; WithMarker(s); then s[1] == 7 and WithMarker(s)[0] == 7 on the second call, so the caller's data is visibly corrupted. This is also the classic append-aliasing vector when a larger slice is passed by a caller who later re-slices it.\",\n    \"confidence\": 0.95\n  }\n]\n```",
+        "usage": {
+          "input_tokens": 948,
+          "output_tokens": 318,
+          "cache_read_input_tokens": 8128,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 219,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "927858fe1a95517f67f2152f5332d9b18bff7bec18894e01ac755fbab8dad033",
+        "output": "Both candidate findings describe the same defect from different layers, and the diff supports both. The old code `append(append([]int(nil), xs...), 7)` first copies `xs` into a fresh slice, so writing `7` never touches the caller's backing array. The new code `append(xs, 7)` writes `7` at `xs[len(xs)]` in place whenever `cap(xs) \u003e len(xs)`, which contradicts the doc comment \"must not change xs or its backing array\". I attempted to disprove by looking for a way the new code could still copy; it cannot, since `xs` is appended directly with no nil-copy step. The example scenarios (caller's slice corrupted, later appends or re-slices seeing `7`) follow directly from Go append semantics.\n\n[{\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Diff changes 'return append(append([]int(nil), xs...), 7)' to 'return append(xs, 7)'. The old form copied xs into a fresh slice before appending 7; the new form appends in place, so when cap(xs) \u003e len(xs) the 7 is written into xs's backing array at xs[len(xs)], mutating caller-visible state. This directly violates the doc comment 'must not change xs or its backing array'. No interpretation of append(xs, 7) avoids the in-place write when spare capacity exists, so the finding cannot be disproved.\"},{\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same concrete diff evidence at sample.go line 6: 'append(xs, 7)' overwrites the element just past len(xs) in the caller's backing array whenever cap(xs) \u003e len(xs), whereas the removed code 'append(append([]int(nil), xs...), 7)' always copied first. This is the classic append-aliasing corruption the doc comment ('must not change xs or its backing array') explicitly forbids; a caller re-slicing or appending to the original slice observes the injected 7. The violation is caused by this diff, not pre-existing behavior.\"}]",
+        "usage": {
+          "input_tokens": 5150,
+          "output_tokens": 564,
+          "cache_read_input_tokens": 4480,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 477,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      },
+      {
+        "request_sha256": "93791cca1fb2d20b59db55a0ddb7b174b33229da4d2f49dfd15d99ff326536bb",
+        "output": "[\n  {\"id\":\"correctness:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"The diff replaces the copying `append(append([]int(nil), xs...), 7)` with `return append(xs, 7)`. When cap(xs) \u003e len(xs), append writes 7 into xs's existing backing array instead of a fresh one, mutating caller-visible data (e.g. s = make([]int, 1, 2); WithMarker(s) leaves s's backing array holding 7 at index 1). This breaks the documented contract on line 3: 'must not change xs or its backing array'. Attempted disproof failed: no copy remains in the new code and the doc comment still forbids mutation, so the defect is caused by this diff.\"},\n  {\"id\":\"security:issue-1\",\"verdict\":\"confirmed\",\"reason\":\"Same changed expression `return append(xs, 7)` (sample.go, line 6) overwrites xs[len(xs)] in place whenever spare capacity exists, violating the doc comment 'must not change xs or its backing array'. The old code's nil-slice copy prevented this; the new code does not, and a caller re-slicing or re-appending its slice observes corrupted values (e.g. WithMarker(s) twice makes later reads see 7 in positions beyond the original length). Concrete diff evidence supports the finding; no pre-existing or speculative element remains.\"}\n]",
+        "usage": {
+          "input_tokens": 5676,
+          "output_tokens": 397,
+          "cache_read_input_tokens": 4096,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 470,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "difficulty": "medium",
+  "holdout": false,
+  "source": "Original synthetic case, Apache-2.0, Touchstone contributors (2026).",
+  "rationale": "The explicit length check agrees with hmac.Equal, which already returns false for unequal lengths. Constant-time content comparison is preserved for equal-length inputs.",
+  "findings": [
+    {
+      "file": "sample.go",
+      "start": 6,
+      "end": 8,
+      "category": "timing",
+      "aliases": [
+        "security",
+        "cryptography",
+        "logic",
+        "correctness"
+      ],
+      "kind": "must-not-flag"
+    }
+  ]
+}

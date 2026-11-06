@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "case_sha256": "1240a125e2b08abbe8034610a202515f4048be63f17992b27dc8d10ff71eccbc",
+  "captured_at": "2026-11-06T18:12:03Z",
+  "policy": {
+    "correctness": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "security": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    },
+    "verification": {
+      "Enabled": true,
+      "Model": "glm-5.3-flash",
+      "ReasoningEffort": "low",
+      "Autonomy": "off",
+      "Timeout": 300000000000,
+      "ReadOnly": true,
+      "Rules": null
+    }
+  },
+  "turns": {
+    "correctness": [
+      {
+        "request_sha256": "01a6123ad3491222ad84dc7054e2d7f5fdf03f1b3eba1f2d3d471c7d4b6de016",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"logic\",\n    \"file\": \"Lib/urllib/parse.py\",\n    \"line\": 466,\n    \"title\": \"urlsplit no longer strips leading C0 controls and spaces, breaking parsing of padded URLs\",\n    \"evidence\": \"The diff removes `url = url.lstrip(_WHATWG_C0_CONTROL_OR_SPACE)` from urlsplit. Previously `urlsplit(' https://example.com/path')` returned ParseResult(scheme='https', netloc='example.com', path='/path'); after this change the leading space is kept, so scheme becomes '' and the whole string lands in path (with netloc extracted oddly or not at all), silently changing results for any caller passing whitespace-padded URLs, a common case when URLs come from user input or config files. The removed comment explicitly documented this stripping behavior.\",\n    \"confidence\": 0.9\n  },\n  {\n    \"id\": \"issue-2\",\n    \"severity\": \"error\",\n    \"category\": \"security\",\n    \"file\": \"Lib/urllib/parse.py\",\n    \"line\": 466,\n    \"title\": \"Removal of leading-control stripping reintroduces scheme-confusion / SSRF-style parsing hazards\",\n    \"evidence\": \"The deleted `url.lstrip(_WHATWG_C0_CONTROL_OR_SPACE)` call was a hardening measure (WHATWG basic URL parser strips leading C0/space). Inputs like '\\\\x0bhttps://example.com' or ' javascript:alert(1)' were previously normalized before scheme detection; now the control/space character is part of the parsed URL, so scheme detection and safety checks that compare `scheme` (e.g., blocking 'javascript:' or validating 'https') can misclassify a dangerous URL as scheme-less/other. This weakens callers that relied on urlsplit's normalization.\",\n    \"confidence\": 0.75\n  },\n  {\n    \"id\": \"issue-3\",\n    \"severity\": \"warning\",\n    \"category\": \"error-handling\",\n    \"file\": \"Lib/urllib/parse.py\",\n    \"line\": 466,\n    \"title\": \"Default scheme argument is no longer sanitized, allowing invalid schemes with embedded whitespace\",\n    \"evidence\": \"The diff removes `scheme = scheme.strip(_WHATWG_C0_CONTROL_OR_SPACE)`. A call like urlsplit('example.com/path', scheme=' https ') previously normalized the default scheme to 'https'; now the result carries scheme=' https ' including spaces, which is invalid per RFC 3986 and will produce malformed output from urlunsplit or downstream consumers that assume scheme characters are legal.\",\n    \"confidence\": 0.7\n  }\n]",
+        "usage": {
+          "input_tokens": 1169,
+          "output_tokens": 1037,
+          "cache_read_input_tokens": 8184,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 377,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "security": [
+      {
+        "request_sha256": "82ee97c350d36b0087cb3892185d94b7b40aa0e67aa5b69363dfb5f07c469890",
+        "output": "[\n  {\n    \"id\": \"issue-1\",\n    \"severity\": \"error\",\n    \"category\": \"input-validation\",\n    \"file\": \"Lib/urllib/parse.py\",\n    \"line\": 468,\n    \"title\": \"urlsplit no longer strips leading C0 controls and spaces, enabling scheme-confusion blocklist bypass\",\n    \"evidence\": \"The diff removes _WHATWG_C0_CONTROL_OR_SPACE and the url.lstrip(...)/scheme.strip(...) calls in urlsplit(). Attacker-controlled URLs like ' http://evil.com' or '\\\\x01http://internal' are no longer normalized before parsing, so the resulting scheme differs from what browsers/WHATWG parsers produce (urlsplit(' http://x').scheme returns '' instead of 'http', and the netloc/path split changes). Any caller (SSRF guard, URL allowlist, scheme check such as 'if urlparse(url).scheme != \\\"https\\\": block') that validates the parsed result can be bypassed by prefixing the URL with a leading space or C0 control character, since the validator sees a different scheme/host than the downstream consumer. This reintroduces the CVE-2023-24329-class parsing divergence.\",\n    \"confidence\": 0.92\n  }\n]",
+        "usage": {
+          "input_tokens": 1612,
+          "output_tokens": 590,
+          "cache_read_input_tokens": 12992,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 373,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ],
+    "verification": [
+      {
+        "request_sha256": "b5347b544a6b1fc0541778e9c89018fe7561d589457e9c8759c49ffd86edbabf",
+        "output": "```json\n[\n  {\"id\": \"correctness:issue-1\", \"verdict\": \"confirmed\", \"reason\": \"The diff deletes `url = url.lstrip(_WHATWG_C0_CONTROL_OR_SPACE)` from urlsplit (and the _WHATWG_C0_CONTROL_OR_SPACE definition at the top of Lib/urllib/parse.py). Previously a leading space/control was stripped before parsing, so ' https://example.com/path' parsed with scheme='https' and netloc='example.com'. After the change the leading space remains, ' https' contains characters outside the URL scheme allowlist so scheme detection fails, and since the string no longer starts with '//' the netloc detection also fails, leaving the entire URL in path. This is a direct, evidence-backed behavior change of this diff, not pre-existing behavior.\"},\n  {\"id\": \"correctness:issue-2\", \"verdict\": \"confirmed\", \"reason\": \"The deleted lines were exactly the normalization step (lstrip of C0 controls/space) that ran before scheme detection in urlsplit. With the diff, '\\\\x0bhttps://example.com' or ' javascript:...' keep the leading character, so the parsed .scheme is '' instead of the real scheme. Any downstream check comparing parsed scheme (e.g., blocklisting 'javascript' or requiring 'https') now sees a different value than before the diff and than WHATWG-conformant parsers. The hazard is a plausible and documented consequence (this is the CVE-2023-24329 hardening being removed), directly traceable to the changed expressions, though exploitability depends on callers — the core behavioral regression itself is certain.\"},\n  {\"id\": \"correctness:issue-3\", \"verdict\": \"confirmed\", \"reason\": \"The diff removes `scheme = scheme.strip(_WHATWG_C0_CONTROL_OR_SPACE)`. Previously urlsplit('example.com/path', scheme=' https ') coerced the default scheme to 'https'; now the scheme argument is used verbatim, so the result carries scheme=' https ' with embedded whitespace, which violates RFC 3986 scheme syntax and propagates to urlunsplit output. The behavior change is directly caused by the deleted line; severity is lower since it requires a caller to pass an unsanitized default scheme, matching the warning level.\"},\n  {\"id\": \"security:issue-1\", \"verdict\": \"confirmed\", \"reason\": \"Same root cause as the correctness findings: the diff removes _WHATWG_C0_CONTROL_OR_SPACE and the lstrip/strip calls in urlsplit. Concretely, before the diff urlsplit(' http://x').scheme == 'http'; after the diff the space is retained, scheme detection fails (' http' has an invalid scheme character), and netloc detection also fails, so scheme='' and the full string sits in path. This parser divergence from browsers/WHATWG is exactly the class of scheme-confusion bypass that the removed code (added for CVE-2023-24329) prevented, so validators comparing parsed scheme/host can be bypassed by a leading space or C0 control. Confirmed as a security regression introduced by this diff; actual bypass requires a caller with such a validator, which the finding correctly frames.\"}\n]\n```",
+        "usage": {
+          "input_tokens": 2052,
+          "output_tokens": 1108,
+          "cache_read_input_tokens": 8256,
+          "cache_creation_input_tokens": 0,
+          "factory_credits": 445,
+          "thinking_tokens": 0
+        },
+        "cost": null
+      }
+    ]
+  }
+}
