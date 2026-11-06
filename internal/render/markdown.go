@@ -1,6 +1,7 @@
 package render
 
 import (
+	"encoding/json"
 	"fmt"
 	"html"
 	"io"
@@ -26,6 +27,10 @@ func (Markdown) Render(out io.Writer, report review.Report) error {
 		markdownLayer(&text, layer)
 	}
 	markdownLayer(&text, report.Verifier)
+	for _, check := range report.Checks {
+		args, _ := json.Marshal(check.Args)
+		fmt.Fprintf(&text, "\nLocal check **%s**: %s; executed locally: %t; argv: %s. %s\n", markdown(check.Name), markdown(check.Status), check.Local, markdown(string(args)), markdown(check.Error))
+	}
 	for _, severity := range []string{"error", "warning", "info"} {
 		findings := []review.Finding{}
 		for _, f := range report.Findings {
@@ -48,7 +53,11 @@ func (Markdown) Render(out io.Writer, report review.Report) error {
 }
 
 func markdownLayer(text *strings.Builder, layer review.LayerResult) {
-	fmt.Fprintf(text, "| %s | %s | %s |\n", markdown(layer.Name), markdown(layer.Status), markdown(layer.Error))
+	name := layer.Name
+	if layer.Group != "" {
+		name += " [" + layer.Group + "]"
+	}
+	fmt.Fprintf(text, "| %s | %s | %s |\n", markdown(name), markdown(layer.Status), markdown(layer.Error))
 }
 
 func markdownFinding(text *strings.Builder, f review.Finding) {

@@ -52,6 +52,8 @@ type document struct {
 	Layers  map[string]override `toml:"layers"`
 	Paths   []pathRule          `toml:"paths"`
 	Output  Thresholds          `toml:"output"`
+	Input   Input               `toml:"input"`
+	Checks  Checks              `toml:"checks"`
 }
 
 type Thresholds struct {
@@ -74,12 +76,14 @@ type Config struct {
 	layers map[string]Layer
 	paths  []pathRule
 	output Thresholds
+	input  Input
+	checks Checks
 }
 
 var layerNames = []string{"correctness", "security", "verification"}
 
 func Defaults() Config {
-	c := Config{layers: make(map[string]Layer), output: Thresholds{MinSeverity: "info"}}
+	c := Config{layers: make(map[string]Layer), output: Thresholds{MinSeverity: "info"}, input: Input{MaxDiffBytes: DefaultMaxDiffBytes}, checks: Checks{EnvAllowlist: []string{"PATH"}}}
 	for _, name := range layerNames {
 		c.layers[name] = Layer{
 			Enabled: true,
@@ -116,7 +120,7 @@ func Parse(data []byte) (Config, error) {
 	if len(data) > maxBytes {
 		return Config{}, errors.New("configuration exceeds size limit")
 	}
-	doc := document{Output: Thresholds{MinSeverity: "info"}}
+	doc := document{Output: Thresholds{MinSeverity: "info"}, Input: Input{MaxDiffBytes: DefaultMaxDiffBytes}, Checks: Checks{EnvAllowlist: []string{"PATH"}}}
 	decoder := toml.NewDecoder(bytes.NewReader(data)).DisallowUnknownFields()
 	if err := decoder.Decode(&doc); err != nil {
 		// Parser diagnostics can quote repository data; do not echo it.
@@ -130,10 +134,14 @@ func Parse(data []byte) (Config, error) {
 		return Config{}, err
 	}
 	c.output = doc.Output
+	if err := doc.Input.Validate(); err != nil {
+		return Config{}, err
+	}
+	if err := doc.Checks.validate(); err != nil {
+		return Config{}, err
+	}
+	c.input, c.checks = doc.Input, doc.Checks
 	for name, o := range doc.Layers {
-		if o.Enabled != nil && name != "verification" {
-			return Config{}, errors.New("enabled is only supported for verification")
-		}
 		base, ok := c.layers[name]
 		if !ok {
 			return Config{}, errors.New("unknown review layer")
@@ -145,22 +153,13 @@ func Parse(data []byte) (Config, error) {
 		c.layers[name] = layer
 	}
 	for _, rule := range doc.Paths {
-		if !findings.ValidPath(rule.Pattern) {
-			return Config{}, errors.New("path pattern must be repository-relative and normalized")
-		}
-		if _, err := path.Match(rule.Pattern, "example"); err != nil {
-			return Config{}, errors.New("invalid path glob")
-		}
-		if strings.Contains(rule.Pattern, "**") {
-			return Config{}, errors.New("recursive ** globs are not supported; use slash-separated path.Match patterns")
+		if err := ValidateGlob(rule.Pattern); err != nil {
+			return Config{}, err
 		}
 		if len(rule.Layers) == 0 {
 			return Config{}, errors.New("path rule requires layer overrides")
 		}
 		for name, o := range rule.Layers {
-			if o.Enabled != nil {
-				return Config{}, errors.New("enabled is repository-wide only")
-			}
 			base, ok := c.layers[name]
 			if !ok {
 				return Config{}, errors.New("unknown path-rule layer")
@@ -179,6 +178,14 @@ func Parse(data []byte) (Config, error) {
 }
 
 func (c Config) Output() Thresholds { return c.output }
+
+func (c Config) HasPaths() bool { return len(c.paths) > 0 }
+
+// WithLayers selects one resolved path group without changing input or checks.
+func (c Config) WithLayers(layers map[string]Layer) Config {
+	c.layers, c.paths = layers, nil
+	return c
+}
 
 func apply(base Layer, o override) (Layer, error) {
 	base.Rules = append([]string(nil), base.Rules...)

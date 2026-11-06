@@ -39,8 +39,6 @@ model = "path-model-not-used-by-review"
 		"[layers.verification]\nreasoning_effort='invalid'",
 		"[layers.verification]\ntimeout='0s'",
 		"[layers.verification]\nenabled='false'",
-		"[layers.correctness]\nenabled=false",
-		"[[paths]]\npattern='src/*'\n[paths.layers.verification]\nenabled=false",
 	} {
 		if _, err := Parse([]byte(data)); err == nil {
 			t.Fatalf("invalid verifier policy accepted: %s", data)

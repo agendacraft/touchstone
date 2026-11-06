@@ -1,6 +1,7 @@
 package render
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -20,6 +21,14 @@ func (r Terminal) Render(out io.Writer, report review.Report) error {
 	fmt.Fprintf(&text, "%d shown | %d rejected | %d filtered (min severity: %s, confidence: %s)\n",
 		s.Shown, s.Rejected, s.Filtered, s.MinSeverity, confidence(s.MinConfidence))
 	writeLayerStatus(&text, report)
+	for _, check := range report.Checks {
+		args, _ := json.Marshal(check.Args)
+		fmt.Fprintf(&text, "  Local check %s: %s | executed locally: %t | argv: %s", plain(check.Name), plain(check.Status), check.Local, plain(string(args)))
+		if check.Error != "" {
+			fmt.Fprintf(&text, " (%s)", plain(check.Error))
+		}
+		fmt.Fprintln(&text)
+	}
 	for _, f := range report.Findings {
 		fmt.Fprintln(&text)
 		r.finding(&text, f)
@@ -43,6 +52,9 @@ func (r Terminal) Render(out io.Writer, report review.Report) error {
 func writeLayerStatus(text *strings.Builder, report review.Report) {
 	for _, layer := range report.Layers {
 		fmt.Fprintf(text, "  %s: %s", plain(layer.Name), plain(layer.Status))
+		if layer.Group != "" {
+			fmt.Fprintf(text, " [%s]", plain(layer.Group))
+		}
 		if layer.Error != "" {
 			fmt.Fprintf(text, " (%s)", plain(layer.Error))
 		}

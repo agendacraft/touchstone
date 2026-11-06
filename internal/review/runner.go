@@ -17,7 +17,7 @@ import (
 	"github.com/agendacraft/touchstone/internal/findings"
 )
 
-const MaxDiffBytes = 16 << 20
+const MaxDiffBytes = config.DefaultMaxDiffBytes
 
 //go:embed prompts/*.txt
 var prompts embed.FS
@@ -37,6 +37,7 @@ Do not include layer, description, or any other keys. Maximum 500 findings.
 
 type Finding struct {
 	Layer string `json:"layer"`
+	Group string `json:"group,omitempty"`
 	findings.Candidate
 	Verification        Verification `json:"verification"`
 	Rank                string       `json:"rank"`
@@ -57,13 +58,15 @@ type Attempt struct {
 
 type LayerResult struct {
 	Name     string    `json:"name"`
+	Group    string    `json:"group,omitempty"`
+	Paths    []string  `json:"paths,omitempty"`
 	Status   string    `json:"status"`
 	Error    string    `json:"error"`
 	Attempts []Attempt `json:"attempts"`
 }
 
 // Report is the versioned CLI review contract, separate from the legacy adapter.
-// IDs remain scoped to their source layer, including rejected findings.
+// IDs remain scoped to their source group and layer, including rejected findings.
 type Report struct {
 	SchemaVersion int           `json:"schema_version"`
 	Outcome       string        `json:"outcome"`
@@ -73,6 +76,7 @@ type Report struct {
 	Rejected      []Finding     `json:"rejected"`
 	Filtered      []Finding     `json:"filtered,omitempty"`
 	Triage        *Summary      `json:"triage,omitempty"`
+	Checks        []CheckResult `json:"checks,omitempty"`
 }
 
 // Runner requires an Agent that honors context cancellation, as Droid does.
@@ -81,12 +85,30 @@ type Runner struct {
 	Agent           agent.Agent
 	Concurrency     int
 	DisableVerifier bool
+	MaxDiffBytes    int
 }
 
 func (r Runner) Run(ctx context.Context, diff []byte, cfg config.Config) (Report, error) {
-	if r.Agent == nil || r.Concurrency < 0 || len(diff) > MaxDiffBytes || len(bytes.TrimSpace(diff)) == 0 {
+	limit := r.MaxDiffBytes
+	if limit == 0 {
+		limit = MaxDiffBytes
+	}
+	if r.Agent == nil || r.Concurrency < 0 || limit < 1 || limit > config.HardMaxDiffBytes {
 		return Report{}, errors.New("invalid review agent, concurrency, or diff")
 	}
+	if len(diff) > limit {
+		return IncompleteDiff(int64(len(diff))), nil
+	}
+	if len(bytes.TrimSpace(diff)) == 0 {
+		return EmptyReport(), nil
+	}
+	if cfg.HasPaths() {
+		return r.runGroups(ctx, diff, cfg)
+	}
+	return r.runSingle(ctx, diff, cfg)
+}
+
+func (r Runner) runSingle(ctx context.Context, diff []byte, cfg config.Config) (Report, error) {
 	dir, err := os.MkdirTemp("", "touchstone-review-")
 	if err != nil {
 		return Report{}, errors.New("cannot create review scratch directory")
@@ -115,6 +137,10 @@ func (r Runner) Run(ctx context.Context, diff []byte, cfg config.Config) (Report
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			if !policy[name].Enabled {
+				report.Layers[i] = LayerResult{Name: name, Status: "disabled", Attempts: []Attempt{}}
+				return
+			}
 			select {
 			case semaphore <- struct{}{}:
 				defer func() { <-semaphore }()

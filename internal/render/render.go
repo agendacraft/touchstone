@@ -70,7 +70,12 @@ func summary(report review.Report) review.Summary {
 func banners(report review.Report) []string {
 	result := []string{}
 	if report.Outcome == "incomplete" {
-		result = append(result, "INCOMPLETE: a specialist layer or required verifier failed; this is not a clean review.")
+		message := "INCOMPLETE: a specialist layer or required verifier failed; this is not a clean review."
+		if slices.ContainsFunc(report.Layers, func(l review.LayerResult) bool { return l.Name == "input" }) ||
+			slices.ContainsFunc(report.Checks, func(c review.CheckResult) bool { return c.Status == "incomplete" }) {
+			message = "INCOMPLETE: input or a local check could not complete; this is not a clean review."
+		}
+		result = append(result, message)
 	}
 	if report.Verifier.Status == "disabled" || report.Verifier.Status == "incomplete" ||
 		slices.ContainsFunc(append(slices.Clone(report.Findings), report.Filtered...), unverified) {
@@ -84,6 +89,9 @@ func unverified(f review.Finding) bool {
 }
 
 func location(f review.Finding) string {
+	if f.File == "" {
+		return "(repository)"
+	}
 	return fmt.Sprintf("%s:%d", f.File, f.Line)
 }
 
