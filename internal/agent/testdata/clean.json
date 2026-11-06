@@ -1,0 +1,18 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "duration_ms": 3814,
+  "num_turns": 1,
+  "result": "{\"schema_version\":1,\"outcome\":\"clean\",\"findings\":[]}",
+  "session_id": "synthetic-clean-session",
+  "usage": {
+    "input_tokens": 3,
+    "output_tokens": 19,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 10009,
+    "factory_credits": 10088,
+    "thinking_tokens": 0,
+    "ttft_ms": 3444
+  }
+}

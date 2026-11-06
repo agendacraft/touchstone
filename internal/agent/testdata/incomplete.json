@@ -1,0 +1,18 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "duration_ms": 9529,
+  "num_turns": 1,
+  "result": "{\"schema_version\":1,\"outcome\":\"incomplete\",\"findings\":[]}",
+  "session_id": "synthetic-incomplete-session",
+  "usage": {
+    "input_tokens": 3,
+    "output_tokens": 20,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 10009,
+    "factory_credits": 10092,
+    "thinking_tokens": 0,
+    "ttft_ms": 8566
+  }
+}

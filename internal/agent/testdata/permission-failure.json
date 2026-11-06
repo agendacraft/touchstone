@@ -1,0 +1,18 @@
+{
+  "type": "result",
+  "subtype": "failure",
+  "is_error": true,
+  "duration_ms": 7199,
+  "num_turns": 0,
+  "result": "Exec ended early: insufficient permission to proceed. Re-run with --auto medium or --auto high. For destructive commands, use --skip-permissions-unsafe.",
+  "session_id": "synthetic-permission-failure-session",
+  "usage": {
+    "input_tokens": 6,
+    "output_tokens": 106,
+    "cache_read_input_tokens": 9949,
+    "cache_creation_input_tokens": 10078,
+    "factory_credits": 10906,
+    "thinking_tokens": 13,
+    "ttft_ms": 2472
+  }
+}
