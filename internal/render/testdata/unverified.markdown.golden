@@ -4,9 +4,9 @@
 
 > **UNVERIFIED: independent verification was disabled or unavailable; findings are not fully verified.**
 
-| Shown | Merged | Rejected | Filtered |
-| --- | --- | --- | --- |
-| 2 | 0 | 0 | 1 |
+| Shown | Rejected | Filtered |
+| --- | --- | --- |
+| 2 | 0 | 1 |
 
 Thresholds: severity ≥ warning; confidence ≥ 0.70.
 
@@ -18,20 +18,20 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 
 ### ERROR
 
-- **src/calc.go:8**: Synthetic zero-divisor
+- **f1 — src/calc.go:8**: Synthetic zero-divisor
   - Severity: error; confidence: 0.95; verdict: unverified; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
 
 ### WARNING
 
-- **src/read.go:14**: Synthetic partial-read
+- **f2 — src/read.go:14**: Synthetic partial-read
   - Severity: warning; confidence: 0.80; verdict: unverified; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
 
 <details>
 <summary>Filtered findings (below thresholds) (1)</summary>
 
-- **src/read.go:20**: Synthetic small-risk
+- **f3 — src/read.go:20**: Synthetic small-risk
   - Severity: info; confidence: 0.30; verdict: unverified; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
 

@@ -3,7 +3,6 @@ package render
 import (
 	"fmt"
 	"io"
-	"slices"
 	"strings"
 
 	"github.com/agendacraft/touchstone/internal/review"
@@ -18,20 +17,12 @@ func (r Terminal) Render(out io.Writer, report review.Report) error {
 		fmt.Fprintln(&text, banner)
 	}
 	s := summary(report)
-	fmt.Fprintf(&text, "%d shown | %d merged | %d rejected | %d filtered (min severity: %s, confidence: %.2f)\n",
-		s.Shown, s.Merged, s.Rejected, s.Filtered, s.MinSeverity, s.MinConfidence)
+	fmt.Fprintf(&text, "%d shown | %d rejected | %d filtered (min severity: %s, confidence: %.2f)\n",
+		s.Shown, s.Rejected, s.Filtered, s.MinSeverity, s.MinConfidence)
 	writeLayerStatus(&text, report)
-	files := []string{}
 	for _, f := range report.Findings {
-		files = append(files, f.File)
-	}
-	for _, file := range unique(files) {
-		fmt.Fprintf(&text, "\n%s\n", plain(file))
-		for _, f := range report.Findings {
-			if f.File == file {
-				r.finding(&text, f)
-			}
-		}
+		fmt.Fprintln(&text)
+		r.finding(&text, f)
 	}
 	if len(report.Rejected) > 0 {
 		fmt.Fprintln(&text, "\nRejected (verifier audit):")
@@ -83,9 +74,4 @@ func writeHints(text *strings.Builder, f review.Finding) {
 	if len(f.PossibleDuplicateOf) > 0 {
 		fmt.Fprintf(text, "    Possible duplicate of: %s\n", plain(strings.Join(f.PossibleDuplicateOf, ", ")))
 	}
-}
-
-func unique(values []string) []string {
-	slices.Sort(values)
-	return slices.Compact(values)
 }

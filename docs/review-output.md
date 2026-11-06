@@ -151,7 +151,7 @@ are `info` and `0`. Optional `[output]` settings are independently overridden
 by explicit CLI flags. Rejected claims are not filtered.
 
 `triage` counts candidates, shown, rejected and filtered claims and records
-the effective thresholds. The compatibility field `merged` is always zero.
+the effective thresholds.
 Thus `candidates = shown + rejected + filtered`. A nonempty `filtered` array
 preserves excluded claims; thresholds never hide an incomplete outcome.
 
@@ -242,7 +242,6 @@ preserves excluded claims; thresholds never hide an incomplete outcome.
   "rejected": [],
   "triage": {
     "candidates": 1,
-    "merged": 0,
     "shown": 1,
     "rejected": 0,
     "filtered": 0,

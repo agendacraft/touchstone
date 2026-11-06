@@ -36,7 +36,7 @@ func TestDuplicateHintsPreserveFindings(t *testing.T) {
 		if rejected {
 			items = got.Rejected
 		}
-		if len(items) != 2 || got.Triage.Candidates != 2 || got.Triage.Merged != 0 ||
+		if len(items) != 2 || got.Triage.Candidates != 2 ||
 			items[0].Severity != "error" || items[0].Confidence != 0.4 || items[0].Verification.Reason != "uncertain error" ||
 			items[0].Verification.Verdict != "uncertain" || items[0].Rank != "lower" ||
 			items[1].Verification.Reason != "confirmed warning" || items[1].Verification.Verdict != "confirmed" ||
@@ -109,7 +109,7 @@ func TestThresholdsAndRejectedAudit(t *testing.T) {
 			report := Report{Outcome: "findings", Findings: []Finding{a, b}, Rejected: []Finding{rejected}}
 			got := Triage(report, tc.thresholds)
 			if len(got.Findings) != tc.shown || len(got.Filtered) != tc.filtered || got.Triage.Filtered != tc.filtered ||
-				len(got.Rejected) != 1 || got.Rejected[0].Verification.Reason != "Pre-existing behavior." || got.Triage.Merged != 0 {
+				len(got.Rejected) != 1 || got.Rejected[0].Verification.Reason != "Pre-existing behavior." {
 				t.Fatalf("wrong threshold/audit accounting: %+v", got)
 			}
 			if (got.Outcome == "clean") != (tc.shown == 0) {

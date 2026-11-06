@@ -58,9 +58,9 @@ func TestGoldenReports(t *testing.T) {
 	// The synthetic contract has two visible findings, one filtered claim,
 	// an incomplete layer, and either a reasoned rejection or failed verifier.
 	// These are public rendered bytes, not snapshots of implementation source.
-	for _, state := range []string{"incomplete", "unverified", "merged"} {
+	for _, state := range []string{"incomplete", "unverified", "hints"} {
 		input := syntheticReport(state == "unverified")
-		if state == "merged" {
+		if state == "hints" {
 			input.Outcome = "findings"
 			input.Layers[1].Status, input.Layers[1].Error = "complete", ""
 			input.Findings[0].Verification = review.Verification{Verdict: "uncertain", Reason: "The first source remains uncertain."}
@@ -217,14 +217,45 @@ func TestRenderFailuresAndUntrustedText(t *testing.T) {
 	}
 }
 
-func TestTerminalGroupsFilesAndShortensEvidence(t *testing.T) {
+func TestTerminalShortensEvidence(t *testing.T) {
 	report := review.Triage(syntheticReport(false), config.Thresholds{MinSeverity: "info"})
 	report.Findings[0].Evidence = strings.Repeat("synthetic evidence ", 30)
 	var out bytes.Buffer
 	if err := (Terminal{}).Render(&out, report); err != nil {
 		t.Fatal(err)
 	}
-	if strings.Count(out.String(), "\nsrc/read.go\n") != 1 || !strings.Contains(out.String(), "...") {
-		t.Fatal("terminal lost file grouping or bounded evidence")
+	if !strings.Contains(out.String(), "...") {
+		t.Fatal("terminal lost bounded evidence")
+	}
+}
+
+func TestRenderersPreserveRankOrder(t *testing.T) {
+	info := review.Finding{Layer: "correctness", Candidate: findings.Candidate{ID: "low", Severity: "info", File: "a.go", Line: 1, Title: "Low priority", Confidence: 0.9}, Verification: review.Verification{Verdict: "confirmed"}}
+	high := review.Finding{Layer: "security", Candidate: findings.Candidate{ID: "high", Severity: "error", File: "z.go", Line: 1, Title: "High priority", Confidence: 0.8}, Verification: review.Verification{Verdict: "confirmed"}}
+	report := review.Triage(review.Report{Findings: []review.Finding{info, high}}, config.Thresholds{MinSeverity: "info"})
+	for _, renderer := range []Renderer{Terminal{}, JSON{}, Markdown{}} {
+		var out bytes.Buffer
+		if err := renderer.Render(&out, report); err != nil {
+			t.Fatal(err)
+		}
+		highPos, lowPos := strings.Index(out.String(), "High priority"), strings.Index(out.String(), "Low priority")
+		if highPos < 0 || lowPos < 0 || highPos >= lowPos {
+			t.Fatalf("wrong rank order: %s", out.String())
+		}
+	}
+}
+
+func TestMarkdownDisplaysIDsInEverySection(t *testing.T) {
+	report := review.Triage(syntheticReport(false), config.Thresholds{MinSeverity: "warning"})
+	var out bytes.Buffer
+	if err := (Markdown{}).Render(&out, report); err != nil {
+		t.Fatal(err)
+	}
+	for _, section := range [][]review.Finding{report.Findings, report.Rejected, report.Filtered} {
+		for _, f := range section {
+			if !strings.Contains(out.String(), "**"+f.DisplayID+" — "+f.File) {
+				t.Fatalf("missing display ID %s: %s", f.DisplayID, out.String())
+			}
+		}
 	}
 }

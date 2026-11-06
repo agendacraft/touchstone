@@ -15,19 +15,18 @@ Example excerpt from an incomplete review:
 ```text
 Touchstone: incomplete
 INCOMPLETE: a specialist layer or required verifier failed; this is not a clean review.
-2 shown | 0 merged | 1 rejected | 1 filtered (min severity: warning, confidence: 0.70)
+2 shown | 1 rejected | 1 filtered (min severity: warning, confidence: 0.70)
   correctness: complete
   security: incomplete (timeout)
   verifier: complete
 
-src/calc.go
   [ERROR] [f1] src/calc.go:8 Synthetic zero-divisor
     confidence 0.95 | confirmed | layer: correctness
     Evidence: The synthetic change removes a required guard.
     Verifier: The diff supports this verdict.
 ```
 
-Findings are grouped by file, with severity markers, confidence, verifier
+Findings appear in rank order, with severity markers, confidence, verifier
 verdict, source layer, and short evidence. Rejected findings appear
 with their reasons below the main findings. Only a TTY gets color, and
 `NO_COLOR` disables it even when set to an empty string:
@@ -60,7 +59,7 @@ For a completed review with no claims:
   "verifier": {"name": "verification", "status": "not_needed", "error": "", "attempts": []},
   "rejected": [],
   "triage": {
-    "candidates": 0, "merged": 0, "shown": 0, "rejected": 0, "filtered": 0,
+    "candidates": 0, "shown": 0, "rejected": 0, "filtered": 0,
     "min_severity": "info", "min_confidence": 0
   }
 }
@@ -85,9 +84,9 @@ Example excerpt suitable for copying into a PR comment:
 
 > **INCOMPLETE: a specialist layer or required verifier failed; this is not a clean review.**
 
-| Shown | Merged | Rejected | Filtered |
-| --- | --- | --- | --- |
-| 2 | 0 | 1 | 1 |
+| Shown | Rejected | Filtered |
+| --- | --- | --- |
+| 2 | 1 | 1 |
 
 Thresholds: severity ≥ warning; confidence ≥ 0.70.
 

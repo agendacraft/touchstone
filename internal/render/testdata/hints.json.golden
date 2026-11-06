@@ -120,7 +120,6 @@
   ],
   "triage": {
     "candidates": 5,
-    "merged": 0,
     "shown": 3,
     "rejected": 1,
     "filtered": 1,

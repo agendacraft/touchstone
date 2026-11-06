@@ -44,7 +44,7 @@ func TestOutputCLIThresholds(t *testing.T) {
 				t.Fatal(decodeErr)
 			}
 			if ExitCode(err) != tc.code || len(report.Findings) != tc.shown || report.Triage == nil ||
-				report.Triage.Filtered != tc.filtered || report.Triage.Merged != 0 {
+				report.Triage.Filtered != tc.filtered {
 				t.Fatalf("wrong post-triage filtering: %s (%v)", out.String(), err)
 			}
 		})

@@ -2,9 +2,9 @@
 
 > **INCOMPLETE: a specialist layer or required verifier failed; this is not a clean review.**
 
-| Shown | Merged | Rejected | Filtered |
-| --- | --- | --- | --- |
-| 2 | 0 | 1 | 1 |
+| Shown | Rejected | Filtered |
+| --- | --- | --- |
+| 2 | 1 | 1 |
 
 Thresholds: severity ≥ warning; confidence ≥ 0.70.
 
@@ -16,14 +16,14 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 
 ### ERROR
 
-- **src/calc.go:8**: Synthetic zero-divisor
+- **f1 — src/calc.go:8**: Synthetic zero-divisor
   - Severity: error; confidence: 0.95; verdict: confirmed; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: The diff supports this verdict.
 
 ### WARNING
 
-- **src/read.go:14**: Synthetic partial-read
+- **f3 — src/read.go:14**: Synthetic partial-read
   - Severity: warning; confidence: 0.80; verdict: uncertain; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: The diff supports this verdict.
@@ -31,7 +31,7 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 <details>
 <summary>Rejected findings (verifier reasons) (1)</summary>
 
-- **src/calc.go:3**: Synthetic old-behavior
+- **f2 — src/calc.go:3**: Synthetic old-behavior
   - Severity: error; confidence: 0.70; verdict: rejected; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: This behavior existed before the synthetic diff.
@@ -41,7 +41,7 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 <details>
 <summary>Filtered findings (below thresholds) (1)</summary>
 
-- **src/read.go:20**: Synthetic small-risk
+- **f4 — src/read.go:20**: Synthetic small-risk
   - Severity: info; confidence: 0.30; verdict: confirmed; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: The diff supports this verdict.

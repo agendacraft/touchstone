@@ -13,7 +13,6 @@ import (
 // Summary counts claims before and after filtering.
 type Summary struct {
 	Candidates    int     `json:"candidates"`
-	Merged        int     `json:"merged"`
 	Shown         int     `json:"shown"`
 	Rejected      int     `json:"rejected"`
 	Filtered      int     `json:"filtered"`
