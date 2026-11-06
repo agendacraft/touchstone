@@ -46,7 +46,7 @@ func TestSIGTERMCleansUpReview(t *testing.T) {
 	defer func() {
 		_ = cmd.Process.Kill()
 		select {
-		case _ = <-done:
+		case <-done:
 		case <-time.After(5 * time.Second):
 		}
 	}()
@@ -80,7 +80,7 @@ func TestSIGTERMCleansUpReview(t *testing.T) {
 		t.Fatal(err)
 	}
 	select {
-	case _ = <-done:
+	case <-done:
 	case <-time.After(5 * time.Second):
 		t.Fatal("CLI did not exit after SIGTERM")
 	}
@@ -188,7 +188,7 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 				defer func() {
 					_ = cmd.Process.Kill()
 					select {
-					case _ = <-done:
+					case <-done:
 					case <-time.After(5 * time.Second):
 					}
 				}()
@@ -237,7 +237,7 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 					t.Fatal(err)
 				}
 				select {
-				case _ = <-done:
+				case <-done:
 				case <-time.After(5 * time.Second):
 					t.Fatal("CLI remained blocked after signal")
 				}
@@ -294,7 +294,7 @@ func TestClosedOutputPipesExitWithError(t *testing.T) {
 			done := make(chan error, 1)
 			go func() { done <- cmd.Wait() }()
 			select {
-			case _ = <-done:
+			case <-done:
 			case <-time.After(5 * time.Second):
 				_ = cmd.Process.Kill()
 				_ = <-done
@@ -337,7 +337,7 @@ func TestSignalUnblocksConfigFIFO(t *testing.T) {
 					defer func() {
 						_ = cmd.Process.Kill()
 						select {
-						case _ = <-done:
+						case <-done:
 						case <-time.After(5 * time.Second):
 						}
 					}()
@@ -367,7 +367,7 @@ func TestSignalUnblocksConfigFIFO(t *testing.T) {
 						t.Fatal(err)
 					}
 					select {
-					case _ = <-done:
+					case <-done:
 					case <-time.After(5 * time.Second):
 						t.Fatal("CLI remained blocked loading configuration")
 					}
