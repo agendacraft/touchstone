@@ -6,10 +6,10 @@ Touchstone: findings
 
 src/calc.go
   [ERROR] src/calc.go:8 Synthetic zero-divisor
-    confidence 0.99 | confirmed | layers: correctness, security
+    confidence 0.95 | confirmed | layers: correctness, security
     Evidence: A second source identifies the removed guard. The synthetic change removes a required guard.
     Verifier: The diff supports this verdict. The second source remains uncertain.
-    Sources: correctness:zero-divisor (confirmed), security:zero_divisor (uncertain)
+    Also reported by: security:zero_divisor (warning, 0.99, uncertain)
 
 src/read.go
   [WARNING] src/read.go:14 Synthetic partial-read

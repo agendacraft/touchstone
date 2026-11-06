@@ -70,9 +70,9 @@ for copying into a PR comment, but Touchstone never posts it. Terminal color
 requires a TTY and is disabled when `NO_COLOR` is present, even if empty.
 See [examples of all three formats](docs/output-formats.md).
 
-Triage combines cross-layer claims with matching normalized IDs, or overlapping
-same-file/category locations. All original claims, evidence, and verdicts remain
-in `sources`. Highest severity and confidence win; a confirmed source outranks
+Triage combines cross-layer claims with similar titles at the same file and line,
+with all original claims, evidence, and verdicts retained in `sources`. The
+highest-severity claim supplies its paired confidence; a confirmed source outranks
 an uncertain one, without changing either original verdict. Rejected claims
 remain a separate audit section. Results rank by severity, confidence, verifier
 verdict, and file/line, with stable tie-breakers.

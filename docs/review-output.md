@@ -132,30 +132,23 @@ them all. Triage follows verification, as described below.
 
 ## Cross-layer triage and thresholds
 
-Claims from different specialist layers merge when either:
+Claims from different specialist layers merge when they have the same file and
+line and their title token sets have Jaccard similarity of at least 0.5. Titles
+are lowercased, punctuation separates tokens, and common stopwords are removed.
+Each claim is compared only with the first claim in a group; matching is not
+transitive. Rejected claims are triaged separately.
 
-- Their IDs match after lowercasing and replacing runs of `.`, `_`, and `-`
-  with `-` (leading/trailing separators are removed).
-- They have the same file and category and overlapping inclusive line ranges.
-  The unchanged specialist model contract supplies only `line`, so current
-  claims are single-line ranges. Internal range-aware findings may carry
-  optional `end_line`; it does not add a model-response field.
-
-Matching is transitive: a bridging claim connects a group. Claims from the same
-layer alone do not merge. Rejected claims are triaged separately, so they cannot
-erase or strengthen a retained claim.
-
-The representative keeps the highest severity; confidence is the maximum across
-the group. Evidence and verifier reasons are combined in sorted, unique order.
-The strongest source verdict wins (`confirmed`, then `unverified`, then
-`uncertain`; rejected groups remain rejected). `rank` is `lower` only for an
-aggregate uncertain verdict. Every original claim and its individual verdict
-remain in `sources`; `layers` lists all contributing layers in sorted order.
-The representative's original `layer`, `id`, location, and title stay intact.
+The representative has the highest severity, then highest confidence, then
+lowest layer order; its severity and confidence remain together. Evidence and
+verifier reasons are combined in sorted, unique order. The strongest source
+verdict wins (`confirmed`, then `unverified`, then `uncertain`; rejected groups
+remain rejected). `rank` is `lower` only for an aggregate uncertain verdict.
+Every original claim and its individual assessment remain in `sources`;
+`layers` lists all contributing layers in sorted order.
 
 Both retained and rejected groups sort by severity (`error`, `warning`, `info`),
 descending confidence, verifier verdict (uncertain lower), file, and line.
-Layer, ID, category, title, evidence, reason, and end line break remaining ties.
+Layer, ID, category, title, evidence, and reason break remaining ties.
 Input order does not decide the representative or output order. Terminal output
 groups by file and preserves this priority within each file.
 

@@ -37,6 +37,7 @@ func (r Terminal) Render(out io.Writer, report review.Report) error {
 		fmt.Fprintln(&text, "\nRejected (verifier audit):")
 		for _, f := range report.Rejected {
 			fmt.Fprintf(&text, "  %s %s\n    Reason: %s\n", plain(location(f)), plain(f.Title), short(f.Verification.Reason))
+			writeOtherSources(&text, f)
 		}
 	}
 	_, err := io.WriteString(out, text.String())
@@ -70,12 +71,19 @@ func (r Terminal) finding(text *strings.Builder, f review.Finding) {
 	if f.Verification.Reason != "" {
 		fmt.Fprintf(text, "    Verifier: %s\n", short(f.Verification.Reason))
 	}
-	if len(f.Sources) > 1 {
-		sources := []string{}
-		for _, source := range f.Sources {
-			sources = append(sources, source.Layer+":"+source.ID+" ("+source.Verification.Verdict+")")
+	writeOtherSources(text, f)
+}
+
+func writeOtherSources(text *strings.Builder, f review.Finding) {
+	sources := []string{}
+	for _, source := range f.Sources {
+		if source.Layer == f.Layer && source.ID == f.ID {
+			continue
 		}
-		fmt.Fprintf(text, "    Sources: %s\n", plain(strings.Join(sources, ", ")))
+		sources = append(sources, fmt.Sprintf("%s:%s (%s, %.2f, %s)", source.Layer, source.ID, source.Severity, source.Confidence, source.Verification.Verdict))
+	}
+	if len(sources) > 0 {
+		fmt.Fprintf(text, "    Also reported by: %s\n", plain(strings.Join(sources, ", ")))
 	}
 }
 

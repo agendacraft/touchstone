@@ -11,7 +11,7 @@
       "line": 8,
       "title": "Synthetic zero-divisor",
       "evidence": "A second source identifies the removed guard.\n\nThe synthetic change removes a required guard.",
-      "confidence": 0.99,
+      "confidence": 0.95,
       "verification": {
         "verdict": "confirmed",
         "reason": "The diff supports this verdict.\n\nThe second source remains uncertain."

@@ -84,9 +84,6 @@ func unverified(f review.Finding) bool {
 }
 
 func location(f review.Finding) string {
-	if f.EndLine > f.Line {
-		return fmt.Sprintf("%s:%d-%d", f.File, f.Line, f.EndLine)
-	}
 	return fmt.Sprintf("%s:%d", f.File, f.Line)
 }
 

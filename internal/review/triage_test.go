@@ -23,36 +23,35 @@ func claim(layer, id string, line int) Finding {
 }
 
 func TestDedupe(t *testing.T) {
-	// S3's independent identity/location rules: equal normalized IDs OR
-	// overlapping same-file/category locations, but only across layers.
 	for _, tc := range []struct {
 		name   string
 		change func(*Finding)
 		want   int
 	}{
-		{"same point", func(*Finding) {}, 1},
-		{"overlap", func(f *Finding) { f.Line = 3; f.EndLine = 8 }, 1},
-		{"adjacent is not overlap", func(f *Finding) { f.Line = 9 }, 2},
-		{"different file", func(f *Finding) { f.File = "other.go" }, 2},
-		{"different category", func(f *Finding) { f.Category = "security" }, 2},
+		{"duplicate", func(f *Finding) { f.Title = "The synthetic defect!" }, 1},
+		{"different line", func(f *Finding) { f.Line = 9 }, 2},
+		{"same id different file", func(f *Finding) { f.ID = "issue-1"; f.File = "other.go" }, 2},
+		{"unrelated titles same line", func(f *Finding) { f.Title = "Authorization bypass" }, 2},
+		{"different category", func(f *Finding) { f.Category = "security" }, 1},
 		{"same layer", func(f *Finding) { f.Layer = "correctness" }, 2},
-		{"normalized identity across locations", func(f *Finding) {
-			f.ID = "DIVIDE__ZERO"
-			f.File = "other.go"
-			f.Line = 40
-			f.Category = "security"
-		}, 1},
-		{"different identity and location", func(f *Finding) { f.Line = 40 }, 2},
+		{"reworded", func(f *Finding) { f.Title = "Synthetic defect causes failure" }, 1},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			a, b := claim("correctness", "divide.zero", 8), claim("security", "another", 8)
+			a, b := claim("correctness", "issue-1", 8), claim("security", "another", 8)
 			tc.change(&b)
-			got := Triage(Report{Findings: []Finding{a, b}}, config.Thresholds{MinSeverity: "info"})
-			if len(got.Findings) != tc.want || got.Triage.Merged != 2-tc.want {
-				t.Fatalf("wrong grouping: %+v", got)
-			}
-			if tc.want == 1 && len(got.Findings[0].Sources) != 2 {
-				t.Fatal("a merged claim disappeared")
+			for _, rejected := range []bool{false, true} {
+				report := Report{Findings: []Finding{a, b}}
+				if rejected {
+					report.Findings, report.Rejected = nil, report.Findings
+				}
+				got := Triage(report, config.Thresholds{MinSeverity: "info"})
+				items := got.Findings
+				if rejected {
+					items = got.Rejected
+				}
+				if len(items) != tc.want || got.Triage.Merged != 2-tc.want {
+					t.Fatalf("wrong grouping: %+v", got)
+				}
 			}
 		})
 	}
@@ -60,36 +59,38 @@ func TestDedupe(t *testing.T) {
 
 func TestMergePreservesClaims(t *testing.T) {
 	a, b := claim("correctness", "a", 8), claim("security", "b", 8)
-	a.Severity, a.Confidence = "error", 0.6
-	b.Confidence, b.Verification.Verdict = 0.99, "uncertain"
-	got := Triage(Report{Findings: []Finding{b, a}}, config.Thresholds{MinSeverity: "error", MinConfidence: 0.9})
+	a.Severity, a.Confidence = "error", 0.4
+	b.Confidence, b.Verification.Verdict = 0.95, "uncertain"
+	report := Report{Findings: []Finding{b, a}}
+	got := Triage(report, config.Thresholds{MinSeverity: "info"})
 	if len(got.Findings) != 1 {
-		t.Fatal("thresholds ran before severity/confidence merge")
+		t.Fatal("duplicate was not merged")
 	}
 	f := got.Findings[0]
-	if f.Severity != "error" || f.Confidence != 0.99 || f.Verification.Verdict != "confirmed" || f.Rank != "normal" ||
+	if f.Severity != "error" || f.Confidence != 0.4 || f.Verification.Verdict != "confirmed" || f.Rank != "normal" ||
 		!reflect.DeepEqual(f.Layers, []string{"correctness", "security"}) {
 		t.Fatalf("wrong aggregate: %+v", f)
 	}
-	if len(f.Sources) != 2 || f.Sources[0].Confidence != 0.6 || f.Sources[1].Verification.Verdict != "uncertain" {
-		t.Fatal("original severity, confidence, or verdict lost")
+	if len(f.Sources) != 2 || f.Sources[0].Confidence != 0.4 || f.Sources[1].Confidence != 0.95 {
+		t.Fatal("original assessments lost")
 	}
 	for _, source := range []Finding{a, b} {
 		if !strings.Contains(f.Evidence, source.Evidence) || !strings.Contains(f.Verification.Reason, source.Verification.Reason) {
 			t.Fatal("supporting evidence or verifier reason lost")
 		}
 	}
-	if b.Verification.Verdict != "uncertain" || a.Confidence != 0.6 {
-		t.Fatal("triage mutated its input claims")
+	filtered := Triage(report, config.Thresholds{MinSeverity: "info", MinConfidence: 0.9})
+	if len(filtered.Findings) != 0 || len(filtered.Filtered) != 1 || filtered.Filtered[0].Confidence != 0.4 {
+		t.Fatalf("threshold did not use representative assessment: %+v", filtered)
 	}
 }
 
-func TestDedupeTransitiveOverlap(t *testing.T) {
-	a, b, c := claim("correctness", "a", 1), claim("security", "b", 3), claim("correctness", "c", 5)
-	a.EndLine, b.EndLine = 3, 5
-	got := deduplicate([]Finding{c, a, b})
-	if len(got) != 1 || len(got[0].Sources) != 3 {
-		t.Fatalf("range bridge failed: %+v", got)
+func TestDedupeDoesNotChain(t *testing.T) {
+	a, b, c := claim("correctness", "a", 1), claim("security", "b", 1), claim("correctness", "c", 1)
+	a.Title, b.Title, c.Title = "alpha beta", "alpha beta gamma", "beta gamma"
+	got := deduplicate([]Finding{c, b, a})
+	if len(got) != 2 || len(got[0].Sources) != 2 {
+		t.Fatalf("claims chained through a bridge: %+v", got)
 	}
 }
 

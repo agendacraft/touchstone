@@ -60,11 +60,14 @@ func markdownFinding(text *strings.Builder, f review.Finding) {
 		fmt.Fprintf(text, "  - Verifier: %s\n", markdown(f.Verification.Reason))
 	}
 	if len(f.Sources) > 1 {
-		fmt.Fprintln(text, "  - Source claims:")
+		fmt.Fprintln(text, "  - Also reported by:")
 		for _, source := range f.Sources {
-			claim := review.Finding{Candidate: source.Candidate, EndLine: source.EndLine}
-			fmt.Fprintf(text, "    - %s: %s (%s). Evidence: %s Verifier: %s\n",
-				markdown(source.Layer+":"+source.ID), markdown(location(claim)), markdown(source.Verification.Verdict),
+			if source.Layer == f.Layer && source.ID == f.ID {
+				continue
+			}
+			claim := review.Finding{Candidate: source.Candidate}
+			fmt.Fprintf(text, "    - %s: %s (%s, %.2f, %s). Evidence: %s Verifier: %s\n",
+				markdown(source.Layer+":"+source.ID), markdown(location(claim)), markdown(source.Severity), source.Confidence, markdown(source.Verification.Verdict),
 				markdown(source.Evidence), markdown(source.Verification.Reason))
 		}
 	}

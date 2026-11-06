@@ -40,7 +40,6 @@ type Finding struct {
 	findings.Candidate
 	Verification Verification `json:"verification"`
 	Rank         string       `json:"rank"`
-	EndLine      int          `json:"end_line,omitempty"`
 	Layers       []string     `json:"layers,omitempty"`
 	Sources      []Source     `json:"sources,omitempty"`
 }
@@ -50,7 +49,6 @@ type Source struct {
 	Layer string `json:"layer"`
 	findings.Candidate
 	Verification Verification `json:"verification"`
-	EndLine      int          `json:"end_line,omitempty"`
 }
 
 type Verification struct {
