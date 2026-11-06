@@ -3,9 +3,7 @@ package review
 import (
 	"encoding/json"
 	"math/rand/v2"
-	"reflect"
 	"slices"
-	"strings"
 	"testing"
 
 	"github.com/agendacraft/touchstone/internal/config"
@@ -22,108 +20,51 @@ func claim(layer, id string, line int) Finding {
 	}
 }
 
-func TestDedupe(t *testing.T) {
-	for _, tc := range []struct {
-		name   string
-		change func(*Finding)
-		want   int
-	}{
-		{"duplicate", func(f *Finding) { f.Title = "The synthetic defect!" }, 1},
-		{"different line", func(f *Finding) { f.Line = 9 }, 2},
-		{"same id different file", func(f *Finding) { f.ID = "issue-1"; f.File = "other.go" }, 2},
-		{"unrelated titles same line", func(f *Finding) { f.Title = "Authorization bypass" }, 2},
-		{"different category", func(f *Finding) { f.Category = "security" }, 1},
-		{"same layer", func(f *Finding) { f.Layer = "correctness" }, 2},
-		{"reworded", func(f *Finding) { f.Title = "Synthetic defect causes failure" }, 1},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			a, b := claim("correctness", "issue-1", 8), claim("security", "another", 8)
-			tc.change(&b)
-			for _, rejected := range []bool{false, true} {
-				report := Report{Findings: []Finding{a, b}}
-				if rejected {
-					report.Findings, report.Rejected = nil, report.Findings
-				}
-				got := Triage(report, config.Thresholds{MinSeverity: "info"})
-				items := got.Findings
-				if rejected {
-					items = got.Rejected
-				}
-				if len(items) != tc.want || got.Triage.Merged != 2-tc.want {
-					t.Fatalf("wrong grouping: %+v", got)
-				}
-			}
-		})
-	}
-}
-
-func TestMergePreservesClaims(t *testing.T) {
-	a, b := claim("correctness", "a", 8), claim("security", "b", 8)
-	a.Severity, a.Confidence, a.Verification.Verdict = "error", 0.4, "uncertain"
-	b.Confidence, b.Verification.Verdict = 0.95, "confirmed"
-	report := Report{Findings: []Finding{b, a}}
-	got := Triage(report, config.Thresholds{MinSeverity: "info"})
-	if len(got.Findings) != 1 {
-		t.Fatal("duplicate was not merged")
-	}
-	f := got.Findings[0]
-	if f.Severity != "error" || f.Confidence != 0.4 || f.Verification.Verdict != "uncertain" || f.Rank != "lower" ||
-		!reflect.DeepEqual(f.Layers, []string{"correctness", "security"}) {
-		t.Fatalf("wrong aggregate: %+v", f)
-	}
-	if len(f.Sources) != 2 || f.Sources[0].Confidence != 0.4 || f.Sources[1].Confidence != 0.95 || f.Sources[1].Verification.Verdict != "confirmed" {
-		t.Fatal("original assessments lost")
-	}
-	for _, source := range []Finding{a, b} {
-		if !strings.Contains(f.Evidence, source.Evidence) || !strings.Contains(f.Verification.Reason, source.Verification.Reason) {
-			t.Fatal("supporting evidence or verifier reason lost")
+func TestDuplicateHintsPreserveFindings(t *testing.T) {
+	a, b := claim("correctness", "issue-1", 8), claim("security", "issue-1", 8)
+	a.Title, b.Title = "Missing authentication check", "Missing authorization check"
+	a.Severity, a.Confidence, a.Verification = "error", 0.4, Verification{Verdict: "uncertain", Reason: "uncertain error"}
+	a.Rank = "lower"
+	b.Confidence, b.Verification = 0.95, Verification{Verdict: "confirmed", Reason: "confirmed warning"}
+	for _, rejected := range []bool{false, true} {
+		report := Report{Findings: []Finding{b, a}}
+		if rejected {
+			report.Findings, report.Rejected = nil, report.Findings
+		}
+		got := Triage(report, config.Thresholds{MinSeverity: "info"})
+		items := got.Findings
+		if rejected {
+			items = got.Rejected
+		}
+		if len(items) != 2 || got.Triage.Candidates != 2 || got.Triage.Merged != 0 ||
+			items[0].Severity != "error" || items[0].Confidence != 0.4 || items[0].Verification.Reason != "uncertain error" ||
+			items[0].Verification.Verdict != "uncertain" || items[0].Rank != "lower" ||
+			items[1].Verification.Reason != "confirmed warning" || items[1].Verification.Verdict != "confirmed" ||
+			len(items[0].PossibleDuplicateOf) != 1 || items[0].PossibleDuplicateOf[0] != items[1].DisplayID ||
+			len(items[1].PossibleDuplicateOf) != 1 || items[1].PossibleDuplicateOf[0] != items[0].DisplayID {
+			t.Fatalf("claims or hints changed: %+v", got)
 		}
 	}
-	filtered := Triage(report, config.Thresholds{MinSeverity: "info", MinConfidence: 0.9})
-	if len(filtered.Findings) != 0 || len(filtered.Filtered) != 1 || filtered.Filtered[0].Confidence != 0.4 {
-		t.Fatalf("threshold did not use representative assessment: %+v", filtered)
+	filtered := Triage(Report{Findings: []Finding{a, b}}, config.Thresholds{MinSeverity: "info", MinConfidence: 0.9})
+	if len(filtered.Findings) != 1 || len(filtered.Filtered) != 1 || filtered.Findings[0].Layer != "security" ||
+		filtered.Findings[0].PossibleDuplicateOf[0] != filtered.Filtered[0].DisplayID ||
+		filtered.Filtered[0].PossibleDuplicateOf[0] != filtered.Findings[0].DisplayID {
+		t.Fatalf("threshold changed claims or hints: %+v", filtered)
+	}
+	b.Title, b.File = "Divide by zero", "other.go"
+	unrelated := Triage(Report{Findings: []Finding{a, b}}, config.Thresholds{MinSeverity: "info"})
+	if len(unrelated.Findings) != 2 || len(unrelated.Findings[0].PossibleDuplicateOf) != 0 || len(unrelated.Findings[1].PossibleDuplicateOf) != 0 {
+		t.Fatalf("unrelated layer-local IDs matched: %+v", unrelated)
 	}
 }
 
-func TestDedupeGroupMembership(t *testing.T) {
-	for _, tc := range []struct {
-		name   string
-		layers [3]string
-		titles [3]string
-	}{
-		{"same layer", [3]string{"correctness", "security", "security"}, [3]string{"request bypass", "request authentication bypass", "request authorization bypass"}},
-		{"all pairs must match", [3]string{"correctness", "security", "third"}, [3]string{"alpha beta gamma", "alpha beta", "beta gamma"}},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			claims := make([]Finding, 3)
-			for i := range claims {
-				claims[i] = claim(tc.layers[i], string(rune('a'+i)), 1)
-				claims[i].Title = tc.titles[i]
-			}
-			for _, rejected := range []bool{false, true} {
-				report := Report{Findings: claims}
-				if rejected {
-					report.Findings, report.Rejected = nil, claims
-				}
-				got := Triage(report, config.Thresholds{MinSeverity: "info"})
-				items := got.Findings
-				if rejected {
-					items = got.Rejected
-				}
-				if len(items) != 2 || got.Triage.Merged != 1 {
-					t.Fatalf("distinct claims combined: %+v", got)
-				}
-			}
-		})
-	}
-}
-
-func TestRepresentativeVerdictTieBreak(t *testing.T) {
-	a, b := claim("correctness", "a", 1), claim("security", "b", 1)
-	a.Verification.Verdict = "uncertain"
-	got := Triage(Report{Findings: []Finding{a, b}}, config.Thresholds{MinSeverity: "info"})
-	if len(got.Findings) != 1 || got.Findings[0].Layer != "security" || got.Findings[0].Verification.Verdict != "confirmed" {
-		t.Fatalf("confirmed assessment did not win tie: %+v", got)
+func TestDuplicateHintsAreDirect(t *testing.T) {
+	a, b, c := claim("correctness", "a", 1), claim("security", "b", 1), claim("third", "c", 1)
+	a.Title, b.Title, c.Title = "alpha beta", "alpha beta gamma", "beta gamma"
+	got := Triage(Report{Findings: []Finding{a, b, c}}, config.Thresholds{MinSeverity: "info"})
+	if len(got.Findings) != 3 || len(got.Findings[0].PossibleDuplicateOf) != 1 ||
+		len(got.Findings[1].PossibleDuplicateOf) != 2 || len(got.Findings[2].PossibleDuplicateOf) != 1 {
+		t.Fatalf("hints were made transitive: %+v", got)
 	}
 }
 
@@ -142,7 +83,7 @@ func TestRank(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			a, b := claim("correctness", "first", 8), claim("correctness", "second", 8)
 			tc.change(&a, &b)
-			got := deduplicate([]Finding{b, a})
+			got := Triage(Report{Findings: []Finding{b, a}}, config.Thresholds{MinSeverity: "info"}).Findings
 			if len(got) != 2 || got[0].ID != "first" {
 				t.Fatalf("wrong priority: %+v", got)
 			}

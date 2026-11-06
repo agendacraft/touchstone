@@ -17,26 +17,7 @@
         "reason": ""
       },
       "rank": "normal",
-      "layers": [
-        "correctness"
-      ],
-      "sources": [
-        {
-          "layer": "correctness",
-          "id": "zero-divisor",
-          "severity": "error",
-          "category": "logic",
-          "file": "src/calc.go",
-          "line": 8,
-          "title": "Synthetic zero-divisor",
-          "evidence": "The synthetic change removes a required guard.",
-          "confidence": 0.95,
-          "verification": {
-            "verdict": "unverified",
-            "reason": ""
-          }
-        }
-      ]
+      "display_id": "f1"
     },
     {
       "layer": "correctness",
@@ -53,26 +34,7 @@
         "reason": ""
       },
       "rank": "normal",
-      "layers": [
-        "correctness"
-      ],
-      "sources": [
-        {
-          "layer": "correctness",
-          "id": "partial-read",
-          "severity": "warning",
-          "category": "logic",
-          "file": "src/read.go",
-          "line": 14,
-          "title": "Synthetic partial-read",
-          "evidence": "The synthetic change removes a required guard.",
-          "confidence": 0.8,
-          "verification": {
-            "verdict": "unverified",
-            "reason": ""
-          }
-        }
-      ]
+      "display_id": "f2"
     }
   ],
   "layers": [
@@ -112,26 +74,7 @@
         "reason": ""
       },
       "rank": "normal",
-      "layers": [
-        "correctness"
-      ],
-      "sources": [
-        {
-          "layer": "correctness",
-          "id": "small-risk",
-          "severity": "info",
-          "category": "logic",
-          "file": "src/read.go",
-          "line": 20,
-          "title": "Synthetic small-risk",
-          "evidence": "The synthetic change removes a required guard.",
-          "confidence": 0.3,
-          "verification": {
-            "verdict": "unverified",
-            "reason": ""
-          }
-        }
-      ]
+      "display_id": "f3"
     }
   ],
   "triage": {

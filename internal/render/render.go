@@ -79,20 +79,11 @@ func banners(report review.Report) []string {
 }
 
 func unverified(f review.Finding) bool {
-	return f.Verification.Verdict == "unverified" ||
-		slices.ContainsFunc(f.Sources, func(s review.Source) bool { return s.Verification.Verdict == "unverified" })
+	return f.Verification.Verdict == "unverified"
 }
 
 func location(f review.Finding) string {
 	return fmt.Sprintf("%s:%d", f.File, f.Line)
-}
-
-func provenance(f review.Finding) string {
-	layers := f.Layers
-	if len(layers) == 0 {
-		layers = []string{f.Layer}
-	}
-	return strings.Join(layers, ", ")
 }
 
 func plain(value string) string {

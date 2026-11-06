@@ -53,23 +53,14 @@ func markdownLayer(text *strings.Builder, layer review.LayerResult) {
 
 func markdownFinding(text *strings.Builder, f review.Finding) {
 	fmt.Fprintf(text, "\n- **%s**: %s\n", markdown(location(f)), markdown(f.Title))
-	fmt.Fprintf(text, "  - Severity: %s; confidence: %.2f; verdict: %s; layers: %s.\n",
-		markdown(f.Severity), f.Confidence, markdown(f.Verification.Verdict), markdown(provenance(f)))
+	fmt.Fprintf(text, "  - Severity: %s; confidence: %.2f; verdict: %s; layer: %s.\n",
+		markdown(f.Severity), f.Confidence, markdown(f.Verification.Verdict), markdown(f.Layer))
 	fmt.Fprintf(text, "  - Evidence: %s\n", markdown(f.Evidence))
 	if f.Verification.Reason != "" {
 		fmt.Fprintf(text, "  - Verifier: %s\n", markdown(f.Verification.Reason))
 	}
-	if len(f.Sources) > 1 {
-		fmt.Fprintln(text, "  - Also reported by:")
-		for _, source := range f.Sources {
-			if source.Layer == f.Layer && source.ID == f.ID {
-				continue
-			}
-			claim := review.Finding{Candidate: source.Candidate}
-			fmt.Fprintf(text, "    - %s: %s (%s, %.2f, %s). Evidence: %s Verifier: %s\n",
-				markdown(source.Layer+":"+source.ID), markdown(location(claim)), markdown(source.Severity), source.Confidence, markdown(source.Verification.Verdict),
-				markdown(source.Evidence), markdown(source.Verification.Reason))
-		}
+	if len(f.PossibleDuplicateOf) > 0 {
+		fmt.Fprintf(text, "  - Possible duplicate of: %s.\n", markdown(strings.Join(f.PossibleDuplicateOf, ", ")))
 	}
 }
 

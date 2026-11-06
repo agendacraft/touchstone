@@ -6,17 +6,25 @@ INCOMPLETE: a specialist layer or required verifier failed; this is not a clean 
   verifier: complete
 
 src/calc.go
-  [31m[ERROR][0m src/calc.go:8 Synthetic zero-divisor
-    confidence 0.95 | confirmed | layers: correctness
+  [31m[ERROR][0m [f1] src/calc.go:8 Synthetic zero-divisor
+    confidence 0.95 | confirmed | layer: correctness
     Evidence: The synthetic change removes a required guard.
     Verifier: The diff supports this verdict.
 
 src/read.go
-  [33m[WARNING][0m src/read.go:14 Synthetic partial-read
-    confidence 0.80 | uncertain | layers: correctness
+  [33m[WARNING][0m [f3] src/read.go:14 Synthetic partial-read
+    confidence 0.80 | uncertain | layer: correctness
     Evidence: The synthetic change removes a required guard.
     Verifier: The diff supports this verdict.
 
 Rejected (verifier audit):
-  src/calc.go:3 Synthetic old-behavior
-    Reason: This behavior existed before the synthetic diff.
+  [31m[ERROR][0m [f2] src/calc.go:3 Synthetic old-behavior
+    confidence 0.70 | rejected | layer: correctness
+    Evidence: The synthetic change removes a required guard.
+    Verifier: This behavior existed before the synthetic diff.
+
+Filtered (below thresholds):
+  [36m[INFO][0m [f4] src/read.go:20 Synthetic small-risk
+    confidence 0.30 | confirmed | layer: correctness
+    Evidence: The synthetic change removes a required guard.
+    Verifier: The diff supports this verdict.

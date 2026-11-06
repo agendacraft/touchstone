@@ -2,7 +2,7 @@
 
 | Shown | Merged | Rejected | Filtered |
 | --- | --- | --- | --- |
-| 2 | 1 | 1 | 1 |
+| 3 | 0 | 1 | 1 |
 
 Thresholds: severity ≥ warning; confidence ≥ 0.70.
 
@@ -15,16 +15,21 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 ### ERROR
 
 - **src/calc.go:8**: Synthetic zero-divisor
-  - Severity: error; confidence: 0.95; verdict: uncertain; layers: correctness, security.
-  - Evidence: A second source identifies the removed guard. The synthetic change removes a required guard.
-  - Verifier: The first source remains uncertain. The second source is confirmed.
-  - Also reported by:
-    - security:zero\_divisor: src/calc.go:8 (warning, 0.99, confirmed). Evidence: A second source identifies the removed guard. Verifier: The second source is confirmed.
+  - Severity: error; confidence: 0.95; verdict: uncertain; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+  - Verifier: The first source remains uncertain.
+  - Possible duplicate of: f3.
 
 ### WARNING
 
+- **src/calc.go:8**: Synthetic zero-divisor
+  - Severity: warning; confidence: 0.99; verdict: confirmed; layer: security.
+  - Evidence: A second source identifies the removed guard.
+  - Verifier: The second source is confirmed.
+  - Possible duplicate of: f1.
+
 - **src/read.go:14**: Synthetic partial-read
-  - Severity: warning; confidence: 0.80; verdict: uncertain; layers: correctness.
+  - Severity: warning; confidence: 0.80; verdict: uncertain; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: The diff supports this verdict.
 
@@ -32,7 +37,7 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 <summary>Rejected findings (verifier reasons) (1)</summary>
 
 - **src/calc.go:3**: Synthetic old-behavior
-  - Severity: error; confidence: 0.70; verdict: rejected; layers: correctness.
+  - Severity: error; confidence: 0.70; verdict: rejected; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: This behavior existed before the synthetic diff.
 
@@ -42,7 +47,7 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 <summary>Filtered findings (below thresholds) (1)</summary>
 
 - **src/read.go:20**: Synthetic small-risk
-  - Severity: info; confidence: 0.30; verdict: confirmed; layers: correctness.
+  - Severity: info; confidence: 0.30; verdict: confirmed; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: The diff supports this verdict.
 

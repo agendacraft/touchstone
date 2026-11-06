@@ -21,14 +21,14 @@ INCOMPLETE: a specialist layer or required verifier failed; this is not a clean 
   verifier: complete
 
 src/calc.go
-  [ERROR] src/calc.go:8 Synthetic zero-divisor
-    confidence 0.95 | confirmed | layers: correctness
+  [ERROR] [f1] src/calc.go:8 Synthetic zero-divisor
+    confidence 0.95 | confirmed | layer: correctness
     Evidence: The synthetic change removes a required guard.
     Verifier: The diff supports this verdict.
 ```
 
 Findings are grouped by file, with severity markers, confidence, verifier
-verdict, contributing layers, and short evidence. Rejected findings appear
+verdict, source layer, and short evidence. Rejected findings appear
 with their reasons below the main findings. Only a TTY gets color, and
 `NO_COLOR` disables it even when set to an empty string:
 
@@ -68,10 +68,9 @@ For a completed review with no claims:
 
 Attempt arrays are abbreviated here; real invocations include usage, cost, and
 duration. The [full JSON contract](review-output.md) includes a finding example.
-Version 2's existing fields remain intact. Triage adds `layers` and `sources` to
-each finding, a `triage` summary, and a `filtered` array when nonempty.
-`sources` preserves each original claim and its verifier reason, even when the
-aggregate has higher confidence or a stronger verdict than that source.
+Triage adds a unique `display_id` to each finding, optional
+`possible_duplicate_of` references, a `triage` summary, and a `filtered`
+array when nonempty. Each claim keeps its original assessment and reason.
 
 ## Markdown
 
@@ -100,16 +99,16 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 
 ### ERROR
 
-- **src/calc.go:8**: Synthetic zero-divisor
-  - Severity: error; confidence: 0.95; verdict: confirmed; layers: correctness.
+- **f1 — src/calc.go:8**: Synthetic zero-divisor
+  - Severity: error; confidence: 0.95; verdict: confirmed; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: The diff supports this verdict.
 
 <details>
 <summary>Rejected findings (verifier reasons) (1)</summary>
 
-- **src/calc.go:3**: Synthetic old-behavior
-  - Severity: error; confidence: 0.70; verdict: rejected; layers: correctness.
+- **f2 — src/calc.go:3**: Synthetic old-behavior
+  - Severity: error; confidence: 0.70; verdict: rejected; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
   - Verifier: This behavior existed before the synthetic diff.
 
@@ -117,8 +116,7 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 ```
 
 Findings are grouped by severity. Rejected and filtered findings have collapsed
-audit sections; verifier reasons remain visible when expanded. Merged findings
-also list their individual source claims. Model text is escaped before it is
+audit sections; verifier reasons remain visible when expanded. Possible duplicates are linked by their display IDs. Model text is escaped before it is
 inserted into the comment.
 
 The checked-in [renderer goldens](../internal/render/testdata) show complete

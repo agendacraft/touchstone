@@ -36,8 +36,13 @@ func (r Terminal) Render(out io.Writer, report review.Report) error {
 	if len(report.Rejected) > 0 {
 		fmt.Fprintln(&text, "\nRejected (verifier audit):")
 		for _, f := range report.Rejected {
-			fmt.Fprintf(&text, "  %s %s\n    Reason: %s\n", plain(location(f)), plain(f.Title), short(f.Verification.Reason))
-			writeOtherSources(&text, f)
+			r.finding(&text, f)
+		}
+	}
+	if len(report.Filtered) > 0 {
+		fmt.Fprintln(&text, "\nFiltered (below thresholds):")
+		for _, f := range report.Filtered {
+			r.finding(&text, f)
 		}
 	}
 	_, err := io.WriteString(out, text.String())
@@ -65,25 +70,18 @@ func (r Terminal) finding(text *strings.Builder, f review.Finding) {
 		color := map[string]string{"error": "31", "warning": "33", "info": "36"}[f.Severity]
 		marker = "\x1b[" + color + "m" + marker + "\x1b[0m"
 	}
-	fmt.Fprintf(text, "  %s %s %s\n", marker, plain(location(f)), plain(f.Title))
-	fmt.Fprintf(text, "    confidence %.2f | %s | layers: %s\n", f.Confidence, plain(f.Verification.Verdict), plain(provenance(f)))
+	fmt.Fprintf(text, "  %s [%s] %s %s\n", marker, plain(f.DisplayID), plain(location(f)), plain(f.Title))
+	fmt.Fprintf(text, "    confidence %.2f | %s | layer: %s\n", f.Confidence, plain(f.Verification.Verdict), plain(f.Layer))
 	fmt.Fprintf(text, "    Evidence: %s\n", short(f.Evidence))
 	if f.Verification.Reason != "" {
 		fmt.Fprintf(text, "    Verifier: %s\n", short(f.Verification.Reason))
 	}
-	writeOtherSources(text, f)
+	writeHints(text, f)
 }
 
-func writeOtherSources(text *strings.Builder, f review.Finding) {
-	sources := []string{}
-	for _, source := range f.Sources {
-		if source.Layer == f.Layer && source.ID == f.ID {
-			continue
-		}
-		sources = append(sources, fmt.Sprintf("%s:%s (%s, %.2f, %s)", source.Layer, source.ID, source.Severity, source.Confidence, source.Verification.Verdict))
-	}
-	if len(sources) > 0 {
-		fmt.Fprintf(text, "    Also reported by: %s\n", plain(strings.Join(sources, ", ")))
+func writeHints(text *strings.Builder, f review.Finding) {
+	if len(f.PossibleDuplicateOf) > 0 {
+		fmt.Fprintf(text, "    Possible duplicate of: %s\n", plain(strings.Join(f.PossibleDuplicateOf, ", ")))
 	}
 }
 

@@ -2,6 +2,7 @@ package review
 
 import (
 	"cmp"
+	"fmt"
 	"slices"
 	"strings"
 	"unicode"
@@ -9,7 +10,7 @@ import (
 	"github.com/agendacraft/touchstone/internal/config"
 )
 
-// Summary counts claims before merging and retained defects after filtering.
+// Summary counts claims before and after filtering.
 type Summary struct {
 	Candidates    int     `json:"candidates"`
 	Merged        int     `json:"merged"`
@@ -27,13 +28,42 @@ func Triage(report Report, thresholds config.Thresholds) Report {
 		Candidates:  len(report.Findings) + len(report.Rejected),
 		MinSeverity: thresholds.MinSeverity, MinConfidence: thresholds.MinConfidence,
 	}
-	kept := deduplicate(report.Findings)
-	report.Rejected = deduplicate(report.Rejected)
-	summary.Merged = summary.Candidates - len(kept) - len(report.Rejected)
-	report.Findings = []Finding{}
-	report.Filtered = []Finding{}
-	for _, f := range kept {
-		if severity(f.Severity) < severity(thresholds.MinSeverity) || f.Confidence < thresholds.MinConfidence {
+	type item struct {
+		finding  Finding
+		rejected bool
+	}
+	items := make([]item, 0, summary.Candidates)
+	for _, f := range report.Findings {
+		items = append(items, item{finding: f})
+	}
+	for _, f := range report.Rejected {
+		items = append(items, item{finding: f, rejected: true})
+	}
+	slices.SortFunc(items, func(a, b item) int {
+		return cmp.Or(compareFindings(a.finding, b.finding), cmp.Compare(boolOrder(a.rejected), boolOrder(b.rejected)))
+	})
+	for i := range items {
+		items[i].finding.DisplayID = fmt.Sprintf("f%d", i+1)
+		items[i].finding.PossibleDuplicateOf = nil
+		items[i].finding.Rank = "normal"
+		if items[i].finding.Verification.Verdict == "uncertain" {
+			items[i].finding.Rank = "lower"
+		}
+	}
+	for i := range items {
+		for j := i + 1; j < len(items); j++ {
+			if sameDefect(items[i].finding, items[j].finding) {
+				items[i].finding.PossibleDuplicateOf = append(items[i].finding.PossibleDuplicateOf, items[j].finding.DisplayID)
+				items[j].finding.PossibleDuplicateOf = append(items[j].finding.PossibleDuplicateOf, items[i].finding.DisplayID)
+			}
+		}
+	}
+	report.Findings, report.Rejected, report.Filtered = []Finding{}, []Finding{}, []Finding{}
+	for _, item := range items {
+		f := item.finding
+		if item.rejected {
+			report.Rejected = append(report.Rejected, f)
+		} else if severity(f.Severity) < severity(thresholds.MinSeverity) || f.Confidence < thresholds.MinConfidence {
 			report.Filtered = append(report.Filtered, f)
 		} else {
 			report.Findings = append(report.Findings, f)
@@ -48,29 +78,6 @@ func Triage(report Report, thresholds config.Thresholds) Report {
 		}
 	}
 	return report
-}
-
-func deduplicate(input []Finding) []Finding {
-	pending := slices.Clone(input)
-	slices.SortFunc(pending, compareFindings)
-	result := make([]Finding, 0, len(pending))
-	for len(pending) > 0 {
-		first, rest := pending[0], pending[1:]
-		group := []Finding{first}
-		pending = rest
-		unmatched := make([]Finding, 0, len(pending))
-		for _, candidate := range pending {
-			if !slices.ContainsFunc(group, func(member Finding) bool { return !sameDefect(member, candidate) }) {
-				group = append(group, candidate)
-			} else {
-				unmatched = append(unmatched, candidate)
-			}
-		}
-		pending = unmatched
-		result = append(result, merge(group))
-	}
-	slices.SortFunc(result, compareFindings)
-	return result
 }
 
 func sameDefect(a, b Finding) bool {
@@ -103,36 +110,6 @@ func titleTokens(title string) map[string]bool {
 	return tokens
 }
 
-func merge(group []Finding) Finding {
-	slices.SortFunc(group, compareFindings)
-	result := group[0]
-	result.Layers, result.Sources = []string{}, []Source{}
-	evidence, reasons := []string{}, []string{}
-	for _, f := range group {
-		result.Layers = append(result.Layers, f.Layer)
-		result.Sources = append(result.Sources, Source{
-			Layer: f.Layer, Candidate: f.Candidate, Verification: f.Verification,
-		})
-		evidence = append(evidence, f.Evidence)
-		if f.Verification.Reason != "" {
-			reasons = append(reasons, f.Verification.Reason)
-		}
-	}
-	result.Layers = uniqueSorted(result.Layers)
-	result.Evidence = strings.Join(uniqueSorted(evidence), "\n\n")
-	result.Verification.Reason = strings.Join(uniqueSorted(reasons), "\n\n")
-	result.Rank = "normal"
-	if result.Verification.Verdict == "uncertain" {
-		result.Rank = "lower"
-	}
-	return result
-}
-
-func uniqueSorted(values []string) []string {
-	slices.Sort(values)
-	return slices.Compact(values)
-}
-
 func severity(value string) int {
 	return map[string]int{"error": 3, "warning": 2, "info": 1}[value]
 }
@@ -151,4 +128,11 @@ func compareFindings(a, b Finding) int {
 		cmp.Compare(a.Category, b.Category), cmp.Compare(a.Title, b.Title),
 		cmp.Compare(a.Evidence, b.Evidence), cmp.Compare(a.Verification.Reason, b.Verification.Reason),
 	)
+}
+
+func boolOrder(value bool) int {
+	if value {
+		return 1
+	}
+	return 0
 }

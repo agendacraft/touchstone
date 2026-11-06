@@ -29,11 +29,11 @@ func TestOutputCLIThresholds(t *testing.T) {
 		extra                 []string
 		code, shown, filtered int
 	}{
-		{"config", nil, 0, 0, 1},
-		{"severity override still filtered by confidence", []string{"--min-severity", "info"}, 0, 0, 1},
-		{"confidence override still filtered by severity", []string{"--min-confidence", "0"}, 0, 0, 1},
-		{"both overrides", []string{"--min-severity", "warning", "--min-confidence", "0.8"}, 1, 1, 0},
-		{"explicit zero overrides config", []string{"--min-severity", "info", "--min-confidence", "0"}, 1, 1, 0},
+		{"config", nil, 0, 0, 2},
+		{"severity override still filtered by confidence", []string{"--min-severity", "info"}, 0, 0, 2},
+		{"confidence override still filtered by severity", []string{"--min-confidence", "0"}, 0, 0, 2},
+		{"both overrides", []string{"--min-severity", "warning", "--min-confidence", "0.8"}, 1, 2, 0},
+		{"explicit zero overrides config", []string{"--min-severity", "info", "--min-confidence", "0"}, 1, 2, 0},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			args := append([]string{"review", "--diff", "-", "--cwd", dir, "--no-verify"}, tc.extra...)
@@ -44,7 +44,7 @@ func TestOutputCLIThresholds(t *testing.T) {
 				t.Fatal(decodeErr)
 			}
 			if ExitCode(err) != tc.code || len(report.Findings) != tc.shown || report.Triage == nil ||
-				report.Triage.Filtered != tc.filtered || report.Triage.Merged != 1 {
+				report.Triage.Filtered != tc.filtered || report.Triage.Merged != 0 {
 				t.Fatalf("wrong post-triage filtering: %s (%v)", out.String(), err)
 			}
 		})

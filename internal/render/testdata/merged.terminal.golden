@@ -1,22 +1,35 @@
 Touchstone: findings
-2 shown | 1 merged | 1 rejected | 1 filtered (min severity: warning, confidence: 0.70)
+3 shown | 0 merged | 1 rejected | 1 filtered (min severity: warning, confidence: 0.70)
   correctness: complete
   security: complete
   verifier: complete
 
 src/calc.go
-  [ERROR] src/calc.go:8 Synthetic zero-divisor
-    confidence 0.95 | uncertain | layers: correctness, security
-    Evidence: A second source identifies the removed guard. The synthetic change removes a required guard.
-    Verifier: The first source remains uncertain. The second source is confirmed.
-    Also reported by: security:zero_divisor (warning, 0.99, confirmed)
+  [ERROR] [f1] src/calc.go:8 Synthetic zero-divisor
+    confidence 0.95 | uncertain | layer: correctness
+    Evidence: The synthetic change removes a required guard.
+    Verifier: The first source remains uncertain.
+    Possible duplicate of: f3
+  [WARNING] [f3] src/calc.go:8 Synthetic zero-divisor
+    confidence 0.99 | confirmed | layer: security
+    Evidence: A second source identifies the removed guard.
+    Verifier: The second source is confirmed.
+    Possible duplicate of: f1
 
 src/read.go
-  [WARNING] src/read.go:14 Synthetic partial-read
-    confidence 0.80 | uncertain | layers: correctness
+  [WARNING] [f4] src/read.go:14 Synthetic partial-read
+    confidence 0.80 | uncertain | layer: correctness
     Evidence: The synthetic change removes a required guard.
     Verifier: The diff supports this verdict.
 
 Rejected (verifier audit):
-  src/calc.go:3 Synthetic old-behavior
-    Reason: This behavior existed before the synthetic diff.
+  [ERROR] [f2] src/calc.go:3 Synthetic old-behavior
+    confidence 0.70 | rejected | layer: correctness
+    Evidence: The synthetic change removes a required guard.
+    Verifier: This behavior existed before the synthetic diff.
+
+Filtered (below thresholds):
+  [INFO] [f5] src/read.go:20 Synthetic small-risk
+    confidence 0.30 | confirmed | layer: correctness
+    Evidence: The synthetic change removes a required guard.
+    Verifier: The diff supports this verdict.

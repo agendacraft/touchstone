@@ -38,17 +38,10 @@ Do not include layer, description, or any other keys. Maximum 500 findings.
 type Finding struct {
 	Layer string `json:"layer"`
 	findings.Candidate
-	Verification Verification `json:"verification"`
-	Rank         string       `json:"rank"`
-	Layers       []string     `json:"layers,omitempty"`
-	Sources      []Source     `json:"sources,omitempty"`
-}
-
-// Source preserves an original claim when triage combines multiple reports.
-type Source struct {
-	Layer string `json:"layer"`
-	findings.Candidate
-	Verification Verification `json:"verification"`
+	Verification        Verification `json:"verification"`
+	Rank                string       `json:"rank"`
+	DisplayID           string       `json:"display_id,omitempty"`
+	PossibleDuplicateOf []string     `json:"possible_duplicate_of,omitempty"`
 }
 
 type Verification struct {

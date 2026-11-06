@@ -132,46 +132,28 @@ them all. Triage follows verification, as described below.
 
 ## Cross-layer triage and thresholds
 
-Claims from different specialist layers merge when they have the same file and
-line and their title token sets have Jaccard similarity of at least 0.5. Titles
-are lowercased, punctuation separates tokens, and common stopwords are removed.
-Every pair of claims in a group must match, and a group contains at most one
-claim from each layer. Rejected claims are triaged separately.
+Every claim remains separate with its original severity, confidence, verdict,
+evidence, and reason. Claims from different layers receive symmetric
+`possible_duplicate_of` hints when they share a file and line and their title
+token sets have Jaccard similarity of at least 0.5. Titles are lowercased,
+punctuation separates tokens, and common stopwords are removed. Hints compare
+direct pairs only; they do not change counts, rank, filtering, or verdicts.
 
-The representative has the highest severity, then highest confidence, then
-strongest verdict (`confirmed`, `unverified`, `uncertain`), then lowest layer
-order. Its severity, confidence and verdict remain together. Evidence and
-verifier reasons are combined in sorted, unique order. `rank` is `lower` for
-an uncertain representative; rejected groups remain rejected.
-Every original claim and its individual assessment remain in `sources`;
-`layers` lists all contributing layers in sorted order.
+All claims receive unique `display_id` values in deterministic rank order
+before filtering, including rejected and filtered claims. Hints can reference
+any of these sections. Claims sort by severity (`error`, `warning`, `info`),
+descending confidence, verifier verdict (uncertain lower), file, line, layer,
+ID, category, title, evidence and reason.
 
-Both retained and rejected groups sort by severity (`error`, `warning`, `info`),
-descending confidence, verifier verdict (uncertain lower), file, and line.
-Layer, ID, category, title, evidence, and reason break remaining ties.
-Input order does not decide the representative or output order. Terminal output
-groups by file and preserves this priority within each file.
+`--min-severity` and `--min-confidence` filter retained claims independently.
+Bounds are inclusive; confidence must be finite and between 0 and 1. Defaults
+are `info` and `0`. Optional `[output]` settings are independently overridden
+by explicit CLI flags. Rejected claims are not filtered.
 
-`--min-severity` and `--min-confidence` apply only to retained groups **after**
-merging. Bounds are inclusive; confidence must be finite and between 0 and 1.
-Defaults are `info` and `0`. Optional `[output] min_severity` and
-`min_confidence` in `touchstone.toml` set defaults, independently overridden by
-explicit CLI flags (including confidence `0`). Rejected claims are not filtered.
-
-`triage` contains:
-
-| Field | Meaning |
-| --- | --- |
-| `candidates` | Original claims across retained and rejected sections |
-| `merged` | Original claims combined into other groups |
-| `shown` | Retained groups after filtering |
-| `rejected` | Rejected groups after merging |
-| `filtered` | Retained groups removed by either threshold, counted once |
-| `min_severity`, `min_confidence` | Effective thresholds |
-
-Thus `candidates = merged + shown + rejected + filtered`. A nonempty `filtered`
-array preserves the excluded groups with the same shape as `findings`; it is
-omitted when empty. Thresholds never hide the incomplete outcome.
+`triage` counts candidates, shown, rejected and filtered claims and records
+the effective thresholds. The compatibility field `merged` is always zero.
+Thus `candidates = shown + rejected + filtered`. A nonempty `filtered` array
+preserves excluded claims; thresholds never hide an incomplete outcome.
 
 ## CLI report
 
@@ -195,24 +177,7 @@ omitted when empty. Thresholds never hide the incomplete outcome.
         "reason": "The removed guard allows divide(0) to evaluate 10/0 at line 2."
       },
       "rank": "normal",
-      "layers": ["correctness"],
-      "sources": [
-        {
-          "layer": "correctness",
-          "id": "synthetic-1",
-          "severity": "error",
-          "category": "logic",
-          "file": "src/example.go",
-          "line": 2,
-          "title": "Zero input panics",
-          "evidence": "The synthetic change removes the zero guard before 10/n.",
-          "confidence": 0.95,
-          "verification": {
-            "verdict": "confirmed",
-            "reason": "The removed guard allows divide(0) to evaluate 10/0 at line 2."
-          }
-        }
-      ]
+      "display_id": "f1"
     }
   ],
   "layers": [
@@ -290,11 +255,10 @@ omitted when empty. Thresholds never hide the incomplete outcome.
 Existing version-2 keys remain emitted, including null unknown metadata. `findings`,
 `rejected`, `layers`, and `attempts` are arrays, never null. `layers` always
 contains `correctness`, then `security`, regardless of completion order.
-Finding groups use triage order, not specialist/model order. IDs are layer-scoped:
-use `(layer, id)`, not `id` alone; merged groups also expose the original
-identities through `sources`. A report has at most 1,000 original claims across
-retained, filtered, and rejected groups' sources. `rejected` uses the same
-finding shape, with the rejected verdict and reason.
+Findings use triage order, not specialist/model order. Original IDs are
+layer-scoped; `display_id` is unique within the report. A report has at most
+1,000 claims across retained, filtered, and rejected sections. `rejected`
+uses the same finding shape, with the rejected verdict and reason.
 
 Specialist `status` is `complete` only after successful schema validation,
 otherwise `incomplete`. `verifier` always exists, with the same result fields

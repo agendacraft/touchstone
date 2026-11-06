@@ -5,8 +5,7 @@ A layered pull-request review CLI that drives the Droid CLI.
 **Early development.** `touchstone review` runs independent correctness and
 security specialists over a supplied diff, then a fresh skeptical verifier.
 Confirmed findings stay, rejected claims move to an audit section, and uncertain
-findings stay with lower rank. Cross-layer triage merges duplicate claims,
-preserves their sources, and ranks the results before optional filtering.
+findings stay with lower rank. Cross-layer triage marks possible duplicates and ranks each claim before optional filtering.
 Terminal, JSON, and Markdown output are available. There is no git/PR input,
 forge posting, automatic fixing, telemetry, or release yet.
 Verification is model judgment, not proof of correctness.
@@ -70,12 +69,9 @@ for copying into a PR comment, but Touchstone never posts it. Terminal color
 requires a TTY and is disabled when `NO_COLOR` is present, even if empty.
 See [examples of all three formats](docs/output-formats.md).
 
-Triage combines cross-layer claims with similar titles at the same file and line,
-with all original claims, evidence, and verdicts retained in `sources`. The
-highest-severity claim supplies its paired confidence and verdict; ties prefer
-higher confidence, then stronger verdict. Rejected claims
-remain a separate audit section. Results rank by severity, confidence, verifier
-verdict, and file/line, with stable tie-breakers.
+Triage keeps each claim and its own assessment. Similar cross-layer claims at
+the same location receive possible-duplicate hints. Results rank by severity,
+confidence, verifier verdict, and file/line, with stable tie-breakers.
 
 `--min-severity info|warning|error` and `--min-confidence 0..1` filter **after**
 triage. Defaults show everything; flags override `[output]` settings independently.

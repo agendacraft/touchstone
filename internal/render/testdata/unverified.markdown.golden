@@ -19,20 +19,20 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 ### ERROR
 
 - **src/calc.go:8**: Synthetic zero-divisor
-  - Severity: error; confidence: 0.95; verdict: unverified; layers: correctness.
+  - Severity: error; confidence: 0.95; verdict: unverified; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
 
 ### WARNING
 
 - **src/read.go:14**: Synthetic partial-read
-  - Severity: warning; confidence: 0.80; verdict: unverified; layers: correctness.
+  - Severity: warning; confidence: 0.80; verdict: unverified; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
 
 <details>
 <summary>Filtered findings (below thresholds) (1)</summary>
 
 - **src/read.go:20**: Synthetic small-risk
-  - Severity: info; confidence: 0.30; verdict: unverified; layers: correctness.
+  - Severity: info; confidence: 0.30; verdict: unverified; layer: correctness.
   - Evidence: The synthetic change removes a required guard.
 
 </details>
