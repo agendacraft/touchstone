@@ -30,7 +30,8 @@ go build -o /tmp/touchstone ./cmd/touchstone
 /tmp/touchstone review --diff - --concurrency 1 < /tmp/synthetic.patch
 ```
 
-Supply a nonempty unified diff, up to 16 MiB. `--diff` is required; `-` reads
+Supply a nonempty unified diff, up to 16 MiB; its format is not validated.
+`--diff` is required; `-` reads
 stdin. File paths resolve relative to the shell's current directory. `--cwd`
 selects the directory containing optional `touchstone.toml`, not the diff
 file's directory. No git command runs. The agent works in a private scratch
@@ -136,19 +137,11 @@ tool restrictions are **not an OS sandbox**. Settings merge with local Droid
 settings. Do not run this against untrusted repositories with host credentials.
 Using Droid sends prompts and inspected content to the selected model service.
 
-The review runner validates a findings array in the model's `result` string.
-The entire response must be one JSON array, optionally inside exactly one
-`json` or bare code fence, with only JSON whitespace outside. Surrounding prose,
-multiple arrays or fences, malformed JSON, unknown fields, and duplicate keys
-are rejected. A second malformed response makes that layer incomplete.
-The foundation's strict
-[legacy report contract](docs/findings.md) remains available to adapter callers;
-the CLI uses the [review-output contract](docs/review-output.md) instead.
-Usage is preserved when provided; missing usage and currency cost remain
-unknown. Factory credits are not converted to dollars. Process failure,
-cancellation, timeout, and malformed output return errors, not clean reviews.
-An `incomplete` report is distinct from `clean`. A deterministic fake and
-synthetic recorded fixtures let tests run without an account.
+The CLI validates specialist responses against the
+[review-output contract](docs/review-output.md). The foundation's
+[legacy report contract](docs/findings.md) remains available to adapter callers.
+A deterministic fake and synthetic recorded fixtures let tests run without an
+account.
 
 ## Development
 
