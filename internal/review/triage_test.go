@@ -59,19 +59,19 @@ func TestDedupe(t *testing.T) {
 
 func TestMergePreservesClaims(t *testing.T) {
 	a, b := claim("correctness", "a", 8), claim("security", "b", 8)
-	a.Severity, a.Confidence = "error", 0.4
-	b.Confidence, b.Verification.Verdict = 0.95, "uncertain"
+	a.Severity, a.Confidence, a.Verification.Verdict = "error", 0.4, "uncertain"
+	b.Confidence, b.Verification.Verdict = 0.95, "confirmed"
 	report := Report{Findings: []Finding{b, a}}
 	got := Triage(report, config.Thresholds{MinSeverity: "info"})
 	if len(got.Findings) != 1 {
 		t.Fatal("duplicate was not merged")
 	}
 	f := got.Findings[0]
-	if f.Severity != "error" || f.Confidence != 0.4 || f.Verification.Verdict != "confirmed" || f.Rank != "normal" ||
+	if f.Severity != "error" || f.Confidence != 0.4 || f.Verification.Verdict != "uncertain" || f.Rank != "lower" ||
 		!reflect.DeepEqual(f.Layers, []string{"correctness", "security"}) {
 		t.Fatalf("wrong aggregate: %+v", f)
 	}
-	if len(f.Sources) != 2 || f.Sources[0].Confidence != 0.4 || f.Sources[1].Confidence != 0.95 {
+	if len(f.Sources) != 2 || f.Sources[0].Confidence != 0.4 || f.Sources[1].Confidence != 0.95 || f.Sources[1].Verification.Verdict != "confirmed" {
 		t.Fatal("original assessments lost")
 	}
 	for _, source := range []Finding{a, b} {
@@ -85,12 +85,45 @@ func TestMergePreservesClaims(t *testing.T) {
 	}
 }
 
-func TestDedupeDoesNotChain(t *testing.T) {
-	a, b, c := claim("correctness", "a", 1), claim("security", "b", 1), claim("correctness", "c", 1)
-	a.Title, b.Title, c.Title = "alpha beta", "alpha beta gamma", "beta gamma"
-	got := deduplicate([]Finding{c, b, a})
-	if len(got) != 2 || len(got[0].Sources) != 2 {
-		t.Fatalf("claims chained through a bridge: %+v", got)
+func TestDedupeGroupMembership(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		layers [3]string
+		titles [3]string
+	}{
+		{"same layer", [3]string{"correctness", "security", "security"}, [3]string{"request bypass", "request authentication bypass", "request authorization bypass"}},
+		{"all pairs must match", [3]string{"correctness", "security", "third"}, [3]string{"alpha beta gamma", "alpha beta", "beta gamma"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			claims := make([]Finding, 3)
+			for i := range claims {
+				claims[i] = claim(tc.layers[i], string(rune('a'+i)), 1)
+				claims[i].Title = tc.titles[i]
+			}
+			for _, rejected := range []bool{false, true} {
+				report := Report{Findings: claims}
+				if rejected {
+					report.Findings, report.Rejected = nil, claims
+				}
+				got := Triage(report, config.Thresholds{MinSeverity: "info"})
+				items := got.Findings
+				if rejected {
+					items = got.Rejected
+				}
+				if len(items) != 2 || got.Triage.Merged != 1 {
+					t.Fatalf("distinct claims combined: %+v", got)
+				}
+			}
+		})
+	}
+}
+
+func TestRepresentativeVerdictTieBreak(t *testing.T) {
+	a, b := claim("correctness", "a", 1), claim("security", "b", 1)
+	a.Verification.Verdict = "uncertain"
+	got := Triage(Report{Findings: []Finding{a, b}}, config.Thresholds{MinSeverity: "info"})
+	if len(got.Findings) != 1 || got.Findings[0].Layer != "security" || got.Findings[0].Verification.Verdict != "confirmed" {
+		t.Fatalf("confirmed assessment did not win tie: %+v", got)
 	}
 }
 

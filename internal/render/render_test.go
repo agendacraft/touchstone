@@ -63,10 +63,11 @@ func TestGoldenReports(t *testing.T) {
 		if state == "merged" {
 			input.Outcome = "findings"
 			input.Layers[1].Status, input.Layers[1].Error = "complete", ""
+			input.Findings[0].Verification = review.Verification{Verdict: "uncertain", Reason: "The first source remains uncertain."}
 			second := input.Findings[0]
 			second.Layer, second.ID, second.Severity, second.Confidence = "security", "zero_divisor", "warning", 0.99
 			second.Evidence = "A second source identifies the removed guard."
-			second.Verification = review.Verification{Verdict: "uncertain", Reason: "The second source remains uncertain."}
+			second.Verification = review.Verification{Verdict: "confirmed", Reason: "The second source is confirmed."}
 			input.Findings = append(input.Findings, second)
 		}
 		report := review.Triage(input, config.Thresholds{MinSeverity: "warning", MinConfidence: 0.7})

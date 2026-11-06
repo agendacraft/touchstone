@@ -135,14 +135,14 @@ them all. Triage follows verification, as described below.
 Claims from different specialist layers merge when they have the same file and
 line and their title token sets have Jaccard similarity of at least 0.5. Titles
 are lowercased, punctuation separates tokens, and common stopwords are removed.
-Each claim is compared only with the first claim in a group; matching is not
-transitive. Rejected claims are triaged separately.
+Every pair of claims in a group must match, and a group contains at most one
+claim from each layer. Rejected claims are triaged separately.
 
 The representative has the highest severity, then highest confidence, then
-lowest layer order; its severity and confidence remain together. Evidence and
-verifier reasons are combined in sorted, unique order. The strongest source
-verdict wins (`confirmed`, then `unverified`, then `uncertain`; rejected groups
-remain rejected). `rank` is `lower` only for an aggregate uncertain verdict.
+strongest verdict (`confirmed`, `unverified`, `uncertain`), then lowest layer
+order. Its severity, confidence and verdict remain together. Evidence and
+verifier reasons are combined in sorted, unique order. `rank` is `lower` for
+an uncertain representative; rejected groups remain rejected.
 Every original claim and its individual assessment remain in `sources`;
 `layers` lists all contributing layers in sorted order.
 

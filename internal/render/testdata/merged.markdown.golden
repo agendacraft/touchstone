@@ -15,11 +15,11 @@ Thresholds: severity ≥ warning; confidence ≥ 0.70.
 ### ERROR
 
 - **src/calc.go:8**: Synthetic zero-divisor
-  - Severity: error; confidence: 0.95; verdict: confirmed; layers: correctness, security.
+  - Severity: error; confidence: 0.95; verdict: uncertain; layers: correctness, security.
   - Evidence: A second source identifies the removed guard. The synthetic change removes a required guard.
-  - Verifier: The diff supports this verdict. The second source remains uncertain.
+  - Verifier: The first source remains uncertain. The second source is confirmed.
   - Also reported by:
-    - security:zero\_divisor: src/calc.go:8 (warning, 0.99, uncertain). Evidence: A second source identifies the removed guard. Verifier: The second source remains uncertain.
+    - security:zero\_divisor: src/calc.go:8 (warning, 0.99, confirmed). Evidence: A second source identifies the removed guard. Verifier: The second source is confirmed.
 
 ### WARNING
 

@@ -13,10 +13,10 @@
       "evidence": "A second source identifies the removed guard.\n\nThe synthetic change removes a required guard.",
       "confidence": 0.95,
       "verification": {
-        "verdict": "confirmed",
-        "reason": "The diff supports this verdict.\n\nThe second source remains uncertain."
+        "verdict": "uncertain",
+        "reason": "The first source remains uncertain.\n\nThe second source is confirmed."
       },
-      "rank": "normal",
+      "rank": "lower",
       "layers": [
         "correctness",
         "security"
@@ -33,8 +33,8 @@
           "evidence": "The synthetic change removes a required guard.",
           "confidence": 0.95,
           "verification": {
-            "verdict": "confirmed",
-            "reason": "The diff supports this verdict."
+            "verdict": "uncertain",
+            "reason": "The first source remains uncertain."
           }
         },
         {
@@ -48,8 +48,8 @@
           "evidence": "A second source identifies the removed guard.",
           "confidence": 0.99,
           "verification": {
-            "verdict": "uncertain",
-            "reason": "The second source remains uncertain."
+            "verdict": "confirmed",
+            "reason": "The second source is confirmed."
           }
         }
       ]

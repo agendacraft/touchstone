@@ -60,7 +60,7 @@ func deduplicate(input []Finding) []Finding {
 		pending = rest
 		unmatched := make([]Finding, 0, len(pending))
 		for _, candidate := range pending {
-			if sameDefect(first, candidate) {
+			if !slices.ContainsFunc(group, func(member Finding) bool { return !sameDefect(member, candidate) }) {
 				group = append(group, candidate)
 			} else {
 				unmatched = append(unmatched, candidate)
@@ -104,10 +104,7 @@ func titleTokens(title string) map[string]bool {
 }
 
 func merge(group []Finding) Finding {
-	slices.SortFunc(group, func(a, b Finding) int {
-		return cmp.Or(cmp.Compare(severity(b.Severity), severity(a.Severity)),
-			cmp.Compare(b.Confidence, a.Confidence), cmp.Compare(a.Layer, b.Layer), compareFindings(a, b))
-	})
+	slices.SortFunc(group, compareFindings)
 	result := group[0]
 	result.Layers, result.Sources = []string{}, []Source{}
 	evidence, reasons := []string{}, []string{}
@@ -119,9 +116,6 @@ func merge(group []Finding) Finding {
 		evidence = append(evidence, f.Evidence)
 		if f.Verification.Reason != "" {
 			reasons = append(reasons, f.Verification.Reason)
-		}
-		if verdict(f.Verification.Verdict) > verdict(result.Verification.Verdict) {
-			result.Verification.Verdict = f.Verification.Verdict
 		}
 	}
 	result.Layers = uniqueSorted(result.Layers)
