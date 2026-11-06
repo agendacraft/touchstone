@@ -224,3 +224,15 @@ func (c Config) ForPath(file string) (map[string]Layer, error) {
 	}
 	return layers, nil
 }
+
+// ReviewLayers returns repository-wide specialist policy. Path rules and the
+// reserved verification layer are not executed by the S1 diff runner.
+func (c Config) ReviewLayers() map[string]Layer {
+	layers := make(map[string]Layer, 2)
+	for _, name := range []string{"correctness", "security"} {
+		layer := c.layers[name]
+		layer.Rules = append([]string(nil), layer.Rules...)
+		layers[name] = layer
+	}
+	return layers
+}

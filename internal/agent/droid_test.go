@@ -362,3 +362,45 @@ func TestRequestValidationAndFake(t *testing.T) {
 		t.Fatal("fake did not propagate error")
 	}
 }
+
+func TestRawModelOutputKeepsTransportValidation(t *testing.T) {
+	for _, tc := range []struct {
+		name, text string
+		failed     bool
+		exit       error
+		wantError  bool
+	}{
+		{"array", "[]", false, nil, false},
+		{"malformed model text", "not JSON", false, nil, false},
+		{"Droid failure", "[]", true, nil, true},
+		{"process failure", "[]", false, errors.New("synthetic exit"), true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			data, err := json.Marshal(map[string]any{
+				"type": "result", "subtype": "success", "is_error": tc.failed,
+				"session_id": "synthetic-session", "result": tc.text,
+				"usage": map[string]any{"input_tokens": 10},
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			d := Droid{run: func(_ context.Context, _ string, _ []string, _ string, out, _ io.Writer) error {
+				_, _ = out.Write(data)
+				return tc.exit
+			}}
+			r := request(t)
+			r.RawOutput = true
+			result, err := d.Run(context.Background(), r)
+			if (err != nil) != tc.wantError || result.Usage.InputTokens == nil || *result.Usage.InputTokens != 10 {
+				t.Fatalf("raw output lost transport checks or usage: %+v, %v", result, err)
+			}
+			if tc.wantError {
+				if result.Output != "" {
+					t.Fatal("failed transport exposed model output")
+				}
+			} else if result.Output != tc.text || result.Report.Outcome != "" {
+				t.Fatal("adapter interpreted raw model output")
+			}
+		})
+	}
+}

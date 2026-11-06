@@ -2,7 +2,6 @@ package cli
 
 import (
 	"bytes"
-	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -35,9 +34,6 @@ func TestCommands(t *testing.T) {
 			err := Run(tc.args, &out, &stderr, "test-version")
 			if (err != nil) != tc.fail || !strings.Contains(out.String(), tc.want) {
 				t.Fatalf("out %q, err %v", out.String(), err)
-			}
-			if len(tc.args) == 1 && tc.args[0] == "review" && !errors.Is(err, ErrNotImplemented) {
-				t.Fatal("review skeleton must fail explicitly")
 			}
 		})
 	}

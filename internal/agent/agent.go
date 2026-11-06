@@ -12,6 +12,9 @@ import (
 )
 
 type Request struct {
+	// RawOutput leaves model-text validation to the layer runner. Transport
+	// envelopes, usage, and process status are still checked by the adapter.
+	RawOutput        bool
 	Prompt           string
 	Model            string
 	ReasoningEffort  string
@@ -47,11 +50,12 @@ type Usage struct {
 
 // Cost is nil when the provider does not report a currency amount.
 type Cost struct {
-	Amount   float64
-	Currency string
+	Amount   float64 `json:"amount"`
+	Currency string  `json:"currency"`
 }
 
 type Result struct {
+	Output    string
 	Report    findings.Report
 	Usage     Usage
 	Cost      *Cost

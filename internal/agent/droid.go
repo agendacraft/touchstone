@@ -72,7 +72,7 @@ func (d Droid) Run(ctx context.Context, r Request) (Result, error) {
 	}
 	out, stderr := &boundedBuffer{limit: maxEnvelope}, &boundedBuffer{limit: 64 << 10}
 	runErr := run(ctx, binary, args, r.WorkingDirectory, out, stderr)
-	result, parseErr := parseEnvelope(out.Bytes())
+	result, parseErr := parseEnvelopeOutput(out.Bytes(), r.RawOutput)
 	if ctx.Err() != nil {
 		kind := Canceled
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
@@ -88,10 +88,12 @@ func (d Droid) Run(ctx context.Context, r Request) (Result, error) {
 		}
 		// Preserve structured metadata when available, but never return a report.
 		result.Report = findings.Report{}
+		result.Output = ""
 		return result, &RunError{Kind: ProcessFailure, ExitCode: code}
 	}
 	if out.overflow || stderr.overflow || parseErr != nil {
 		result.Report = findings.Report{}
+		result.Output = ""
 		return result, &RunError{Kind: InvalidOutput, ExitCode: 0}
 	}
 	return result, nil
@@ -140,6 +142,10 @@ func rejectFieldAliases(data []byte, fields ...string) error {
 }
 
 func parseEnvelope(data []byte) (Result, error) {
+	return parseEnvelopeOutput(data, false)
+}
+
+func parseEnvelopeOutput(data []byte, raw bool) (Result, error) {
 	var result Result
 	if err := jsonutil.Check(data, maxEnvelope); err != nil {
 		return result, err
@@ -180,6 +186,10 @@ func parseEnvelope(data []byte) (Result, error) {
 	}
 	if *envelope.IsError || envelope.Subtype != "success" {
 		return result, errors.New("Droid reported failure")
+	}
+	if raw {
+		result.Output = *envelope.Text
+		return result, nil
 	}
 	report, err := findings.Parse([]byte(*envelope.Text))
 	if err != nil {

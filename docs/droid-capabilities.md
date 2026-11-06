@@ -66,11 +66,16 @@ schema. All **3/3** had the requested outcome and finding count; the single
 finding had the requested file, line, ID, and required nonempty fields.
 Wall times were 6.37, 6.40, and 11.57 seconds. This convenience sample is too
 small to establish reliability, precision, review quality, or a production
-success rate. No retry or repair was needed, and none is implemented.
+success rate. No retry or repair was needed in this baseline probe.
 
-The application validates every report independently. Plain text, Markdown
+The legacy adapter validates every report independently. Plain text, Markdown
 fences, missing or unknown keys, duplicate keys, invalid locations and types,
 and contradictory outcomes are errors, not findings or a clean result.
+
+The S1 review runner separately tolerates fences and prose surrounding a strict
+findings array and allows one schema-repair retry. Those orchestration behaviors
+were not measured by this historical baseline; see the current
+[review-output contract](review-output.md) and opt-in live smoke test.
 
 ## GLM-5.3-Flash follow-up
 
