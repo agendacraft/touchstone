@@ -248,3 +248,61 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 		}
 	}
 }
+
+func TestClosedOutputPipesExitWithError(t *testing.T) {
+	dir := t.TempDir()
+	binary := filepath.Join(dir, "touchstone")
+	if out, err := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); err != nil {
+		t.Fatalf("build CLI: %v\n%s", err, out)
+	}
+	script := "#!/bin/sh\nprintf '%s' '{\"type\":\"result\",\"subtype\":\"success\",\"is_error\":false,\"session_id\":\"test\",\"result\":\"[]\"}'\n"
+	if err := os.WriteFile(filepath.Join(dir, "droid"), []byte(script), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		name   string
+		args   []string
+		stderr bool
+	}{
+		{"review output", []string{"review", "--diff", "-"}, false},
+		{"version output", []string{"version"}, false},
+		{"flag help", []string{"review", "--help"}, true},
+		{"flag error", []string{"review", "--bad"}, true},
+		{"diagnostic", []string{"unknown"}, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			read, write, err := os.Pipe()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := read.Close(); err != nil {
+				t.Fatal(err)
+			}
+			defer write.Close()
+			cmd := exec.Command(binary, tc.args...)
+			cmd.Dir = dir
+			cmd.Env = append(os.Environ(), "PATH="+dir+string(os.PathListSeparator)+os.Getenv("PATH"))
+			cmd.Stdin = strings.NewReader("--- a/a\n+++ b/a\n")
+			if tc.stderr {
+				cmd.Stderr = write
+			} else {
+				cmd.Stdout = write
+			}
+			if err := cmd.Start(); err != nil {
+				t.Fatal(err)
+			}
+			done := make(chan error, 1)
+			go func() { done <- cmd.Wait() }()
+			select {
+			case <-done:
+			case <-time.After(5 * time.Second):
+				_ = cmd.Process.Kill()
+				<-done
+				t.Fatal("CLI did not exit")
+			}
+			if cmd.ProcessState.ExitCode() != 3 {
+				t.Fatalf("expected exit 3, got %v", cmd.ProcessState)
+			}
+		})
+	}
+}

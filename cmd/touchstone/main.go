@@ -16,12 +16,16 @@ import (
 var version = "dev"
 
 func main() {
+	ignoreBrokenPipe()
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	out := cancelWriter{ctx, os.Stdout}
-	stderr := cancelWriter{ctx, os.Stderr}
+	out := &cancelWriter{ctx: ctx, out: os.Stdout}
+	stderr := &cancelWriter{ctx: ctx, out: os.Stderr}
 	err := cli.RunContext(ctx, os.Args[1:], os.Stdin, out, stderr, version, agent.Droid{})
 	code := cli.ExitCode(err)
+	if out.err != nil || stderr.err != nil {
+		code = 3
+	}
 	if code == 3 {
 		fmt.Fprintln(stderr, "touchstone:", err)
 	}
@@ -33,9 +37,15 @@ func main() {
 type cancelWriter struct {
 	ctx context.Context
 	out io.Writer
+	err error
 }
 
-func (w cancelWriter) Write(p []byte) (int, error) {
+func (w *cancelWriter) Write(p []byte) (n int, err error) {
+	defer func() {
+		if err != nil {
+			w.err = err
+		}
+	}()
 	type result struct {
 		n   int
 		err error
