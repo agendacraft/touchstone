@@ -37,12 +37,12 @@ func TestReviewCLIOutcomes(t *testing.T) {
 			fake := agent.Fake{Respond: func(context.Context, agent.Request) (agent.Result, error) {
 				return agent.Result{Output: tc.output}, tc.failure
 			}}
-			err := RunContext(context.Background(), []string{"review", "--diff", "-", "--cwd", dir}, strings.NewReader(cliDiff), &out, &stderr, "test", fake)
+			err := RunContext(context.Background(), []string{"review", "--diff", "-", "--cwd", dir, "--no-verify"}, strings.NewReader(cliDiff), &out, &stderr, "test", fake)
 			if ExitCode(err) != tc.code || stderr.Len() != 0 || strings.Contains(out.String(), "private diagnostic") {
 				t.Fatalf("wrong command status or leaked diagnostics: %v, %q", err, out.String())
 			}
 			var report review.Report
-			if err := json.Unmarshal(out.Bytes(), &report); err != nil || report.SchemaVersion != 1 || report.Outcome != tc.outcome || report.Findings == nil || len(report.Layers) != 2 {
+			if err := json.Unmarshal(out.Bytes(), &report); err != nil || report.SchemaVersion != 2 || report.Outcome != tc.outcome || report.Findings == nil || len(report.Layers) != 2 {
 				t.Fatalf("invalid public JSON: %q, %v", out.String(), err)
 			}
 		})
@@ -145,13 +145,14 @@ func TestReviewJSONMetadataContract(t *testing.T) {
 	// This literal is the public serialized contract, independent of the Go
 	// report types. It rejects missing/renamed keys and zeroed unknown usage.
 	const expected = `{
-		"schema_version":1,"outcome":"clean","findings":[],
+		"schema_version":2,"outcome":"clean","findings":[],
+		"rejected":[],"verifier":{"name":"verification","status":"not_needed","error":"","attempts":[]},
 		"layers":[
 			{"name":"correctness","status":"complete","error":"","attempts":[
-				{"usage":{"input_tokens":23,"output_tokens":null,"cache_read_input_tokens":null,"cache_creation_input_tokens":null,"factory_credits":null,"thinking_tokens":null},"cost":{"amount":0.01,"currency":"USD"}}
+				{"usage":{"input_tokens":23,"output_tokens":null,"cache_read_input_tokens":null,"cache_creation_input_tokens":null,"factory_credits":null,"thinking_tokens":null},"cost":{"amount":0.01,"currency":"USD"},"duration_ms":0}
 			]},
 			{"name":"security","status":"complete","error":"","attempts":[
-				{"usage":{"input_tokens":23,"output_tokens":null,"cache_read_input_tokens":null,"cache_creation_input_tokens":null,"factory_credits":null,"thinking_tokens":null},"cost":{"amount":0.01,"currency":"USD"}}
+				{"usage":{"input_tokens":23,"output_tokens":null,"cache_read_input_tokens":null,"cache_creation_input_tokens":null,"factory_credits":null,"thinking_tokens":null},"cost":{"amount":0.01,"currency":"USD"},"duration_ms":0}
 			]}
 		]
 	}`
@@ -161,6 +162,16 @@ func TestReviewJSONMetadataContract(t *testing.T) {
 	}
 	if err := json.Unmarshal([]byte(expected), &want); err != nil {
 		t.Fatal(err)
+	}
+	for _, layer := range got.(map[string]any)["layers"].([]any) {
+		for _, attempt := range layer.(map[string]any)["attempts"].([]any) {
+			fields := attempt.(map[string]any)
+			duration, ok := fields["duration_ms"].(float64)
+			if !ok || duration < 0 || duration != float64(int64(duration)) {
+				t.Fatal("duration_ms must be a nonnegative integer")
+			}
+			fields["duration_ms"] = float64(0)
+		}
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("review JSON contract changed: %s", out.String())

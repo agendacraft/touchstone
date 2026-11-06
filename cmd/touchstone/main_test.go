@@ -49,7 +49,7 @@ func TestProcessExitCodes(t *testing.T) {
 		{"two fences", "```json\n[]\n```\n```\n[]\n```", "incomplete", 2, []string{"review", "--diff", "-"}},
 		{"fence inner prose", "```json\nNo findings: []\n```", "incomplete", 2, []string{"review", "--diff", "-"}},
 		{"fence outer prose", "```json\n[]\n```\nDone.", "incomplete", 2, []string{"review", "--diff", "-"}},
-		{"findings", `[{"id":"synthetic-1","severity":"warning","category":"logic","file":"example.go","line":1,"title":"Zero divisor","evidence":"The synthetic change divides by zero.","confidence":1}]`, "findings", 1, []string{"review", "--diff", "-"}},
+		{"unverified findings", `[{"id":"synthetic-1","severity":"warning","category":"logic","file":"example.go","line":1,"title":"Zero divisor","evidence":"The synthetic change divides by zero.","confidence":1}]`, "findings", 1, []string{"review", "--diff", "-", "--no-verify"}},
 		{"incomplete", "malformed", "incomplete", 2, []string{"review", "--diff", "-"}},
 		{"command error", "", "", 3, []string{"review"}},
 	} {

@@ -63,6 +63,8 @@ type Result struct {
 }
 
 type Agent interface {
+	// Run starts a fresh session without prior conversation and honors context
+	// cancellation. Every specialist, verifier, and repair uses a separate Run.
 	Run(context.Context, Request) (Result, error)
 }
 

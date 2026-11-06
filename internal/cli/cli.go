@@ -18,7 +18,7 @@ import (
 
 const usage = `Touchstone (early development)
 Usage:
-  touchstone review --diff FILE|- [--cwd DIRECTORY] [--concurrency N]
+  touchstone review --diff FILE|- [--cwd DIRECTORY] [--concurrency N] [--no-verify]
   touchstone version
   touchstone config validate [--cwd DIRECTORY]
 `
@@ -107,6 +107,7 @@ func runReview(ctx context.Context, args []string, in io.Reader, out, stderr io.
 	diff := fs.String("diff", "", "diff file, or - for stdin (required)")
 	cwd := fs.String("cwd", ".", "directory containing optional touchstone.toml")
 	concurrency := fs.Int("concurrency", 2, "maximum parallel specialist layers")
+	noVerify := fs.Bool("no-verify", false, "disable independent verification (findings remain unverified)")
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return nil
@@ -159,7 +160,7 @@ func runReview(ctx context.Context, args []string, in io.Reader, out, stderr io.
 	case <-ctx.Done():
 		return ctx.Err()
 	}
-	report, err := (review.Runner{Agent: a, Concurrency: *concurrency}).Run(ctx, data, cfg)
+	report, err := (review.Runner{Agent: a, Concurrency: *concurrency, DisableVerifier: *noVerify}).Run(ctx, data, cfg)
 	if err != nil {
 		return err
 	}
