@@ -39,6 +39,16 @@ func TestProcessExitCodes(t *testing.T) {
 		args                  []string
 	}{
 		{"clean", "[]", "clean", 0, []string{"review", "--diff", "-"}},
+		{"json fenced clean", "```json\n[]\n```", "clean", 0, []string{"review", "--diff", "-"}},
+		{"bare fenced clean", "```\n[]\n```", "clean", 0, []string{"review", "--diff", "-"}},
+		{"fence outer whitespace", " \t\r\n```json\r\n[]\r\n```\r\n ", "clean", 0, []string{"review", "--diff", "-"}},
+		{"prose before", "Review: []", "incomplete", 2, []string{"review", "--diff", "-"}},
+		{"prose after", "[] Done.", "incomplete", 2, []string{"review", "--diff", "-"}},
+		{"prose clean", "No findings: []", "incomplete", 2, []string{"review", "--diff", "-"}},
+		{"two arrays", "[]\n[]", "incomplete", 2, []string{"review", "--diff", "-"}},
+		{"two fences", "```json\n[]\n```\n```\n[]\n```", "incomplete", 2, []string{"review", "--diff", "-"}},
+		{"fence inner prose", "```json\nNo findings: []\n```", "incomplete", 2, []string{"review", "--diff", "-"}},
+		{"fence outer prose", "```json\n[]\n```\nDone.", "incomplete", 2, []string{"review", "--diff", "-"}},
 		{"findings", `[{"id":"synthetic-1","severity":"warning","category":"logic","file":"example.go","line":1,"title":"Zero divisor","evidence":"The synthetic change divides by zero.","confidence":1}]`, "findings", 1, []string{"review", "--diff", "-"}},
 		{"incomplete", "malformed", "incomplete", 2, []string{"review", "--diff", "-"}},
 		{"command error", "", "", 3, []string{"review"}},

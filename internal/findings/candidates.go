@@ -23,12 +23,27 @@ type Candidate struct {
 	Confidence float64 `json:"confidence"`
 }
 
-// ParseCandidates accepts exactly one JSON array.
+// ParseCandidates accepts one JSON array, optionally in one json or bare fence.
 func ParseCandidates(data []byte) ([]Candidate, error) {
 	if len(data) > MaxBytes || !utf8.Valid(data) {
 		return nil, errors.New("invalid model output size or encoding")
 	}
 	raw := bytes.Trim(data, " \t\r\n")
+	if bytes.HasPrefix(raw, []byte("```")) {
+		newline := bytes.IndexByte(raw, '\n')
+		if newline < 0 {
+			return nil, errors.New("invalid findings fence")
+		}
+		header := bytes.TrimSuffix(raw[:newline], []byte("\r"))
+		if !bytes.Equal(header, []byte("```")) && !bytes.Equal(header, []byte("```json")) {
+			return nil, errors.New("invalid findings fence")
+		}
+		body := raw[newline+1:]
+		if !bytes.HasSuffix(body, []byte("\n```")) {
+			return nil, errors.New("invalid findings fence")
+		}
+		raw = bytes.Trim(body[:len(body)-4], " \t\r\n")
+	}
 	if err := jsonutil.Check(raw, MaxBytes); err != nil {
 		return nil, errors.New("invalid findings JSON")
 	}

@@ -45,8 +45,15 @@ coercion, invalid UTF-8, non-JSON syntax, and extra JSON containers are rejected
 
 The entire model text is capped at 1 MiB, with at most 500 findings per layer
 and JSON nesting depth 64. Limits reject the entire response, never truncate
-or salvage a subset. The response must be exactly one JSON array, with only
-JSON whitespace around it. Prose, code fences, and extra JSON values are rejected.
+or salvage a subset. The response must be exactly one JSON array, or exactly
+one `json` or bare fenced code block containing exactly one array. Only JSON
+whitespace (space, tab, CR, LF) may surround the array or the entire fenced block.
+Fence markers occupy their own lines. Opening lines contain only three
+backticks, optionally followed immediately by lowercase `json`; closing lines
+contain only three backticks. LF and CRLF line endings are accepted.
+Prose before, after, or inside a fence, multiple arrays, multiple fences,
+unsupported fence languages, and extra JSON values are rejected. For example,
+`No findings: []` is malformed, never a clean result.
 
 Malformed model text or schema violations get at most one fresh-session repair
 attempt, with the original diff and schema plus correction feedback. The

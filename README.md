@@ -137,9 +137,11 @@ settings. Do not run this against untrusted repositories with host credentials.
 Using Droid sends prompts and inspected content to the selected model service.
 
 The review runner validates a findings array in the model's `result` string.
-The entire response must be a JSON array; code fences, surrounding prose, malformed
-JSON, unknown fields, and duplicate keys are rejected. A second malformed
-response makes that layer incomplete. The foundation's strict
+The entire response must be one JSON array, optionally inside exactly one
+`json` or bare code fence, with only JSON whitespace outside. Surrounding prose,
+multiple arrays or fences, malformed JSON, unknown fields, and duplicate keys
+are rejected. A second malformed response makes that layer incomplete.
+The foundation's strict
 [legacy report contract](docs/findings.md) remains available to adapter callers;
 the CLI uses the [review-output contract](docs/review-output.md) instead.
 Usage is preserved when provided; missing usage and currency cost remain
