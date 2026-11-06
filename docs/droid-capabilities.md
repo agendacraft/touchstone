@@ -72,8 +72,8 @@ The legacy adapter validates every report independently. Plain text, Markdown
 fences, missing or unknown keys, duplicate keys, invalid locations and types,
 and contradictory outcomes are errors, not findings or a clean result.
 
-The S1 review runner separately accepts a strict findings array in a single
-bare or `json` fence and allows one schema-repair retry. Those orchestration
+The S1 review runner separately accepts a strict findings
+JSON array and allows one schema-repair retry. Those orchestration
 behaviors were not measured by this historical baseline; see the current
 [review-output contract](review-output.md) and opt-in live smoke test.
 

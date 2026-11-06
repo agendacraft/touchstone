@@ -164,7 +164,7 @@ func TestRepairAndIncomplete(t *testing.T) {
 		name, first, second, outcome string
 		attempts                     int
 	}{
-		{"valid fenced", "```json\n" + candidate + "\n```", "", "findings", 1},
+		{"fenced rejected", "```json\n" + candidate + "\n```", "```json\n" + candidate + "\n```", "incomplete", 2},
 		{"repair", "No findings: []", candidate, "findings", 2},
 		{"prose exhausted", "No findings: []", "No findings: []", "incomplete", 2},
 		{"exhausted", `[{`, "still malformed", "incomplete", 2},

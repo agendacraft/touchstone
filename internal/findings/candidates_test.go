@@ -10,7 +10,7 @@ const validCandidate = `{"id":"demo-1","severity":"warning","category":"logic","
 
 // Oracle: the documented specialist array contract, not permissive decoding.
 func TestCandidateContract(t *testing.T) {
-	for _, input := range []string{"[]", "[" + validCandidate + "]", "  ```json\n[" + validCandidate + "]\n```  ", "```\n[]\n```"} {
+	for _, input := range []string{"[]", "[" + validCandidate + "]"} {
 		result, err := ParseCandidates([]byte(input))
 		if err != nil || result == nil {
 			t.Fatalf("valid array rejected: %+v, %v", result, err)
@@ -22,6 +22,7 @@ func TestCandidateContract(t *testing.T) {
 		}
 	}
 	for name, input := range map[string]string{
+		"json fence": "```json\n[]\n```", "bare fence": "```\n[]\n```",
 		"text": "No findings", "prose clean": "No findings: []", "prose before": "Review: []", "prose after": "[] Done.",
 		"prose around fence": "Review:\n```json\n[]\n```\nDone.", "multiple fences": "```\n[]\n```\n```\n[]\n```",
 		"non-JSON whitespace": "\u00a0[]", "unsupported fence": "```js\n[]\n```", "null": "null", "object": `{"findings":[]}`,
