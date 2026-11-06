@@ -2,6 +2,7 @@ package render
 
 import (
 	"bytes"
+	"encoding/xml"
 	"errors"
 	"flag"
 	"io"
@@ -15,6 +16,8 @@ import (
 	"github.com/agendacraft/touchstone/internal/config"
 	"github.com/agendacraft/touchstone/internal/findings"
 	"github.com/agendacraft/touchstone/internal/review"
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
 )
 
 var updateGolden = flag.Bool("update", false, "update the renderer's public-output golden files")
@@ -298,7 +301,6 @@ func TestLocalCheckArgvPreservesWhitespaceAndEscapes(t *testing.T) {
 		want     string
 	}{
 		{Terminal{}, `argv: ["tool","a  b","tab\there","\u001b[31m","*markup*"]`},
-		{Markdown{}, `argv: \[&#34;tool&#34;,&#34;a  b&#34;,&#34;tab\\there&#34;,&#34;\\u001b\[31m&#34;,&#34;\*markup\*&#34;\]`},
 	} {
 		var out bytes.Buffer
 		if err := tc.renderer.Render(&out, report); err != nil {
@@ -307,5 +309,45 @@ func TestLocalCheckArgvPreservesWhitespaceAndEscapes(t *testing.T) {
 		if !strings.Contains(out.String(), tc.want) || strings.Contains(out.String(), "\x1b") {
 			t.Fatalf("argv rendering: %s", out.String())
 		}
+	}
+}
+
+func TestMarkdownCheckArgvRenderedAsCode(t *testing.T) {
+	report := review.Report{Checks: []review.CheckResult{{Name: "fixture", Status: "pass", Local: true, Args: []string{"tool", "a  b", "tab\there", "\x1b[31m", "``` *markup* <script>"}}}}
+	var source, rendered bytes.Buffer
+	if err := (Markdown{}).Render(&source, report); err != nil {
+		t.Fatal(err)
+	}
+	if err := goldmark.New(goldmark.WithExtensions(extension.GFM)).Convert(source.Bytes(), &rendered); err != nil {
+		t.Fatal(err)
+	}
+	decoder := xml.NewDecoder(strings.NewReader("<root>" + rendered.String() + "</root>"))
+	var stack []string
+	var code strings.Builder
+	for {
+		token, err := decoder.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		switch token := token.(type) {
+		case xml.StartElement:
+			stack = append(stack, token.Name.Local)
+			if token.Name.Local == "script" {
+				t.Fatal("argument became HTML markup")
+			}
+		case xml.EndElement:
+			stack = stack[:len(stack)-1]
+		case xml.CharData:
+			if len(stack) >= 2 && stack[len(stack)-2] == "pre" && stack[len(stack)-1] == "code" {
+				code.Write(token)
+			}
+		}
+	}
+	const want = `["tool","a  b","tab\there","\u001b[31m","` + "```" + ` *markup* \u003cscript\u003e"]` + "\n"
+	if code.String() != want {
+		t.Fatalf("rendered code = %q, want %q", code.String(), want)
 	}
 }
