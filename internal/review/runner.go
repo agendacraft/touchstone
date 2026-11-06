@@ -1,4 +1,4 @@
-// Package review orchestrates independent specialist sessions over a diff.
+// Package review orchestrates independent specialist and verifier sessions.
 package review
 
 import (
@@ -38,11 +38,19 @@ Do not include layer, description, or any other keys. Maximum 500 findings.
 type Finding struct {
 	Layer string `json:"layer"`
 	findings.Candidate
+	Verification Verification `json:"verification"`
+	Rank         string       `json:"rank"`
+}
+
+type Verification struct {
+	Verdict string `json:"verdict"`
+	Reason  string `json:"reason"`
 }
 
 type Attempt struct {
-	Usage agent.Usage `json:"usage"`
-	Cost  *agent.Cost `json:"cost"`
+	Usage      agent.Usage `json:"usage"`
+	Cost       *agent.Cost `json:"cost"`
+	DurationMS int64       `json:"duration_ms"`
 }
 
 type LayerResult struct {
@@ -52,20 +60,23 @@ type LayerResult struct {
 	Attempts []Attempt `json:"attempts"`
 }
 
-// Report is the stable CLI review contract, independent of the legacy adapter
-// report. Findings are unverified and IDs are scoped to their source layer.
+// Report is the versioned CLI review contract, separate from the legacy adapter.
+// IDs remain scoped to their source layer, including rejected findings.
 type Report struct {
 	SchemaVersion int           `json:"schema_version"`
 	Outcome       string        `json:"outcome"`
 	Findings      []Finding     `json:"findings"`
 	Layers        []LayerResult `json:"layers"`
+	Verifier      LayerResult   `json:"verifier"`
+	Rejected      []Finding     `json:"rejected"`
 }
 
 // Runner requires an Agent that honors context cancellation, as Droid does.
 // Concurrency zero defaults to two; positive values limit active layers.
 type Runner struct {
-	Agent       agent.Agent
-	Concurrency int
+	Agent           agent.Agent
+	Concurrency     int
+	DisableVerifier bool
 }
 
 func (r Runner) Run(ctx context.Context, diff []byte, cfg config.Config) (Report, error) {
@@ -83,7 +94,11 @@ func (r Runner) Run(ctx context.Context, diff []byte, cfg config.Config) (Report
 	}
 	names := []string{"correctness", "security"}
 	policy := cfg.ReviewLayers()
-	report := Report{SchemaVersion: 1, Outcome: "clean", Findings: []Finding{}, Layers: make([]LayerResult, len(names))}
+	report := Report{
+		SchemaVersion: 2, Outcome: "clean", Findings: []Finding{}, Rejected: []Finding{},
+		Layers:   make([]LayerResult, len(names)),
+		Verifier: LayerResult{Name: "verification", Status: "not_needed", Attempts: []Attempt{}},
+	}
 	results := make([][]findings.Candidate, len(names))
 	limit := r.Concurrency
 	if limit == 0 {
@@ -109,9 +124,20 @@ func (r Runner) Run(ctx context.Context, diff []byte, cfg config.Config) (Report
 	wg.Wait()
 	for i, layer := range report.Layers {
 		for _, f := range results[i] {
-			report.Findings = append(report.Findings, Finding{Layer: layer.Name, Candidate: f})
+			report.Findings = append(report.Findings, Finding{
+				Layer: layer.Name, Candidate: f, Rank: "normal",
+				Verification: Verification{Verdict: "unverified"},
+			})
 		}
 		if layer.Status == "incomplete" {
+			report.Outcome = "incomplete"
+		}
+	}
+	if r.DisableVerifier || !cfg.Verification().Enabled {
+		report.Verifier.Status = "disabled"
+	} else if len(report.Findings) > 0 {
+		r.verify(ctx, dir, diffPath, cfg.Verification(), &report)
+		if report.Verifier.Status != "complete" {
 			report.Outcome = "incomplete"
 		}
 	}
@@ -122,31 +148,48 @@ func (r Runner) Run(ctx context.Context, diff []byte, cfg config.Config) (Report
 }
 
 func (r Runner) runLayer(parent context.Context, dir, diffPath, name string, layer config.Layer) (LayerResult, []findings.Candidate) {
-	status := LayerResult{Name: name, Status: "incomplete", Attempts: []Attempt{}}
-	ctx, cancel := context.WithTimeout(parent, layer.Timeout)
-	defer cancel()
 	specialty, err := prompts.ReadFile("prompts/" + name + ".txt")
 	if err != nil {
-		status.Error = "prompt_error"
-		return status, nil
+		return LayerResult{Name: name, Status: "incomplete", Error: "prompt_error", Attempts: []Attempt{}}, nil
 	}
 	pathJSON, _ := json.Marshal(diffPath)
 	rules, _ := json.Marshal(layer.Rules)
 	prompt := string(specialty) + contract + "\nDiff file: " + string(pathJSON) + "\nAdditional review rules: " + string(rules)
+	var parsed []findings.Candidate
+	status := r.runSession(parent, dir, name, layer, prompt, func(data []byte) error {
+		var err error
+		parsed, err = findings.ParseCandidates(data)
+		return err
+	})
+	if status.Status != "complete" {
+		return status, nil
+	}
+	return status, parsed
+}
+
+// runSession starts a fresh Agent invocation for each attempt. The adapter
+// must honor this contract and context cancellation, never resume conversation.
+func (r Runner) runSession(parent context.Context, dir, name string, layer config.Layer, prompt string, validate func([]byte) error) LayerResult {
+	status := LayerResult{Name: name, Status: "incomplete", Attempts: []Attempt{}}
+	ctx, cancel := context.WithTimeout(parent, layer.Timeout)
+	defer cancel()
 	for attempt := 0; attempt < 2; attempt++ {
 		if ctx.Err() != nil {
 			status.Error = contextKind(ctx)
-			return status, nil
+			return status
 		}
 		deadline, _ := ctx.Deadline()
+		start := time.Now()
 		result, runErr := r.Agent.Run(ctx, agent.Request{
 			RawOutput: true, Prompt: prompt, Model: layer.Model, ReasoningEffort: layer.ReasoningEffort,
 			WorkingDirectory: dir, Timeout: time.Until(deadline),
 		})
-		status.Attempts = append(status.Attempts, Attempt{Usage: result.Usage, Cost: result.Cost})
+		status.Attempts = append(status.Attempts, Attempt{
+			Usage: result.Usage, Cost: result.Cost, DurationMS: time.Since(start).Milliseconds(),
+		})
 		if ctx.Err() != nil {
 			status.Error = contextKind(ctx)
-			return status, nil
+			return status
 		}
 		if runErr != nil {
 			status.Error = "agent_error"
@@ -155,23 +198,23 @@ func (r Runner) runLayer(parent context.Context, dir, diffPath, name string, lay
 				status.Error = string(e.Kind)
 			}
 			// A broken transport is not malformed model JSON. Never retry it.
-			return status, nil
+			return status
 		}
-		parsed, parseErr := findings.ParseCandidates([]byte(result.Output))
+		parseErr := validate([]byte(result.Output))
 		if ctx.Err() != nil {
 			status.Error = contextKind(ctx)
-			return status, nil
+			return status
 		}
 		if parseErr == nil {
 			status.Status = "complete"
-			return status, parsed
+			return status
 		}
-		// Fresh session, same diff and contract, one bounded repair attempt.
+		// Fresh session, same inputs and contract, one bounded repair attempt.
 		// Do not echo untrusted model output or parser diagnostics into prompts.
-		prompt += "\nYour previous response failed schema validation. Re-read the diff and return a corrected JSON array that obeys every field and type above."
+		prompt += "\nYour previous response failed schema validation. Re-read the supplied files and return a corrected JSON array that obeys every field, type, and coverage requirement above."
 	}
 	status.Error = "invalid_output"
-	return status, nil
+	return status
 }
 
 func contextKind(ctx context.Context) string {

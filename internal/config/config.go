@@ -22,6 +22,7 @@ const FileName = "touchstone.toml"
 const maxBytes = 1 << 20
 
 type Layer struct {
+	Enabled         bool
 	Model           string
 	ReasoningEffort string
 	Autonomy        string
@@ -31,6 +32,7 @@ type Layer struct {
 }
 
 type override struct {
+	Enabled         *bool    `toml:"enabled"`
 	Model           *string  `toml:"model"`
 	ReasoningEffort *string  `toml:"reasoning_effort"`
 	Autonomy        *string  `toml:"autonomy"`
@@ -62,7 +64,8 @@ func Defaults() Config {
 	c := Config{layers: make(map[string]Layer)}
 	for _, name := range layerNames {
 		c.layers[name] = Layer{
-			Model: "glm-5.3-flash", ReasoningEffort: "low",
+			Enabled: true,
+			Model:   "glm-5.3-flash", ReasoningEffort: "low",
 			Autonomy: "off", Timeout: 5 * time.Minute, ReadOnly: true,
 		}
 	}
@@ -106,6 +109,9 @@ func Parse(data []byte) (Config, error) {
 	}
 	c := Defaults()
 	for name, o := range doc.Layers {
+		if o.Enabled != nil && name != "verification" {
+			return Config{}, errors.New("enabled is only supported for verification")
+		}
 		base, ok := c.layers[name]
 		if !ok {
 			return Config{}, errors.New("unknown review layer")
@@ -130,6 +136,9 @@ func Parse(data []byte) (Config, error) {
 			return Config{}, errors.New("path rule requires layer overrides")
 		}
 		for name, o := range rule.Layers {
+			if o.Enabled != nil {
+				return Config{}, errors.New("enabled is repository-wide only")
+			}
 			base, ok := c.layers[name]
 			if !ok {
 				return Config{}, errors.New("unknown path-rule layer")
@@ -149,6 +158,9 @@ func Parse(data []byte) (Config, error) {
 
 func apply(base Layer, o override) (Layer, error) {
 	base.Rules = append([]string(nil), base.Rules...)
+	if o.Enabled != nil {
+		base.Enabled = *o.Enabled
+	}
 	if o.Model != nil {
 		base.Model = *o.Model
 	}
@@ -225,8 +237,7 @@ func (c Config) ForPath(file string) (map[string]Layer, error) {
 	return layers, nil
 }
 
-// ReviewLayers returns repository-wide specialist policy. Path rules and the
-// reserved verification layer are not executed by the S1 diff runner.
+// ReviewLayers returns repository-wide specialist policy without path rules.
 func (c Config) ReviewLayers() map[string]Layer {
 	layers := make(map[string]Layer, 2)
 	for _, name := range []string{"correctness", "security"} {
@@ -235,4 +246,11 @@ func (c Config) ReviewLayers() map[string]Layer {
 		layers[name] = layer
 	}
 	return layers
+}
+
+// Verification returns repository-wide verifier policy without path rules.
+func (c Config) Verification() Layer {
+	layer := c.layers["verification"]
+	layer.Rules = append([]string(nil), layer.Rules...)
+	return layer
 }

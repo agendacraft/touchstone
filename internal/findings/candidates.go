@@ -25,31 +25,9 @@ type Candidate struct {
 
 // ParseCandidates accepts one JSON array, optionally in one json or bare fence.
 func ParseCandidates(data []byte) ([]Candidate, error) {
-	if len(data) > MaxBytes || !utf8.Valid(data) {
-		return nil, errors.New("invalid model output size or encoding")
-	}
-	raw := bytes.Trim(data, " \t\r\n")
-	if bytes.HasPrefix(raw, []byte("```")) {
-		newline := bytes.IndexByte(raw, '\n')
-		if newline < 0 {
-			return nil, errors.New("invalid findings fence")
-		}
-		header := bytes.TrimSuffix(raw[:newline], []byte("\r"))
-		if !bytes.Equal(header, []byte("```")) && !bytes.Equal(header, []byte("```json")) {
-			return nil, errors.New("invalid findings fence")
-		}
-		body := raw[newline+1:]
-		if !bytes.HasSuffix(body, []byte("\n```")) {
-			return nil, errors.New("invalid findings fence")
-		}
-		raw = bytes.Trim(body[:len(body)-4], " \t\r\n")
-	}
-	if err := jsonutil.Check(raw, MaxBytes); err != nil {
-		return nil, errors.New("invalid findings JSON")
-	}
-	var entries []json.RawMessage
-	if err := json.Unmarshal(raw, &entries); err != nil || entries == nil || len(entries) > MaxFindings {
-		return nil, errors.New("invalid findings array")
+	entries, err := modelArray(data, MaxFindings)
+	if err != nil {
+		return nil, err
 	}
 	result := make([]Candidate, 0, len(entries))
 	seen := make(map[string]bool)
@@ -80,4 +58,35 @@ func ParseCandidates(data []byte) ([]Candidate, error) {
 		result = append(result, f)
 	}
 	return result, nil
+}
+
+// modelArray is shared by specialist and verifier model-text contracts.
+func modelArray(data []byte, maxEntries int) ([]json.RawMessage, error) {
+	if len(data) > MaxBytes || !utf8.Valid(data) {
+		return nil, errors.New("invalid model output size or encoding")
+	}
+	raw := bytes.Trim(data, " \t\r\n")
+	if bytes.HasPrefix(raw, []byte("```")) {
+		newline := bytes.IndexByte(raw, '\n')
+		if newline < 0 {
+			return nil, errors.New("invalid findings fence")
+		}
+		header := bytes.TrimSuffix(raw[:newline], []byte("\r"))
+		if !bytes.Equal(header, []byte("```")) && !bytes.Equal(header, []byte("```json")) {
+			return nil, errors.New("invalid findings fence")
+		}
+		body := raw[newline+1:]
+		if !bytes.HasSuffix(body, []byte("\n```")) {
+			return nil, errors.New("invalid findings fence")
+		}
+		raw = bytes.Trim(body[:len(body)-4], " \t\r\n")
+	}
+	if err := jsonutil.Check(raw, MaxBytes); err != nil {
+		return nil, errors.New("invalid findings JSON")
+	}
+	var entries []json.RawMessage
+	if err := json.Unmarshal(raw, &entries); err != nil || entries == nil || len(entries) > maxEntries {
+		return nil, errors.New("invalid findings array")
+	}
+	return entries, nil
 }

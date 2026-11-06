@@ -36,6 +36,8 @@ rules = ["Consider zero input."]
 [layers.security]
 model = "security-test"
 timeout = "` + timeout + `"
+[layers.verification]
+enabled = false
 `))
 	if err != nil {
 		t.Fatal(err)
