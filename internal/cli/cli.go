@@ -128,17 +128,36 @@ func runReview(ctx context.Context, args []string, in io.Reader, out, stderr io.
 	if err != nil {
 		return fmt.Errorf("configuration invalid: %w", err)
 	}
-	if *diff != "-" {
-		file, err := os.Open(*diff)
-		if err != nil {
-			return errors.New("cannot open diff file")
-		}
-		defer func() { _ = file.Close() }()
-		in = file
+	type readResult struct {
+		data []byte
+		err  error
 	}
-	data, err := io.ReadAll(io.LimitReader(in, review.MaxDiffBytes+1))
-	if err != nil {
-		return errors.New("cannot read diff")
+	read := make(chan readResult, 1)
+	go func() {
+		if *diff != "-" {
+			file, err := os.Open(*diff)
+			if err != nil {
+				read <- readResult{err: errors.New("cannot open diff file")}
+				return
+			}
+			defer func() { _ = file.Close() }()
+			in = file
+		}
+		data, err := io.ReadAll(io.LimitReader(in, review.MaxDiffBytes+1))
+		if err != nil {
+			err = errors.New("cannot read diff")
+		}
+		read <- readResult{data, err}
+	}()
+	var data []byte
+	select {
+	case result := <-read:
+		if result.err != nil {
+			return result.err
+		}
+		data = result.data
+	case <-ctx.Done():
+		return ctx.Err()
 	}
 	report, err := (review.Runner{Agent: a, Concurrency: *concurrency}).Run(ctx, data, cfg)
 	if err != nil {

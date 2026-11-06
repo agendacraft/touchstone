@@ -119,8 +119,12 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 	if out, err := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); err != nil {
 		t.Fatalf("build CLI: %v\n%s", err, out)
 	}
+	script := "#!/bin/sh\necho started > \"$TOUCHSTONE_TEST_MARKER\"\nprintf '%s' '{\"type\":\"result\",\"subtype\":\"success\",\"is_error\":false,\"session_id\":\"test\",\"result\":\"[]\"}'\n"
+	if err := os.WriteFile(filepath.Join(dir, "droid"), []byte(script), 0o700); err != nil {
+		t.Fatal(err)
+	}
 	for _, signal := range []syscall.Signal{syscall.SIGTERM, syscall.SIGINT} {
-		for _, mode := range []string{"stdin", "fifo-open", "fifo-read", "stdout", "stderr"} {
+		for _, mode := range []string{"stdin", "fifo-open", "fifo-read", "stdout", "stderr", "review-output"} {
 			t.Run(signal.String()+"/"+mode, func(t *testing.T) {
 				fifo := filepath.Join(t.TempDir(), "diff")
 				args := []string{"review", "--diff", "-"}
@@ -138,12 +142,15 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 				}
 				cmd := exec.Command(binary, args...)
 				cmd.Dir = dir
+				marker := filepath.Join(t.TempDir(), "started")
+				scratch := t.TempDir()
+				cmd.Env = append(os.Environ(), "PATH="+dir+string(os.PathListSeparator)+os.Getenv("PATH"), "TMPDIR="+scratch, "TOUCHSTONE_TEST_MARKER="+marker)
 				input, err := cmd.StdinPipe()
 				if err != nil {
 					t.Fatal(err)
 				}
 				defer input.Close()
-				if mode == "stdout" || mode == "stderr" {
+				if mode == "stdout" || mode == "stderr" || mode == "review-output" {
 					read, write, err := os.Pipe()
 					if err != nil {
 						t.Fatal(err)
@@ -167,7 +174,7 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 					if err := syscall.SetNonblock(writeFD, false); err != nil {
 						t.Fatal(err)
 					}
-					if mode == "stdout" {
+					if mode == "stdout" || mode == "review-output" {
 						cmd.Stdout = write
 					} else {
 						cmd.Stderr = write
@@ -185,6 +192,26 @@ func TestSignalUnblocksCLIIO(t *testing.T) {
 					case <-time.After(5 * time.Second):
 					}
 				}()
+				if mode == "review-output" {
+					if _, err := input.Write([]byte("--- a/a\n+++ b/a\n")); err != nil {
+						t.Fatal(err)
+					}
+					if err := input.Close(); err != nil {
+						t.Fatal(err)
+					}
+					deadline := time.Now().Add(5 * time.Second)
+					for {
+						_, err := os.Stat(marker)
+						entries, readErr := os.ReadDir(scratch)
+						if err == nil && readErr == nil && len(entries) == 0 {
+							break
+						}
+						if time.Now().After(deadline) {
+							t.Fatal("review did not finish before output blocked")
+						}
+						time.Sleep(10 * time.Millisecond)
+					}
+				}
 				if mode == "fifo-read" {
 					deadline := time.Now().Add(5 * time.Second)
 					var fd int
