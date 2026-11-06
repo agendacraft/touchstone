@@ -1,10 +1,13 @@
 # Review output contract, version 2
 
-`touchstone review --diff FILE|-` writes exactly one JSON report on stdout once
-review execution completes. Version 2 adds independent verification, rejected
+`touchstone review --diff FILE|- --format json` writes exactly one JSON report
+on stdout once review execution completes. JSON is also the default when stdout
+is not a TTY; terminal output is the interactive default. Version 2 adds independent verification, rejected
 findings, verdict/rank metadata, and per-attempt latency to S1's version 1.
 Consumers must check `schema_version`. The foundation's legacy adapter report
-is unchanged. No deduplication or general triage runs. A clean report is not
+is unchanged. S3 extends version 2 additively with triage metadata, source
+provenance, and filtered findings. Consumers must tolerate additional fields.
+A clean report is not
 proof that the diff is safe.
 
 ## Specialist response
@@ -123,10 +126,59 @@ Verifier failure makes the report incomplete. Explicit disable (`--no-verify`
 or `[layers.verification] enabled = false`) does not itself make it incomplete.
 No failed/malformed response can partially confirm or reject candidates.
 
-No sorting, deduplication, or confidence/severity changes occur. Both sections
-preserve original specialist/model order. An uncertain verdict is not a confirmed
-finding. Partial specialist failure stays incomplete even when verification of
-available candidates succeeds or rejects them all.
+An uncertain verdict is not a confirmed finding. Partial specialist failure stays
+incomplete even when verification of available candidates succeeds or rejects
+them all. Triage follows verification, as described below.
+
+## Cross-layer triage and thresholds
+
+Claims from different specialist layers merge when either:
+
+- Their IDs match after lowercasing and replacing runs of `.`, `_`, and `-`
+  with `-` (leading/trailing separators are removed).
+- They have the same file and category and overlapping inclusive line ranges.
+  The unchanged specialist model contract supplies only `line`, so current
+  claims are single-line ranges. Internal range-aware findings may carry
+  optional `end_line`; it does not add a model-response field.
+
+Matching is transitive: a bridging claim connects a group. Claims from the same
+layer alone do not merge. Rejected claims are triaged separately, so they cannot
+erase or strengthen a retained claim.
+
+The representative keeps the highest severity; confidence is the maximum across
+the group. Evidence and verifier reasons are combined in sorted, unique order.
+The strongest source verdict wins (`confirmed`, then `unverified`, then
+`uncertain`; rejected groups remain rejected). `rank` is `lower` only for an
+aggregate uncertain verdict. Every original claim and its individual verdict
+remain in `sources`; `layers` lists all contributing layers in sorted order.
+The representative's original `layer`, `id`, location, and title stay intact.
+
+Both retained and rejected groups sort by severity (`error`, `warning`, `info`),
+descending confidence, verifier verdict (uncertain lower), file, and line.
+Layer, ID, category, title, evidence, reason, and end line break remaining ties.
+Input order does not decide the representative or output order. Terminal output
+groups by file and preserves this priority within each file.
+
+`--min-severity` and `--min-confidence` apply only to retained groups **after**
+merging. Bounds are inclusive; confidence must be finite and between 0 and 1.
+Defaults are `info` and `0`. Optional `[output] min_severity` and
+`min_confidence` in `touchstone.toml` set defaults, independently overridden by
+explicit CLI flags (including confidence `0`). Rejected claims are not filtered.
+
+`triage` contains:
+
+| Field | Meaning |
+| --- | --- |
+| `candidates` | Original claims across retained and rejected sections |
+| `merged` | Original claims combined into other groups |
+| `shown` | Retained groups after filtering |
+| `rejected` | Rejected groups after merging |
+| `filtered` | Retained groups removed by either threshold, counted once |
+| `min_severity`, `min_confidence` | Effective thresholds |
+
+Thus `candidates = merged + shown + rejected + filtered`. A nonempty `filtered`
+array preserves the excluded groups with the same shape as `findings`; it is
+omitted when empty. Thresholds never hide the incomplete outcome.
 
 ## CLI report
 
@@ -149,7 +201,25 @@ available candidates succeeds or rejects them all.
         "verdict": "confirmed",
         "reason": "The removed guard allows divide(0) to evaluate 10/0 at line 2."
       },
-      "rank": "normal"
+      "rank": "normal",
+      "layers": ["correctness"],
+      "sources": [
+        {
+          "layer": "correctness",
+          "id": "synthetic-1",
+          "severity": "error",
+          "category": "logic",
+          "file": "src/example.go",
+          "line": 2,
+          "title": "Zero input panics",
+          "evidence": "The synthetic change removes the zero guard before 10/n.",
+          "confidence": 0.95,
+          "verification": {
+            "verdict": "confirmed",
+            "reason": "The removed guard allows divide(0) to evaluate 10/0 at line 2."
+          }
+        }
+      ]
     }
   ],
   "layers": [
@@ -211,16 +281,26 @@ available candidates succeeds or rejects them all.
       }
     ]
   },
-  "rejected": []
+  "rejected": [],
+  "triage": {
+    "candidates": 1,
+    "merged": 0,
+    "shown": 1,
+    "rejected": 0,
+    "filtered": 0,
+    "min_severity": "info",
+    "min_confidence": 0
+  }
 }
 ```
 
-All keys are always emitted, including null unknown metadata. `findings`,
+Existing version-2 keys remain emitted, including null unknown metadata. `findings`,
 `rejected`, `layers`, and `attempts` are arrays, never null. `layers` always
 contains `correctness`, then `security`, regardless of completion order.
-Candidates are concatenated in that layer order, preserving each model's order.
-IDs are layer-scoped: use `(layer, id)`, not `id` alone. A report can contain up to
-1,000 candidates across `findings` and `rejected`. `rejected` uses the same
+Finding groups use triage order, not specialist/model order. IDs are layer-scoped:
+use `(layer, id)`, not `id` alone; merged groups also expose the original
+identities through `sources`. A report has at most 1,000 original claims across
+retained, filtered, and rejected groups' sources. `rejected` uses the same
 finding shape, with the rejected verdict and reason.
 
 Specialist `status` is `complete` only after successful schema validation,
@@ -261,13 +341,15 @@ parallel specialists' times. A skipped call fabricates neither usage nor cost.
 
 | Outcome | Exit | Meaning |
 | --- | --- | --- |
-| `clean` | 0 | Specialists completed; no retained findings (possibly all rejected). Enabled verification succeeded or was not needed. |
+| `clean` | 0 | Specialists completed; no findings remain above thresholds (possibly all rejected or filtered). Enabled verification succeeded or was not needed. |
 | `findings` | 1 | Specialists completed; at least one retained finding. Enabled verification succeeded; disabled verification leaves findings explicitly unverified. |
 | `incomplete` | 2 | Any specialist or required verifier failed, even if findings exist or all available candidates were rejected. |
 | No report | 3 | Invalid arguments/config/input, scratch setup failure before specialist execution, or output write failure. |
 
-An output write failure can leave partial JSON; exit 3 means consumers must not
+An output write failure can leave partial output in any format; exit 3 means consumers must not
 use it as a complete report. Errors before report serialization leave stdout
 empty. Help, version, and successful config validation exit 0 without a review
 report. Diagnostics go to stderr. Missing/failed specialists or a failed required
 verifier can never produce a clean outcome.
+
+See [output format examples](output-formats.md) for terminal and Markdown output.

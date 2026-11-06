@@ -105,7 +105,7 @@ func TestVerifierCLIOutcomes(t *testing.T) {
 					t.Fatal("finding sections must be arrays, not null")
 				}
 				for _, entry := range entries {
-					assertKeys(t, entry, []string{"layer", "id", "severity", "category", "file", "line", "title", "evidence", "confidence", "verification", "rank"})
+					assertKeys(t, entry, []string{"layer", "id", "severity", "category", "file", "line", "title", "evidence", "confidence", "verification", "rank", "layers", "sources"})
 					var v map[string]json.RawMessage
 					if err := json.Unmarshal(entry["verification"], &v); err != nil {
 						t.Fatal(err)

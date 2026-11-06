@@ -40,6 +40,17 @@ type Finding struct {
 	findings.Candidate
 	Verification Verification `json:"verification"`
 	Rank         string       `json:"rank"`
+	EndLine      int          `json:"end_line,omitempty"`
+	Layers       []string     `json:"layers,omitempty"`
+	Sources      []Source     `json:"sources,omitempty"`
+}
+
+// Source preserves an original claim when triage combines multiple reports.
+type Source struct {
+	Layer string `json:"layer"`
+	findings.Candidate
+	Verification Verification `json:"verification"`
+	EndLine      int          `json:"end_line,omitempty"`
 }
 
 type Verification struct {
@@ -69,6 +80,8 @@ type Report struct {
 	Layers        []LayerResult `json:"layers"`
 	Verifier      LayerResult   `json:"verifier"`
 	Rejected      []Finding     `json:"rejected"`
+	Filtered      []Finding     `json:"filtered,omitempty"`
+	Triage        *Summary      `json:"triage,omitempty"`
 }
 
 // Runner requires an Agent that honors context cancellation, as Droid does.
