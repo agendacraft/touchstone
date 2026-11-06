@@ -306,3 +306,76 @@ func TestClosedOutputPipesExitWithError(t *testing.T) {
 		})
 	}
 }
+
+func TestSignalUnblocksConfigFIFO(t *testing.T) {
+	dir := t.TempDir()
+	binary := filepath.Join(dir, "touchstone")
+	if out, err := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); err != nil {
+		t.Fatalf("build CLI: %v\n%s", err, out)
+	}
+	for _, sig := range []syscall.Signal{syscall.SIGTERM, syscall.SIGINT} {
+		for _, command := range []string{"review", "validate"} {
+			for _, mode := range []string{"open", "read"} {
+				t.Run(sig.String()+"/"+command+"/"+mode, func(t *testing.T) {
+					repo := t.TempDir()
+					fifo := filepath.Join(repo, "touchstone.toml")
+					if err := syscall.Mkfifo(fifo, 0o600); err != nil {
+						t.Fatal(err)
+					}
+					args := []string{"review", "--diff", "-", "--cwd", repo}
+					if command == "validate" {
+						args = []string{"config", "validate", "--cwd", repo}
+					}
+					cmd := exec.Command(binary, args...)
+					cmd.Dir = repo
+					cmd.Stdin = strings.NewReader("synthetic diff")
+					if err := cmd.Start(); err != nil {
+						t.Fatal(err)
+					}
+					done := make(chan error, 1)
+					go func() { done <- cmd.Wait(); close(done) }()
+					defer func() {
+						_ = cmd.Process.Kill()
+						select {
+						case <-done:
+						case <-time.After(5 * time.Second):
+						}
+					}()
+					if mode == "read" {
+						deadline := time.Now().Add(5 * time.Second)
+						var fd int
+						var err error
+						for {
+							fd, err = syscall.Open(fifo, syscall.O_WRONLY|syscall.O_NONBLOCK, 0)
+							if err == nil || time.Now().After(deadline) {
+								break
+							}
+							time.Sleep(10 * time.Millisecond)
+						}
+						if err != nil {
+							t.Fatalf("open config FIFO writer: %v", err)
+						}
+						defer syscall.Close(fd)
+					}
+					time.Sleep(200 * time.Millisecond)
+					select {
+					case err := <-done:
+						t.Fatalf("CLI exited before signal: %v", err)
+					default:
+					}
+					if err := cmd.Process.Signal(sig); err != nil {
+						t.Fatal(err)
+					}
+					select {
+					case <-done:
+					case <-time.After(5 * time.Second):
+						t.Fatal("CLI remained blocked loading configuration")
+					}
+					if cmd.ProcessState.ExitCode() != 3 {
+						t.Fatalf("expected exit 3, got %v", cmd.ProcessState)
+					}
+				})
+			}
+		}
+	}
+}

@@ -69,7 +69,7 @@ func RunContext(ctx context.Context, args []string, in io.Reader, out, stderr io
 		if err != nil || !info.IsDir() {
 			return errors.New("cwd must be an existing directory")
 		}
-		if _, err := config.Load(*cwd); err != nil {
+		if _, err := loadConfig(ctx, *cwd); err != nil {
 			return fmt.Errorf("configuration invalid: %w", err)
 		}
 		_, err = fmt.Fprintln(out, "configuration valid (built-in defaults plus optional touchstone.toml)")
@@ -124,7 +124,7 @@ func runReview(ctx context.Context, args []string, in io.Reader, out, stderr io.
 	if err != nil || !info.IsDir() {
 		return errors.New("cwd must be an existing directory")
 	}
-	cfg, err := config.Load(dir)
+	cfg, err := loadConfig(ctx, dir)
 	if err != nil {
 		return fmt.Errorf("configuration invalid: %w", err)
 	}
@@ -175,5 +175,23 @@ func runReview(ctx context.Context, args []string, in io.Reader, out, stderr io.
 		return reviewStatus(2)
 	default:
 		return nil
+	}
+}
+
+func loadConfig(ctx context.Context, dir string) (config.Config, error) {
+	type result struct {
+		config config.Config
+		err    error
+	}
+	done := make(chan result, 1)
+	go func() {
+		cfg, err := config.Load(dir)
+		done <- result{cfg, err}
+	}()
+	select {
+	case r := <-done:
+		return r.config, r.err
+	case <-ctx.Done():
+		return config.Config{}, ctx.Err()
 	}
 }
