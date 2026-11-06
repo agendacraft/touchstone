@@ -23,7 +23,7 @@ func (r Terminal) Render(out io.Writer, report review.Report) error {
 	writeLayerStatus(&text, report)
 	for _, check := range report.Checks {
 		args, _ := json.Marshal(check.Args)
-		fmt.Fprintf(&text, "  Local check %s: %s | executed locally: %t | argv: %s", plain(check.Name), plain(check.Status), check.Local, plain(string(args)))
+		fmt.Fprintf(&text, "  Local check %s: %s | executed locally: %t | argv: %s", plain(check.Name), plain(check.Status), check.Local, string(args))
 		if check.Error != "" {
 			fmt.Fprintf(&text, " (%s)", plain(check.Error))
 		}

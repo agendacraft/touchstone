@@ -290,3 +290,22 @@ func TestHumanConfidencePrecision(t *testing.T) {
 		})
 	}
 }
+
+func TestLocalCheckArgvPreservesWhitespaceAndEscapes(t *testing.T) {
+	report := review.Report{Checks: []review.CheckResult{{Name: "fixture", Status: "pass", Local: true, Args: []string{"tool", "a  b", "tab\there", "\x1b[31m", "*markup*"}}}}
+	for _, tc := range []struct {
+		renderer Renderer
+		want     string
+	}{
+		{Terminal{}, `argv: ["tool","a  b","tab\there","\u001b[31m","*markup*"]`},
+		{Markdown{}, `argv: \[&#34;tool&#34;,&#34;a  b&#34;,&#34;tab\\there&#34;,&#34;\\u001b\[31m&#34;,&#34;\*markup\*&#34;\]`},
+	} {
+		var out bytes.Buffer
+		if err := tc.renderer.Render(&out, report); err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(out.String(), tc.want) || strings.Contains(out.String(), "\x1b") {
+			t.Fatalf("argv rendering: %s", out.String())
+		}
+	}
+}

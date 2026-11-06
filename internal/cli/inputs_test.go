@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync/atomic"
@@ -165,6 +166,42 @@ func TestChecksAreDescribedInHumanOutput(t *testing.T) {
 		err := RunContext(context.Background(), []string{"review", "--cwd", dir, "--base", base, "--run-checks", "--format", format}, strings.NewReader(""), &out, io.Discard, "test", fake)
 		if ExitCode(err) != 1 || !strings.Contains(out.String(), "executed locally: true") || !strings.Contains(out.String(), "argv:") || !strings.Contains(out.String(), "(repository)") {
 			t.Fatalf("local command audit missing: %s %v", out.String(), err)
+		}
+	}
+}
+
+func TestFormatPatchMessagesAtReviewBoundary(t *testing.T) {
+	dir := testutil.Repo(t)
+	testutil.Write(t, dir, "seed.txt", "seed\n")
+	parent := testutil.Commit(t, dir, "")
+	base := parent
+	for _, name := range []string{"first.txt", "second.txt"} {
+		testutil.Write(t, dir, name, "changed\n")
+		testutil.Commit(t, dir, parent)
+		tree := testutil.Git(t, dir, "rev-parse", "HEAD^{tree}")
+		parent = testutil.Git(t, dir, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit-tree", tree, "-p", parent, "-m", "change "+name, "-m", "Quoted example:\ndiff --git a/phantom b/phantom\n--- a/phantom\n+++ b/phantom")
+		testutil.Git(t, dir, "update-ref", "HEAD", parent)
+	}
+	input := testutil.Git(t, dir, "format-patch", "--stdout", base+"..HEAD") + "\n"
+	file := filepath.Join(dir, "input.patch")
+	testutil.Write(t, dir, "input.patch", input)
+	var calls atomic.Int32
+	fake := agent.Fake{Respond: func(_ context.Context, request agent.Request) (agent.Result, error) {
+		data, err := os.ReadFile(filepath.Join(request.WorkingDirectory, "diff.patch"))
+		if err != nil {
+			t.Error(err)
+		}
+		if !strings.Contains(string(data), "first.txt") || !strings.Contains(string(data), "second.txt") || strings.Contains(string(data), "phantom") {
+			t.Errorf("message text or patches misclassified: %s", data)
+		}
+		calls.Add(1)
+		return agent.Result{Output: "[]"}, nil
+	}}
+	for _, name := range []string{"-", file} {
+		before := calls.Load()
+		report, code, diagnostic := runSyntheticReview(t, []string{"--cwd", dir, "--diff", name}, input, fake)
+		if code != 0 || report.Outcome != "clean" || calls.Load()-before != 2 {
+			t.Fatalf("format-patch %s: %+v %d %s", name, report, code, diagnostic)
 		}
 	}
 }

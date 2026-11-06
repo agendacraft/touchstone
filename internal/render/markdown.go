@@ -29,7 +29,7 @@ func (Markdown) Render(out io.Writer, report review.Report) error {
 	markdownLayer(&text, report.Verifier)
 	for _, check := range report.Checks {
 		args, _ := json.Marshal(check.Args)
-		fmt.Fprintf(&text, "\nLocal check **%s**: %s; executed locally: %t; argv: %s. %s\n", markdown(check.Name), markdown(check.Status), check.Local, markdown(string(args)), markdown(check.Error))
+		fmt.Fprintf(&text, "\nLocal check **%s**: %s; executed locally: %t; argv: %s. %s\n", markdown(check.Name), markdown(check.Status), check.Local, markdownArgv(string(args)), markdown(check.Error))
 	}
 	for _, severity := range []string{"error", "warning", "info"} {
 		findings := []review.Finding{}
@@ -86,7 +86,12 @@ func markdownAudit(text *strings.Builder, title string, findings []review.Findin
 
 // Escape model text before placing it inside PR-comment markup.
 func markdown(value string) string {
-	value = html.EscapeString(plain(value))
+	value = plain(value)
+	return markdownArgv(value)
+}
+
+func markdownArgv(value string) string {
+	value = html.EscapeString(value)
 	replacer := strings.NewReplacer(
 		"\\", "\\\\", "`", "\\`", "*", "\\*", "_", "\\_", "[", "\\[", "]", "\\]",
 		"|", "\\|", "~", "\\~", "@", "&#64;",

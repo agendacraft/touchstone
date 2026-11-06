@@ -18,15 +18,12 @@ type File struct {
 }
 
 func Split(data []byte) ([]File, error) {
-	if bytes.HasPrefix(data, []byte("From ")) {
-		if i := bytes.Index(data, []byte("\ndiff --git ")); i >= 0 {
-			data = data[i+1:]
-		}
-	}
 	var files []File
 	var block bytes.Buffer
 	var hunk hunkState
 	sawNewHeader := false
+	mail := formatMessageStart(bytes.SplitN(data, []byte("\n"), 2)[0])
+	inMessage, inPatch := mail, !mail
 	finish := func() error {
 		if len(bytes.TrimSpace(block.Bytes())) == 0 {
 			return nil
@@ -40,6 +37,33 @@ func Split(data []byte) ([]File, error) {
 		return nil
 	}
 	for line := range bytes.Lines(data) {
+		if mail && !hunk.active() && formatMessageStart(bytes.TrimRight(line, "\r\n")) {
+			if err := finish(); err != nil {
+				return nil, err
+			}
+			inMessage, inPatch = true, false
+			hunk, sawNewHeader = hunkState{}, false
+			continue
+		}
+		if inMessage {
+			if bytes.Equal(bytes.TrimRight(line, "\r\n"), []byte("---")) {
+				inMessage = false
+			}
+			continue
+		}
+		if mail && !inPatch {
+			if !bytes.HasPrefix(line, []byte("diff --git ")) {
+				continue
+			}
+			inPatch = true
+		}
+		if mail && !hunk.active() && bytes.Equal(bytes.TrimRight(line, "\r\n"), []byte("-- ")) {
+			if err := finish(); err != nil {
+				return nil, err
+			}
+			inPatch = false
+			continue
+		}
 		gitHeader := bytes.HasPrefix(line, []byte("diff --git "))
 		plainHeader := !hunk.active() && sawNewHeader && bytes.HasPrefix(line, []byte("--- "))
 		if gitHeader || plainHeader {
@@ -58,6 +82,23 @@ func Split(data []byte) ([]File, error) {
 		return nil, err
 	}
 	return files, nil
+}
+
+func formatMessageStart(line []byte) bool {
+	const suffix = " Mon Sep 17 00:00:00 2001"
+	if !bytes.HasPrefix(line, []byte("From ")) || !bytes.HasSuffix(line, []byte(suffix)) {
+		return false
+	}
+	id := line[len("From ") : len(line)-len(suffix)]
+	if len(id) != 40 && len(id) != 64 {
+		return false
+	}
+	for _, c := range id {
+		if !('0' <= c && c <= '9') && !('a' <= c && c <= 'f') {
+			return false
+		}
+	}
+	return true
 }
 
 type hunkState struct{ old, new int }
