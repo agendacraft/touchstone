@@ -5,8 +5,10 @@ A layered pull-request review CLI that drives the Droid CLI.
 **Early development.** `touchstone review` runs independent correctness and
 security specialists over a supplied diff, then a fresh skeptical verifier.
 Confirmed findings stay, rejected claims move to an audit section, and uncertain
-findings stay with lower rank. There is no deduplication, general ranking,
-git/PR input, forge posting, automatic fixing, telemetry, or release yet.
+findings stay with a lower-rank label. Cross-layer triage marks possible
+duplicates and ranks each claim before optional filtering.
+Terminal, JSON, and Markdown output are available. There is no git/PR input,
+forge posting, automatic fixing, telemetry, or release yet.
 Verification is model judgment, not proof of correctness.
 
 ## Requirements
@@ -32,6 +34,8 @@ go build -o /tmp/touchstone ./cmd/touchstone
 /tmp/touchstone review --diff - --concurrency 1 < /tmp/synthetic.patch
 # Optional: specialist-only review; findings are explicitly unverified.
 /tmp/touchstone review --diff /tmp/synthetic.patch --no-verify
+# Explicit output and post-triage thresholds:
+/tmp/touchstone review --diff /tmp/synthetic.patch --format markdown --min-severity warning --min-confidence 0.8
 ```
 
 Supply a nonempty unified diff, up to 16 MiB; its format is not validated.
@@ -60,7 +64,21 @@ leaves **all** candidates unverified and the report incomplete. Explicitly
 disabling it (`--no-verify` or config) leaves findings unverified without itself
 making the report incomplete. No verifier call runs when there are no candidates.
 
-Stdout contains one JSON report. Exit status: **0** clean, **1** findings,
+Stdout defaults to readable terminal output on a TTY and JSON when piped.
+Use `--format terminal|json|markdown` to select explicitly; Markdown is suitable
+for copying into a PR comment, but Touchstone never posts it. Terminal color
+requires a TTY and is disabled when `NO_COLOR` is present, even if empty.
+See [examples of all three formats](docs/output-formats.md).
+
+Triage keeps each claim and its own assessment. Similar cross-layer claims at
+the same location receive possible-duplicate hints. Results rank by severity,
+confidence, verifier verdict, and file/line, with stable tie-breakers.
+
+`--min-severity info|warning|error` and `--min-confidence 0..1` filter **after**
+triage. Defaults show everything; flags override `[output]` settings independently.
+Every format reports the filtered count. JSON retains the filtered findings;
+Markdown also includes a collapsed filtered audit section.
+Exit status: **0** clean (including all retained findings filtered out), **1** findings,
 **2** incomplete (even if some findings exist), **3** command/setup/output
 error. Help/version/config validation also exit 0 on success. Diagnostics use
 stderr, not stdout. See the stable [review-output contract](docs/review-output.md)
@@ -96,6 +114,10 @@ For example, using only synthetic rules:
 
 ```toml
 version = 1
+
+[output]
+min_severity = "warning"
+min_confidence = 0.8
 
 [layers.correctness]
 model = "glm-5.3-flash"
@@ -209,8 +231,9 @@ not an eval suite or a model-quality claim. Normal tests and CI skip it.
 
 CI uses standard GitHub-hosted Ubuntu runners on this public repository, with
 no model credentials, paid runner labels, or external review service. The only
-runtime dependency is `github.com/pelletier/go-toml/v2`, used for strict TOML
-parsing instead of a home-grown parser. CLI parsing, JSON validation, and
+runtime dependencies are `github.com/pelletier/go-toml/v2` for strict TOML
+parsing and `golang.org/x/term` (with `x/sys`) for portable TTY detection.
+CLI parsing, JSON validation, and
 subprocess control use the Go standard library.
 
 ## License

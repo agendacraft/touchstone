@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "outcome": "findings",
+  "findings": [
+    {
+      "layer": "correctness",
+      "id": "zero-divisor",
+      "severity": "error",
+      "category": "logic",
+      "file": "src/calc.go",
+      "line": 8,
+      "title": "Synthetic zero-divisor",
+      "evidence": "The synthetic change removes a required guard.",
+      "confidence": 0.95,
+      "verification": {
+        "verdict": "uncertain",
+        "reason": "The first source remains uncertain."
+      },
+      "rank": "lower",
+      "display_id": "f1",
+      "possible_duplicate_of": [
+        "f3"
+      ]
+    },
+    {
+      "layer": "security",
+      "id": "zero_divisor",
+      "severity": "warning",
+      "category": "logic",
+      "file": "src/calc.go",
+      "line": 8,
+      "title": "Synthetic zero-divisor",
+      "evidence": "A second source identifies the removed guard.",
+      "confidence": 0.99,
+      "verification": {
+        "verdict": "confirmed",
+        "reason": "The second source is confirmed."
+      },
+      "rank": "normal",
+      "display_id": "f3",
+      "possible_duplicate_of": [
+        "f1"
+      ]
+    },
+    {
+      "layer": "correctness",
+      "id": "partial-read",
+      "severity": "warning",
+      "category": "logic",
+      "file": "src/read.go",
+      "line": 14,
+      "title": "Synthetic partial-read",
+      "evidence": "The synthetic change removes a required guard.",
+      "confidence": 0.8,
+      "verification": {
+        "verdict": "uncertain",
+        "reason": "The diff supports this verdict."
+      },
+      "rank": "lower",
+      "display_id": "f4"
+    }
+  ],
+  "layers": [
+    {
+      "name": "correctness",
+      "status": "complete",
+      "error": "",
+      "attempts": []
+    },
+    {
+      "name": "security",
+      "status": "complete",
+      "error": "",
+      "attempts": []
+    }
+  ],
+  "verifier": {
+    "name": "verification",
+    "status": "complete",
+    "error": "",
+    "attempts": []
+  },
+  "rejected": [
+    {
+      "layer": "correctness",
+      "id": "old-behavior",
+      "severity": "error",
+      "category": "logic",
+      "file": "src/calc.go",
+      "line": 3,
+      "title": "Synthetic old-behavior",
+      "evidence": "The synthetic change removes a required guard.",
+      "confidence": 0.7,
+      "verification": {
+        "verdict": "rejected",
+        "reason": "This behavior existed before the synthetic diff."
+      },
+      "rank": "normal",
+      "display_id": "f2"
+    }
+  ],
+  "filtered": [
+    {
+      "layer": "correctness",
+      "id": "small-risk",
+      "severity": "info",
+      "category": "logic",
+      "file": "src/read.go",
+      "line": 20,
+      "title": "Synthetic small-risk",
+      "evidence": "The synthetic change removes a required guard.",
+      "confidence": 0.3,
+      "verification": {
+        "verdict": "confirmed",
+        "reason": "The diff supports this verdict."
+      },
+      "rank": "normal",
+      "display_id": "f5"
+    }
+  ],
+  "triage": {
+    "candidates": 5,
+    "shown": 3,
+    "rejected": 1,
+    "filtered": 1,
+    "min_severity": "warning",
+    "min_confidence": 0.7
+  }
+}

@@ -1,0 +1,49 @@
+## Touchstone review: incomplete
+
+> **INCOMPLETE: a specialist layer or required verifier failed; this is not a clean review.**
+
+| Shown | Rejected | Filtered |
+| --- | --- | --- |
+| 2 | 1 | 1 |
+
+Thresholds: severity ≥ warning; confidence ≥ 0.7.
+
+| Layer | Status | Error |
+| --- | --- | --- |
+| correctness | complete |  |
+| security | incomplete | timeout |
+| verification | complete |  |
+
+### ERROR
+
+- **f1 — src/calc.go:8**: Synthetic zero-divisor
+  - Severity: error; confidence: 0.95; verdict: confirmed; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+  - Verifier: The diff supports this verdict.
+
+### WARNING
+
+- **f3 — src/read.go:14**: Synthetic partial-read
+  - Severity: warning; confidence: 0.8; verdict: uncertain; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+  - Verifier: The diff supports this verdict.
+
+<details>
+<summary>Rejected findings (verifier reasons) (1)</summary>
+
+- **f2 — src/calc.go:3**: Synthetic old-behavior
+  - Severity: error; confidence: 0.7; verdict: rejected; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+  - Verifier: This behavior existed before the synthetic diff.
+
+</details>
+
+<details>
+<summary>Filtered findings (below thresholds) (1)</summary>
+
+- **f4 — src/read.go:20**: Synthetic small-risk
+  - Severity: info; confidence: 0.3; verdict: confirmed; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+  - Verifier: The diff supports this verdict.
+
+</details>

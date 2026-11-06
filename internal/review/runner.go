@@ -38,8 +38,10 @@ Do not include layer, description, or any other keys. Maximum 500 findings.
 type Finding struct {
 	Layer string `json:"layer"`
 	findings.Candidate
-	Verification Verification `json:"verification"`
-	Rank         string       `json:"rank"`
+	Verification        Verification `json:"verification"`
+	Rank                string       `json:"rank"`
+	DisplayID           string       `json:"display_id,omitempty"`
+	PossibleDuplicateOf []string     `json:"possible_duplicate_of,omitempty"`
 }
 
 type Verification struct {
@@ -69,6 +71,8 @@ type Report struct {
 	Layers        []LayerResult `json:"layers"`
 	Verifier      LayerResult   `json:"verifier"`
 	Rejected      []Finding     `json:"rejected"`
+	Filtered      []Finding     `json:"filtered,omitempty"`
+	Triage        *Summary      `json:"triage,omitempty"`
 }
 
 // Runner requires an Agent that honors context cancellation, as Droid does.

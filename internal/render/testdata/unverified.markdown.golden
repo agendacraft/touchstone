@@ -1,0 +1,38 @@
+## Touchstone review: incomplete
+
+> **INCOMPLETE: a specialist layer or required verifier failed; this is not a clean review.**
+
+> **UNVERIFIED: independent verification was disabled or unavailable; findings are not fully verified.**
+
+| Shown | Rejected | Filtered |
+| --- | --- | --- |
+| 2 | 0 | 1 |
+
+Thresholds: severity ≥ warning; confidence ≥ 0.7.
+
+| Layer | Status | Error |
+| --- | --- | --- |
+| correctness | complete |  |
+| security | incomplete | timeout |
+| verification | incomplete | invalid\_output |
+
+### ERROR
+
+- **f1 — src/calc.go:8**: Synthetic zero-divisor
+  - Severity: error; confidence: 0.95; verdict: unverified; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+
+### WARNING
+
+- **f2 — src/read.go:14**: Synthetic partial-read
+  - Severity: warning; confidence: 0.8; verdict: unverified; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+
+<details>
+<summary>Filtered findings (below thresholds) (1)</summary>
+
+- **f3 — src/read.go:20**: Synthetic small-risk
+  - Severity: info; confidence: 0.3; verdict: unverified; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+
+</details>

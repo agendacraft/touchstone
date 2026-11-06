@@ -11,6 +11,7 @@ import (
 
 	"github.com/agendacraft/touchstone/internal/agent"
 	"github.com/agendacraft/touchstone/internal/cli"
+	"github.com/agendacraft/touchstone/internal/render"
 )
 
 var version = "dev"
@@ -39,6 +40,8 @@ type cancelWriter struct {
 	out io.Writer
 	err error
 }
+
+func (w *cancelWriter) IsTerminal() bool { return render.IsTerminal(w.out) }
 
 func (w *cancelWriter) Write(p []byte) (n int, err error) {
 	defer func() {

@@ -146,6 +146,7 @@ func TestReviewJSONMetadataContract(t *testing.T) {
 	// report types. It rejects missing/renamed keys and zeroed unknown usage.
 	const expected = `{
 		"schema_version":2,"outcome":"clean","findings":[],
+		"triage":{"candidates":0,"shown":0,"rejected":0,"filtered":0,"min_severity":"info","min_confidence":0},
 		"rejected":[],"verifier":{"name":"verification","status":"not_needed","error":"","attempts":[]},
 		"layers":[
 			{"name":"correctness","status":"complete","error":"","attempts":[

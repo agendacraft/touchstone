@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path"
 	"path/filepath"
@@ -50,18 +51,35 @@ type document struct {
 	Version *int                `toml:"version"`
 	Layers  map[string]override `toml:"layers"`
 	Paths   []pathRule          `toml:"paths"`
+	Output  Thresholds          `toml:"output"`
+}
+
+type Thresholds struct {
+	MinSeverity   string  `toml:"min_severity" json:"min_severity"`
+	MinConfidence float64 `toml:"min_confidence" json:"min_confidence"`
+}
+
+func (t Thresholds) Validate() error {
+	if t.MinSeverity != "info" && t.MinSeverity != "warning" && t.MinSeverity != "error" {
+		return errors.New("min-severity must be info, warning, or error")
+	}
+	if math.IsNaN(t.MinConfidence) || math.IsInf(t.MinConfidence, 0) || t.MinConfidence < 0 || t.MinConfidence > 1 {
+		return errors.New("min-confidence must be a finite number from 0 to 1")
+	}
+	return nil
 }
 
 // Config is validated at load time; callers resolve policy for a single path.
 type Config struct {
 	layers map[string]Layer
 	paths  []pathRule
+	output Thresholds
 }
 
 var layerNames = []string{"correctness", "security", "verification"}
 
 func Defaults() Config {
-	c := Config{layers: make(map[string]Layer)}
+	c := Config{layers: make(map[string]Layer), output: Thresholds{MinSeverity: "info"}}
 	for _, name := range layerNames {
 		c.layers[name] = Layer{
 			Enabled: true,
@@ -98,7 +116,7 @@ func Parse(data []byte) (Config, error) {
 	if len(data) > maxBytes {
 		return Config{}, errors.New("configuration exceeds size limit")
 	}
-	var doc document
+	doc := document{Output: Thresholds{MinSeverity: "info"}}
 	decoder := toml.NewDecoder(bytes.NewReader(data)).DisallowUnknownFields()
 	if err := decoder.Decode(&doc); err != nil {
 		// Parser diagnostics can quote repository data; do not echo it.
@@ -108,6 +126,10 @@ func Parse(data []byte) (Config, error) {
 		return Config{}, errors.New("unsupported configuration version")
 	}
 	c := Defaults()
+	if err := doc.Output.Validate(); err != nil {
+		return Config{}, err
+	}
+	c.output = doc.Output
 	for name, o := range doc.Layers {
 		if o.Enabled != nil && name != "verification" {
 			return Config{}, errors.New("enabled is only supported for verification")
@@ -155,6 +177,8 @@ func Parse(data []byte) (Config, error) {
 	})
 	return c, nil
 }
+
+func (c Config) Output() Thresholds { return c.output }
 
 func apply(base Layer, o override) (Layer, error) {
 	base.Rules = append([]string(nil), base.Rules...)

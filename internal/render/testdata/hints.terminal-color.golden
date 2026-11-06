@@ -1,0 +1,34 @@
+Touchstone: findings
+3 shown | 1 rejected | 1 filtered (min severity: warning, confidence: 0.7)
+  correctness: complete
+  security: complete
+  verifier: complete
+
+  [31m[ERROR][0m [f1] src/calc.go:8 Synthetic zero-divisor
+    confidence 0.95 | uncertain | layer: correctness
+    Evidence: The synthetic change removes a required guard.
+    Verifier: The first source remains uncertain.
+    Possible duplicate of: f3
+
+  [33m[WARNING][0m [f3] src/calc.go:8 Synthetic zero-divisor
+    confidence 0.99 | confirmed | layer: security
+    Evidence: A second source identifies the removed guard.
+    Verifier: The second source is confirmed.
+    Possible duplicate of: f1
+
+  [33m[WARNING][0m [f4] src/read.go:14 Synthetic partial-read
+    confidence 0.8 | uncertain | layer: correctness
+    Evidence: The synthetic change removes a required guard.
+    Verifier: The diff supports this verdict.
+
+Rejected (verifier audit):
+  [31m[ERROR][0m [f2] src/calc.go:3 Synthetic old-behavior
+    confidence 0.7 | rejected | layer: correctness
+    Evidence: The synthetic change removes a required guard.
+    Verifier: This behavior existed before the synthetic diff.
+
+Filtered (below thresholds):
+  [36m[INFO][0m [f5] src/read.go:20 Synthetic small-risk
+    confidence 0.3 | confirmed | layer: correctness
+    Evidence: The synthetic change removes a required guard.
+    Verifier: The diff supports this verdict.

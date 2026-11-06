@@ -1,10 +1,13 @@
 # Review output contract, version 2
 
-`touchstone review --diff FILE|-` writes exactly one JSON report on stdout once
-review execution completes. Version 2 adds independent verification, rejected
+`touchstone review --diff FILE|- --format json` writes exactly one JSON report
+on stdout once review execution completes. JSON is also the default when stdout
+is not a TTY; terminal output is the interactive default. Version 2 adds independent verification, rejected
 findings, verdict/rank metadata, and per-attempt latency to S1's version 1.
 Consumers must check `schema_version`. The foundation's legacy adapter report
-is unchanged. No deduplication or general triage runs. A clean report is not
+is unchanged. S3 extends version 2 additively with triage metadata, source
+provenance, and filtered findings. Consumers must tolerate additional fields.
+A clean report is not
 proof that the diff is safe.
 
 ## Specialist response
@@ -123,10 +126,34 @@ Verifier failure makes the report incomplete. Explicit disable (`--no-verify`
 or `[layers.verification] enabled = false`) does not itself make it incomplete.
 No failed/malformed response can partially confirm or reject candidates.
 
-No sorting, deduplication, or confidence/severity changes occur. Both sections
-preserve original specialist/model order. An uncertain verdict is not a confirmed
-finding. Partial specialist failure stays incomplete even when verification of
-available candidates succeeds or rejects them all.
+An uncertain verdict is not a confirmed finding. Partial specialist failure stays
+incomplete even when verification of available candidates succeeds or rejects
+them all. Triage follows verification, as described below.
+
+## Cross-layer triage and thresholds
+
+Every claim remains separate with its original severity, confidence, verdict,
+evidence, and reason. Claims from different layers receive symmetric
+`possible_duplicate_of` hints when they share a file and line and their title
+token sets have Jaccard similarity of at least 0.5. Titles are lowercased,
+punctuation separates tokens, and common stopwords are removed. Hints compare
+direct pairs only; they do not change counts, rank, filtering, or verdicts.
+
+All claims receive unique `display_id` values in deterministic rank order
+before filtering, including rejected and filtered claims. Hints can reference
+any of these sections. Claims sort by severity (`error`, `warning`, `info`),
+descending confidence, verifier verdict (confirmed, unverified, uncertain,
+then rejected), file, line, layer, ID, category, title, evidence and reason.
+
+`--min-severity` and `--min-confidence` filter retained claims independently.
+Bounds are inclusive; confidence must be finite and between 0 and 1. Defaults
+are `info` and `0`. Optional `[output]` settings are independently overridden
+by explicit CLI flags. Rejected claims are not filtered.
+
+`triage` counts candidates, shown, rejected and filtered claims and records
+the effective thresholds.
+Thus `candidates = shown + rejected + filtered`. A nonempty `filtered` array
+preserves excluded claims; thresholds never hide an incomplete outcome.
 
 ## CLI report
 
@@ -149,7 +176,8 @@ available candidates succeeds or rejects them all.
         "verdict": "confirmed",
         "reason": "The removed guard allows divide(0) to evaluate 10/0 at line 2."
       },
-      "rank": "normal"
+      "rank": "normal",
+      "display_id": "f1"
     }
   ],
   "layers": [
@@ -211,17 +239,25 @@ available candidates succeeds or rejects them all.
       }
     ]
   },
-  "rejected": []
+  "rejected": [],
+  "triage": {
+    "candidates": 1,
+    "shown": 1,
+    "rejected": 0,
+    "filtered": 0,
+    "min_severity": "info",
+    "min_confidence": 0
+  }
 }
 ```
 
-All keys are always emitted, including null unknown metadata. `findings`,
+Existing version-2 keys remain emitted, including null unknown metadata. `findings`,
 `rejected`, `layers`, and `attempts` are arrays, never null. `layers` always
 contains `correctness`, then `security`, regardless of completion order.
-Candidates are concatenated in that layer order, preserving each model's order.
-IDs are layer-scoped: use `(layer, id)`, not `id` alone. A report can contain up to
-1,000 candidates across `findings` and `rejected`. `rejected` uses the same
-finding shape, with the rejected verdict and reason.
+Findings use triage order, not specialist/model order. Original IDs are
+layer-scoped; `display_id` is unique within the report. A report has at most
+1,000 claims across retained, filtered, and rejected sections. `rejected`
+uses the same finding shape, with the rejected verdict and reason.
 
 Specialist `status` is `complete` only after successful schema validation,
 otherwise `incomplete`. `verifier` always exists, with the same result fields
@@ -261,13 +297,15 @@ parallel specialists' times. A skipped call fabricates neither usage nor cost.
 
 | Outcome | Exit | Meaning |
 | --- | --- | --- |
-| `clean` | 0 | Specialists completed; no retained findings (possibly all rejected). Enabled verification succeeded or was not needed. |
+| `clean` | 0 | Specialists completed; no findings remain above thresholds (possibly all rejected or filtered). Enabled verification succeeded or was not needed. |
 | `findings` | 1 | Specialists completed; at least one retained finding. Enabled verification succeeded; disabled verification leaves findings explicitly unverified. |
 | `incomplete` | 2 | Any specialist or required verifier failed, even if findings exist or all available candidates were rejected. |
 | No report | 3 | Invalid arguments/config/input, scratch setup failure before specialist execution, or output write failure. |
 
-An output write failure can leave partial JSON; exit 3 means consumers must not
+An output write failure can leave partial output in any format; exit 3 means consumers must not
 use it as a complete report. Errors before report serialization leave stdout
 empty. Help, version, and successful config validation exit 0 without a review
 report. Diagnostics go to stderr. Missing/failed specialists or a failed required
 verifier can never produce a clean outcome.
+
+See [output format examples](output-formats.md) for terminal and Markdown output.

@@ -1,0 +1,54 @@
+## Touchstone review: findings
+
+| Shown | Rejected | Filtered |
+| --- | --- | --- |
+| 3 | 1 | 1 |
+
+Thresholds: severity ≥ warning; confidence ≥ 0.7.
+
+| Layer | Status | Error |
+| --- | --- | --- |
+| correctness | complete |  |
+| security | complete |  |
+| verification | complete |  |
+
+### ERROR
+
+- **f1 — src/calc.go:8**: Synthetic zero-divisor
+  - Severity: error; confidence: 0.95; verdict: uncertain; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+  - Verifier: The first source remains uncertain.
+  - Possible duplicate of: f3.
+
+### WARNING
+
+- **f3 — src/calc.go:8**: Synthetic zero-divisor
+  - Severity: warning; confidence: 0.99; verdict: confirmed; layer: security.
+  - Evidence: A second source identifies the removed guard.
+  - Verifier: The second source is confirmed.
+  - Possible duplicate of: f1.
+
+- **f4 — src/read.go:14**: Synthetic partial-read
+  - Severity: warning; confidence: 0.8; verdict: uncertain; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+  - Verifier: The diff supports this verdict.
+
+<details>
+<summary>Rejected findings (verifier reasons) (1)</summary>
+
+- **f2 — src/calc.go:3**: Synthetic old-behavior
+  - Severity: error; confidence: 0.7; verdict: rejected; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+  - Verifier: This behavior existed before the synthetic diff.
+
+</details>
+
+<details>
+<summary>Filtered findings (below thresholds) (1)</summary>
+
+- **f5 — src/read.go:20**: Synthetic small-risk
+  - Severity: info; confidence: 0.3; verdict: confirmed; layer: correctness.
+  - Evidence: The synthetic change removes a required guard.
+  - Verifier: The diff supports this verdict.
+
+</details>

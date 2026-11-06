@@ -1,0 +1,88 @@
+{
+  "schema_version": 2,
+  "outcome": "incomplete",
+  "findings": [
+    {
+      "layer": "correctness",
+      "id": "zero-divisor",
+      "severity": "error",
+      "category": "logic",
+      "file": "src/calc.go",
+      "line": 8,
+      "title": "Synthetic zero-divisor",
+      "evidence": "The synthetic change removes a required guard.",
+      "confidence": 0.95,
+      "verification": {
+        "verdict": "unverified",
+        "reason": ""
+      },
+      "rank": "normal",
+      "display_id": "f1"
+    },
+    {
+      "layer": "correctness",
+      "id": "partial-read",
+      "severity": "warning",
+      "category": "logic",
+      "file": "src/read.go",
+      "line": 14,
+      "title": "Synthetic partial-read",
+      "evidence": "The synthetic change removes a required guard.",
+      "confidence": 0.8,
+      "verification": {
+        "verdict": "unverified",
+        "reason": ""
+      },
+      "rank": "normal",
+      "display_id": "f2"
+    }
+  ],
+  "layers": [
+    {
+      "name": "correctness",
+      "status": "complete",
+      "error": "",
+      "attempts": []
+    },
+    {
+      "name": "security",
+      "status": "incomplete",
+      "error": "timeout",
+      "attempts": []
+    }
+  ],
+  "verifier": {
+    "name": "verification",
+    "status": "incomplete",
+    "error": "invalid_output",
+    "attempts": []
+  },
+  "rejected": [],
+  "filtered": [
+    {
+      "layer": "correctness",
+      "id": "small-risk",
+      "severity": "info",
+      "category": "logic",
+      "file": "src/read.go",
+      "line": 20,
+      "title": "Synthetic small-risk",
+      "evidence": "The synthetic change removes a required guard.",
+      "confidence": 0.3,
+      "verification": {
+        "verdict": "unverified",
+        "reason": ""
+      },
+      "rank": "normal",
+      "display_id": "f3"
+    }
+  ],
+  "triage": {
+    "candidates": 3,
+    "shown": 2,
+    "rejected": 0,
+    "filtered": 1,
+    "min_severity": "warning",
+    "min_confidence": 0.7
+  }
+}
