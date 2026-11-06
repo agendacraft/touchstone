@@ -2,10 +2,10 @@
 
 A layered pull-request review CLI that drives the Droid CLI.
 
-**Early development. Not usable yet.** This is a foundation scaffold, not a
-reviewer. `touchstone review` returns an explicit not-implemented error. There
-are no review prompts, review orchestration, verifier logic, forge posting,
-automatic fixes, telemetry, or releases.
+**Early development. Findings are unverified.** `touchstone review` runs
+independent correctness and security specialists over a supplied diff. There
+is no verifier, deduplication, git/PR input, forge posting, automatic fixing,
+telemetry, or release yet. Schema validity does not establish review quality.
 
 ## Requirements
 
@@ -15,23 +15,47 @@ automatic fixes, telemetry, or releases.
   may incur charges. Follow Factory's authentication instructions; never put
   credentials in `touchstone.toml`.
 
-Building, running `version` or `config validate`, and the test suite do **not**
-need Droid, an account, or live model calls. The adapter was probed against
+Building, running `version` or `config validate`, and the default test suite do
+**not** need Droid, an account, or live model calls. The adapter was probed against
 Droid 1.4.1; see [verified capabilities and limits](docs/droid-capabilities.md).
 
-## Build and try the scaffold
+## Build and review
 
 ```sh
-go build -o touchstone ./cmd/touchstone
-./touchstone version
-./touchstone config validate --cwd .
-./touchstone review # exits nonzero: not implemented
+go build -o /tmp/touchstone ./cmd/touchstone
+/tmp/touchstone version
+/tmp/touchstone config validate --cwd .
+# Model calls below require Droid authentication and may incur charges.
+/tmp/touchstone review --diff /tmp/synthetic.patch --cwd .
+/tmp/touchstone review --diff - --concurrency 1 < /tmp/synthetic.patch
 ```
+
+Supply a nonempty unified diff, up to 16 MiB; its format is not validated.
+`--diff` is required; `-` reads
+stdin. File paths resolve relative to the shell's current directory. `--cwd`
+selects the directory containing optional `touchstone.toml`, not the diff
+file's directory. No git command runs. The agent works in a private scratch
+directory containing only the supplied diff, not in the configured repository.
+It has no repository context beyond the diff. Synthetic examples only belong
+in this public repository; do not commit private review inputs or outputs.
+
+Both specialist layers run concurrently by default; `--concurrency N` bounds
+active layers (positive integer). Each layer gets its own configured timeout,
+starting after it acquires a worker slot. One fresh-session repair retry for
+malformed model text shares that same timeout. Transport errors, process
+failures, cancellation, and timeouts are not retried. A failed layer always
+appears as `incomplete`, while successful peers' findings remain available.
+
+Stdout contains one JSON report. Exit status: **0** clean, **1** findings,
+**2** incomplete (even if some findings exist), **3** command/setup/output
+error. Help/version/config validation also exit 0 on success. Diagnostics use
+stderr, not stdout. See the stable [review-output contract](docs/review-output.md)
+for downstream tooling and future evals.
 
 The default version is `dev`. For a local build label:
 
 ```sh
-go build -ldflags '-X main.version=local' -o touchstone ./cmd/touchstone
+go build -ldflags '-X main.version=local' -o /tmp/touchstone ./cmd/touchstone
 ```
 
 ## Repository configuration
@@ -43,11 +67,12 @@ or unreadable file fails validation. Unknown keys and layer names are errors.
 
 The reserved layers are `correctness`, `security`, and `verification`. All
 default to `glm-5.3-flash`, `low` reasoning, a five-minute timeout, autonomy
-`off`, and read-only intent. These are configurable placeholders, not a
-validated model-quality recommendation. No layer runs from the CLI yet.
+`off`, and read-only intent. These are configurable defaults, not a validated
+model-quality recommendation. Only correctness and security run in S1;
+verification settings are reserved and do not cause a verifier to run.
 
-Set `model` per layer or per matching path in `touchstone.toml`; there is no
-`--model` CLI flag in this scaffold. Model and reasoning settings override
+Set `model` per layer in `touchstone.toml`; there is no
+`--model` CLI flag. Model and reasoning settings override
 independently. The [GLM capability trial](docs/droid-capabilities.md#glm-53-flash-follow-up)
 accepted 5/5 outputs as valid schema, but only 4/5 fully matched the requested
 payload. Schema validity is not evidence of review quality or instruction
@@ -84,7 +109,13 @@ Each override accepts `model`, `reasoning_effort`, `timeout`, `autonomy`,
 availability and model-specific reasoning support are checked by Droid at run
 time, not by offline config validation.
 
-Precedence is defaults, repository layer settings, then matching path rules.
+The diff runner uses only repository-wide layer settings and additive `rules`
+in its embedded specialist prompts. Path-based review selection is not part
+of S1: the config resolver validates and supports the rules below, but `review`
+does **not** apply them or infer paths from a diff.
+
+Resolver precedence is defaults, repository layer settings, then matching path
+rules.
 Paths use Go's slash-separated [`path.Match`](https://pkg.go.dev/path#Match)
 globs: `*` does not cross `/`; recursive `**` is rejected. Exact paths outrank
 globs. Among globs, more characters other than `*?[]` mean higher precedence.
@@ -106,13 +137,11 @@ tool restrictions are **not an OS sandbox**. Settings merge with local Droid
 settings. Do not run this against untrusted repositories with host credentials.
 Using Droid sends prompts and inspected content to the selected model service.
 
-The model's `result` string must pass the
-[versioned findings contract](docs/findings.md). Free text is never a report.
-Usage is preserved when provided; missing usage and currency cost remain
-unknown. Factory credits are not converted to dollars. Process failure,
-cancellation, timeout, and malformed output return errors, not clean reviews.
-An `incomplete` report is distinct from `clean`. A deterministic fake and
-synthetic recorded fixtures let tests run without an account.
+The CLI validates specialist responses against the
+[review-output contract](docs/review-output.md). The foundation's
+[legacy report contract](docs/findings.md) remains available to adapter callers.
+A deterministic fake and synthetic recorded fixtures let tests run without an
+account.
 
 ## Development
 
@@ -122,6 +151,18 @@ go vet ./...
 go test -race ./...
 golangci-lint run ./...
 ```
+
+An optional real headless Droid smoke test uses only a small synthetic diff:
+
+```sh
+TOUCHSTONE_LIVE_SMOKE=1 go test -v ./internal/review -run '^TestLiveDroidSmoke$' -count=1
+```
+
+It runs both default specialist layers in fresh sessions, with a three-minute
+overall deadline. It needs local Droid authentication, sends the synthetic diff
+to the model service, and may incur charges (including one repair per layer).
+It checks transport and schema completion, not review accuracy. Normal tests
+skip it; CI needs no model credentials.
 
 CI uses standard GitHub-hosted Ubuntu runners on this public repository, with
 no model credentials, paid runner labels, or external review service. The only

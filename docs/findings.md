@@ -1,4 +1,9 @@
-# Findings wire contract, version 1
+# Legacy adapter report contract, version 1
+
+This foundation contract is retained for adapter callers that request a
+complete report. `touchstone review` uses the distinct
+[review-output contract](review-output.md), with runner-owned layer status and
+strict specialist arrays, not this legacy model-authored envelope.
 
 The adapter parses the Droid envelope first, then validates its `result` string
 as exactly one JSON object. It does not extract Markdown fences, repair JSON,
