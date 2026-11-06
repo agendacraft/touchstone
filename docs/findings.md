@@ -8,7 +8,7 @@ strict specialist arrays, not this legacy model-authored envelope.
 The adapter parses the Droid envelope first, then validates its `result` string
 as exactly one JSON object. It does not extract Markdown fences, repair JSON,
 or interpret prose. Successful schema validation says nothing about whether a
-finding is true. Independent verification is not implemented.
+finding is true. This legacy adapter does not perform independent verification.
 
 ```json
 {

@@ -131,7 +131,8 @@ was **4/5 (80%)**: trial 2 returned severity `warning` instead of the requested
 the report; it cannot infer whether the model followed the request or whether
 an invented defect is true. This miss is retained in the results, not retried
 or hidden. The sample is too small to establish reliability, review quality,
-or production success rates. Independent verification remains follow-up work.
+or production success rates. This historical trial did not assess independent
+verification; see the [review-output contract](review-output.md) for its current behavior.
 
 Public references: [headless execution](https://docs.factory.com/droid-exec/overview.md)
 and [runtime settings](https://docs.factory.com/droid-cli/settings.md).
