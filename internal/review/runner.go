@@ -15,7 +15,6 @@ import (
 	"github.com/agendacraft/touchstone/internal/agent"
 	"github.com/agendacraft/touchstone/internal/config"
 	"github.com/agendacraft/touchstone/internal/findings"
-	"github.com/agendacraft/touchstone/internal/patch"
 )
 
 const MaxDiffBytes = config.DefaultMaxDiffBytes
@@ -103,13 +102,6 @@ func (r Runner) Run(ctx context.Context, diff []byte, cfg config.Config) (Report
 	}
 	if len(bytes.TrimSpace(diff)) == 0 {
 		return EmptyReport(), nil
-	}
-	if patch.IsMailbox(diff) {
-		report, err := r.runSingle(ctx, diff, cfg)
-		if err == nil {
-			report.Notices = append(report.Notices, "Per-path rules were not applied to mailbox input.")
-		}
-		return report, err
 	}
 	if cfg.HasPaths() {
 		return r.runGroups(ctx, diff, cfg)

@@ -185,14 +185,14 @@ func TestFormatPatchMessagesAtReviewBoundary(t *testing.T) {
 	input := testutil.Git(t, dir, "format-patch", "--stdout", base+"..HEAD") + "\n"
 	file := filepath.Join(dir, "input.patch")
 	testutil.Write(t, dir, "input.patch", input)
-	testutil.Write(t, dir, config.FileName, "[[paths]]\npattern = \"*.txt\"\n[paths.layers.correctness]\nenabled = false\n")
+	testutil.Write(t, dir, config.FileName, "[layers.correctness]\nenabled = false\n[layers.security]\nenabled = false\n[[paths]]\npattern = \"*.txt\"\n[paths.layers.correctness]\nenabled = true\n")
 	var calls atomic.Int32
 	fake := agent.Fake{Respond: func(_ context.Context, request agent.Request) (agent.Result, error) {
 		data, err := os.ReadFile(filepath.Join(request.WorkingDirectory, "diff.patch"))
 		if err != nil {
 			t.Error(err)
 		}
-		if string(data) != input {
+		if !strings.Contains(string(data), "diff --git a/first.txt b/first.txt") || !strings.Contains(string(data), "diff --git a/second.txt b/second.txt") || strings.Contains(string(data), "phantom") {
 			t.Errorf("message text or patches misclassified: %s", data)
 		}
 		calls.Add(1)
@@ -201,15 +201,42 @@ func TestFormatPatchMessagesAtReviewBoundary(t *testing.T) {
 	for _, name := range []string{"-", file} {
 		before := calls.Load()
 		report, code, diagnostic := runSyntheticReview(t, []string{"--cwd", dir, "--diff", name}, input, fake)
-		if code != 0 || report.Outcome != "clean" || calls.Load()-before != 2 || len(report.Notices) != 1 || !strings.Contains(report.Notices[0], "Per-path rules were not applied") {
+		if code != 0 || report.Outcome != "clean" || calls.Load()-before != 1 {
 			t.Fatalf("format-patch %s: %+v %d %s", name, report, code, diagnostic)
 		}
 	}
-	for _, format := range []string{"terminal", "markdown"} {
-		var out bytes.Buffer
-		err := RunContext(context.Background(), []string{"review", "--cwd", dir, "--diff", "-", "--format", format}, strings.NewReader(input), &out, io.Discard, "test", fake)
-		if err != nil || !strings.Contains(out.String(), "Per-path rules were not applied") {
-			t.Fatalf("missing notice in %s: %s %v", format, out.String(), err)
+}
+
+func TestFormatPatchAppliesExclusionsAndPathPolicy(t *testing.T) {
+	dir := testutil.Repo(t)
+	testutil.Write(t, dir, "src/skip.txt", "old\n")
+	testutil.Write(t, dir, "keep.txt", "old\n")
+	testutil.Write(t, dir, "image.bin", "\x00old\n")
+	base := testutil.Commit(t, dir, "")
+	testutil.Write(t, dir, "src/skip.txt", "new\n")
+	testutil.Write(t, dir, "keep.txt", "new\n")
+	testutil.Write(t, dir, "image.bin", "\x00new\n")
+	testutil.Commit(t, dir, base)
+	data := testutil.Git(t, dir, "format-patch", "-1", "--stdout") + "\n"
+	testutil.Write(t, dir, "input.patch", data)
+	testutil.Write(t, dir, config.FileName, "[layers.correctness]\nenabled = false\n[layers.security]\nenabled = false\n[[paths]]\npattern = \"keep.txt\"\n[paths.layers.correctness]\nenabled = true\n")
+	var calls atomic.Int32
+	fake := agent.Fake{Respond: func(_ context.Context, request agent.Request) (agent.Result, error) {
+		patchData, err := os.ReadFile(filepath.Join(request.WorkingDirectory, "diff.patch"))
+		if err != nil {
+			t.Error(err)
+		}
+		if !strings.Contains(string(patchData), "diff --git a/keep.txt b/keep.txt") || strings.Contains(string(patchData), "diff --git a/src/skip.txt") || strings.Contains(string(patchData), "diff --git a/image.bin") {
+			t.Errorf("incorrect filtered patch: %s", patchData)
+		}
+		calls.Add(1)
+		return agent.Result{Output: "[]"}, nil
+	}}
+	for _, name := range []string{"-", filepath.Join(dir, "input.patch")} {
+		before := calls.Load()
+		report, code, diagnostic := runSyntheticReview(t, []string{"--cwd", dir, "--diff", name, "--ignore", "src/*"}, data, fake)
+		if code != 0 || report.Outcome != "clean" || calls.Load()-before != 1 {
+			t.Errorf("mailbox policy for %s: %+v %d %s calls=%d", name, report, code, diagnostic, calls.Load()-before)
 		}
 	}
 }

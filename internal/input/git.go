@@ -115,9 +115,6 @@ func (g Git) Diff(ctx context.Context, dir, base, head string, limit int, ignore
 }
 
 func Filter(data []byte, ignore []string) (Diff, error) {
-	if patch.IsMailbox(data) {
-		return Diff{Data: data, Bytes: int64(len(data))}, nil
-	}
 	if len(bytes.TrimSpace(data)) == 0 {
 		return Diff{}, nil
 	}
