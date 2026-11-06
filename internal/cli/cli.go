@@ -8,17 +8,16 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 
 	"github.com/agendacraft/touchstone/internal/agent"
 	"github.com/agendacraft/touchstone/internal/config"
-	"github.com/agendacraft/touchstone/internal/render"
-	"github.com/agendacraft/touchstone/internal/review"
 )
 
 const usage = `Touchstone (early development)
 Usage:
-  touchstone review --diff FILE|- [--cwd DIRECTORY] [--concurrency N] [--no-verify]
+  touchstone review [--diff FILE|- | --base REF [--head REF]] [--cwd DIRECTORY]
+                    [--max-diff-bytes N] [--ignore GLOB] [--run-checks]
+                    [--concurrency N] [--no-verify]
                     [--format terminal|json|markdown] [--min-severity info|warning|error]
                     [--min-confidence 0..1]
   touchstone version
@@ -101,102 +100,6 @@ func (s reviewStatus) Error() string {
 		return "review has findings"
 	}
 	return "review incomplete"
-}
-
-func runReview(ctx context.Context, args []string, in io.Reader, out, stderr io.Writer, a agent.Agent) error {
-	fs := flag.NewFlagSet("review", flag.ContinueOnError)
-	fs.SetOutput(stderr)
-	diff := fs.String("diff", "", "diff file, or - for stdin (required)")
-	cwd := fs.String("cwd", ".", "directory containing optional touchstone.toml")
-	concurrency := fs.Int("concurrency", 2, "maximum parallel specialist layers")
-	noVerify := fs.Bool("no-verify", false, "disable independent verification (findings remain unverified)")
-	format := fs.String("format", "", "terminal, json, or markdown (default: terminal on a TTY, json when piped)")
-	minSeverity := fs.String("min-severity", "", "minimum severity: info, warning, or error (overrides config)")
-	minConfidence := fs.Float64("min-confidence", 0, "minimum confidence from 0 to 1 (overrides config)")
-	if err := fs.Parse(args); err != nil {
-		if errors.Is(err, flag.ErrHelp) {
-			return nil
-		}
-		return err
-	}
-	if fs.NArg() != 0 || *diff == "" || *concurrency < 1 {
-		return errors.New("review requires --diff FILE|- and positive --concurrency, with no positional arguments")
-	}
-	renderer, err := render.Select(*format, out)
-	if err != nil {
-		return err
-	}
-	dir, err := filepath.Abs(*cwd)
-	if err != nil {
-		return errors.New("cannot resolve cwd")
-	}
-	info, err := os.Stat(dir)
-	if err != nil || !info.IsDir() {
-		return errors.New("cwd must be an existing directory")
-	}
-	cfg, err := loadConfig(ctx, dir)
-	if err != nil {
-		return fmt.Errorf("configuration invalid: %w", err)
-	}
-	thresholds := cfg.Output()
-	fs.Visit(func(f *flag.Flag) {
-		switch f.Name {
-		case "min-severity":
-			thresholds.MinSeverity = *minSeverity
-		case "min-confidence":
-			thresholds.MinConfidence = *minConfidence
-		}
-	})
-	if err := thresholds.Validate(); err != nil {
-		return err
-	}
-	type readResult struct {
-		data []byte
-		err  error
-	}
-	read := make(chan readResult, 1)
-	go func() {
-		if *diff != "-" {
-			file, err := os.Open(*diff)
-			if err != nil {
-				read <- readResult{err: errors.New("cannot open diff file")}
-				return
-			}
-			defer func() { _ = file.Close() }()
-			in = file
-		}
-		data, err := io.ReadAll(io.LimitReader(in, review.MaxDiffBytes+1))
-		if err != nil {
-			err = errors.New("cannot read diff")
-		}
-		read <- readResult{data, err}
-	}()
-	var data []byte
-	select {
-	case result := <-read:
-		if result.err != nil {
-			return result.err
-		}
-		data = result.data
-	case <-ctx.Done():
-		return ctx.Err()
-	}
-	report, err := (review.Runner{Agent: a, Concurrency: *concurrency, DisableVerifier: *noVerify}).Run(ctx, data, cfg)
-	if err != nil {
-		return err
-	}
-	report = review.Triage(report, thresholds)
-	if err := renderer.Render(out, report); err != nil {
-		return err
-	}
-	switch report.Outcome {
-	case "findings":
-		return reviewStatus(1)
-	case "incomplete":
-		return reviewStatus(2)
-	default:
-		return nil
-	}
 }
 
 func loadConfig(ctx context.Context, dir string) (config.Config, error) {

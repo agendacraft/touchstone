@@ -7,13 +7,15 @@ security specialists over a supplied diff, then a fresh skeptical verifier.
 Confirmed findings stay, rejected claims move to an audit section, and uncertain
 findings stay with a lower-rank label. Cross-layer triage marks possible
 duplicates and ranks each claim before optional filtering.
-Terminal, JSON, and Markdown output are available. There is no git/PR input,
-forge posting, automatic fixing, telemetry, or release yet.
+Git repositories and diff files are supported, with path-specific policy and
+opt-in local deterministic checks. Terminal, JSON, and Markdown output are
+available. There is no PR input, forge posting, automatic fixing, telemetry, or release yet.
 Verification is model judgment, not proof of correctness.
 
 ## Requirements
 
 - Go 1.25 or newer to build.
+- Git for repository inputs (no network fetch is performed).
 - The [Droid CLI](https://docs.factory.com/droid-cli/overview.md) and a Factory
   account with access to your selected model for agent execution. Model calls
   may incur charges. Follow Factory's authentication instructions; never put
@@ -30,6 +32,8 @@ go build -o /tmp/touchstone ./cmd/touchstone
 /tmp/touchstone version
 /tmp/touchstone config validate --cwd .
 # Model calls below require Droid authentication and may incur charges.
+/tmp/touchstone review --cwd /tmp/synthetic-repo
+/tmp/touchstone review --cwd /tmp/synthetic-repo --base main --head HEAD
 /tmp/touchstone review --diff /tmp/synthetic.patch --cwd .
 /tmp/touchstone review --diff - --concurrency 1 < /tmp/synthetic.patch
 # Optional: specialist-only review; findings are explicitly unverified.
@@ -38,11 +42,36 @@ go build -o /tmp/touchstone ./cmd/touchstone
 /tmp/touchstone review --diff /tmp/synthetic.patch --format markdown --min-severity warning --min-confidence 0.8
 ```
 
-Supply a nonempty unified diff, up to 16 MiB; its format is not validated.
-`--diff` is required; `-` reads
-stdin. File paths resolve relative to the shell's current directory. `--cwd`
-selects the directory containing optional `touchstone.toml`, not the diff
-file's directory. No git command runs. The agent works in a private scratch
+Without input flags, Touchstone compares HEAD with its merge-base against
+`origin/HEAD`, falling back to local `main`, then `master`. Configure
+`origin/HEAD` locally or use `--base REF` if that default cannot be found.
+Explicit `--base REF` compares that commit directly to `--head REF` (default
+HEAD), not its merge-base. Unknown/non-commit refs fail before model calls.
+Only committed trees are diffed; staged, unstaged, and untracked changes are
+not included. Git runs with argument vectors, external diff and textconv
+disabled. There are no checkout or fetch operations.
+
+Alternatively, `--diff FILE|-` reads a unified patch from a file or stdin.
+It is mutually exclusive with both `--base` and `--head`. File paths resolve
+relative to the shell's current directory. `--cwd` selects the repository
+(from any subdirectory); review loads optional `touchstone.toml` at its root.
+For `--diff` outside Git, config loads directly from `--cwd`.
+
+Binary patches are excluded. `[input] ignore = ["generated/*", "*.bin"]` and
+repeatable `--ignore GLOB` exclude matching files; CLI globs add to config.
+Either side of a rename can match an ignore. Globs use the path syntax below.
+Format-patch and mbox inputs are reviewed unchanged; binary and path exclusions
+and per-path policies do not apply.
+Empty or fully excluded diffs produce a clean report with no model calls or
+local checks. Unresolvable patch paths fail rather than silently skipping files.
+
+The default diff limit is 16 MiB. Set `--max-diff-bytes N` or
+`[input] max_diff_bytes = N` (flag wins), from 1 through 268435456 bytes (256 MiB).
+The raw diff is counted **before** exclusions; an oversized diff produces an
+incomplete report with `diff too large, N bytes`, no truncated review and no
+model/check calls. Capture is bounded while the remaining stream is counted.
+
+The agent works in a private scratch
 directory containing the supplied diff and, after the specialists finish, their
 candidate findings, not in the configured repository.
 It has no repository context beyond the diff. Synthetic examples only belong
@@ -92,9 +121,10 @@ go build -ldflags '-X main.version=local' -o /tmp/touchstone ./cmd/touchstone
 
 ## Repository configuration
 
-An optional `touchstone.toml` in the directory passed to `--cwd` overrides
-built-in defaults. The command does not search ancestor directories or load
-user-wide Touchstone configuration. An absent file uses defaults; an invalid
+An optional `touchstone.toml` at the selected repository root overrides
+built-in defaults. `config validate --cwd DIRECTORY` validates exactly that
+directory, without root discovery. No user-wide Touchstone configuration is
+loaded. An absent file uses defaults; an invalid
 or unreadable file fails validation. Unknown keys and layer names are errors.
 
 The layers are `correctness`, `security`, and `verification`. All
@@ -147,17 +177,20 @@ timeout = "3m"
 ```
 
 Each override accepts `model`, `reasoning_effort`, `timeout`, `autonomy`,
-`read_only`, and `rules`. Only repository-wide `[layers.verification]` also
-accepts `enabled` (default `true`); use `false` to disable it. `--no-verify`
+`read_only`, `rules`, and `enabled` (default `true`). Both repository and path
+overrides can disable or re-enable any model layer. `--no-verify`
 always disables verification regardless of config. Repository policy must keep
 `autonomy = "off"` and `read_only = true`; timeouts must be positive Go duration strings. Model
 availability and model-specific reasoning support are checked by Droid at run
 time, not by offline config validation.
 
-The diff runner uses only repository-wide layer settings and additive `rules`
-in its embedded specialist and verifier prompts. Path-based review selection
-is not implemented: the config resolver validates and supports the rules below,
-but `review` does **not** apply them or infer paths from a diff.
+The runner splits patches into files, resolves all three model layers for each
+path, and groups files whose full resolved policies match. Groups run in diff
+order, each with its own specialist/verifier sessions and private patch.
+`--concurrency` limits parallel specialists within a group; groups run serially.
+Rules are attached as **additional guidance**, never substitutes for the
+built-in prompts or response contract. Renames use the destination for policy;
+deletions use the deleted path. Local checks are repository-wide, not path rules.
 
 Resolver precedence is defaults, repository layer settings, then matching path
 rules.
@@ -168,6 +201,60 @@ Equal specificity uses declaration order, with later scalar values winning.
 Rules are additive in that order, never silently discarded. Relative,
 normalized paths are required.
 
+## Local deterministic checks
+
+Checks execute code from the **current working tree**, even when `--head`
+selects another commit. They do not independently prove the diff is correct.
+They are off by default and never inferred from a package manager or file type.
+Only explicitly configured commands can run, after `--run-checks` or
+`[checks] enabled = true`. `--run-checks=false` overrides config.
+**Treat the config as executable code:** inspect it before reviewing an
+untrusted checkout. An untrusted config can enable checks; use
+`--run-checks=false`, or remove that opt-in, for such checkouts.
+This is not a sandbox. Commands can read/write files, access the network, and
+launch other programs with your account's permissions. No shell is inserted,
+but explicitly configuring a shell/interpreter is still possible and risky.
+
+```toml
+[checks]
+enabled = false
+env_allowlist = ["PATH", "HOME"] # inherit only these values; default: ["PATH"]
+
+[[checks.commands]]
+name = "synthetic tests"
+args = ["go", "test", "./..."] # literal argv, no expansion or shell parsing
+timeout = "30s"               # default 1m; maximum 30m
+max_output_bytes = 65536      # default 64 KiB; maximum 1 MiB
+location_regex = '(?m)^(?P<file>[^:\r\n]+):(?P<line>[0-9]+):'
+```
+
+Checks run serially at the Git root, once per review, after model work and
+before triage. No command runs when no commands are configured.
+At most 64 uniquely named commands may be configured. Executable lookup uses
+the caller's PATH; use an absolute executable path when that matters.
+The child environment contains only allowlisted inherited values (an empty
+allowlist requests an empty environment, aside from platform-required values).
+Never allowlist secrets or put them in arguments. Bounded combined stdout/stderr
+is retained in JSON and failing-check evidence; avoid commands that print secrets.
+Timeouts kill the process group on Unix, the direct child elsewhere.
+Exceeding the combined output cap stops the command and marks it incomplete.
+
+A nonzero normal exit becomes one `deterministic` error finding with confidence
+1. Its confirmed verdict means **observed local failure**, not model agreement
+or proof of a regression. No verifier model sees these findings.
+Only a declared Go/RE2 `location_regex` enables location parsing. It must have
+named `file` and `line` captures; the first match with a normalized relative
+path and positive integer wins. Otherwise the finding is repository-level
+(`file: ""`, `line: 0`). No output format is guessed.
+Missing executables, timeouts, signals, capture errors, and output caps produce
+`incomplete`, never a pass. Every format records the local status and literal
+argv; JSON also retains exit status, bounded output and captured byte count.
+Thresholds apply to these findings like other findings, but cannot hide an
+incomplete outcome.
+
+See the [worked synthetic repository example](docs/real-inputs.md), which also
+shows a deterministic-only review without credentials.
+
 ## Agent and output contracts
 
 The internal `Agent` interface runs one layer per invocation. The Droid adapter
@@ -176,10 +263,10 @@ reasoning flags, a bounded subprocess deadline, and a fresh session every time.
 It never resumes or forks a previous session. Unix deadlines kill the process
 group; other platforms kill the direct child only.
 
-The verifier uses reasoning and read-only file inspection only. Code snippets,
-shell commands, tests, and other execution checks are not permitted, even for
-verification. Adding them would widen the foundation's autonomy/tool boundary
-and requires a separate captain decision; this slice does not enable them.
+The verifier uses reasoning and read-only file inspection only. It cannot run
+code snippets, shell commands, tests, or other execution checks. Opt-in
+deterministic checks are a separate local runner, not an expansion of the
+model's tool permissions.
 
 Runs omit `--auto`, restrict tools to `Read,Grep,Glob,LS`, disable hooks, and
 disable cloud session sync in per-run settings. Autonomy and

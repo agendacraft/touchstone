@@ -18,7 +18,7 @@ func TestCommands(t *testing.T) {
 		{nil, "early development", false},
 		{[]string{"--help"}, "touchstone config validate", false},
 		{[]string{"version"}, "touchstone test-version\n", false},
-		{[]string{"review"}, "", true},
+		{[]string{"review", "--cwd", dir}, "", true},
 		{[]string{"config", "validate", "--cwd", dir}, "configuration valid", false},
 		{[]string{"config", "validate", "--help"}, "", false},
 		{[]string{"config", "validate", "--cwd", filepath.Join(dir, "missing")}, "", true},

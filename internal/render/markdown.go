@@ -14,6 +14,9 @@ type Markdown struct{}
 func (Markdown) Render(out io.Writer, report review.Report) error {
 	var text strings.Builder
 	fmt.Fprintf(&text, "## Touchstone review: %s\n", markdown(report.Outcome))
+	for _, notice := range report.Notices {
+		fmt.Fprintf(&text, "\n%s\n", markdown(notice))
+	}
 	for _, banner := range banners(report) {
 		fmt.Fprintf(&text, "\n> **%s**\n", markdown(banner))
 	}
@@ -26,6 +29,9 @@ func (Markdown) Render(out io.Writer, report review.Report) error {
 		markdownLayer(&text, layer)
 	}
 	markdownLayer(&text, report.Verifier)
+	for _, check := range report.Checks {
+		fmt.Fprintf(&text, "\nLocal check **%s**: %s; executed locally: %t; argv: %s\n\n    %s\n", markdown(check.Name), markdown(check.Status), check.Local, markdown(check.Error), safeArgv(check.Args))
+	}
 	for _, severity := range []string{"error", "warning", "info"} {
 		findings := []review.Finding{}
 		for _, f := range report.Findings {
@@ -48,7 +54,11 @@ func (Markdown) Render(out io.Writer, report review.Report) error {
 }
 
 func markdownLayer(text *strings.Builder, layer review.LayerResult) {
-	fmt.Fprintf(text, "| %s | %s | %s |\n", markdown(layer.Name), markdown(layer.Status), markdown(layer.Error))
+	name := layer.Name
+	if layer.Group != "" {
+		name += " [" + layer.Group + "]"
+	}
+	fmt.Fprintf(text, "| %s | %s | %s |\n", markdown(name), markdown(layer.Status), markdown(layer.Error))
 }
 
 func markdownFinding(text *strings.Builder, f review.Finding) {
@@ -77,7 +87,12 @@ func markdownAudit(text *strings.Builder, title string, findings []review.Findin
 
 // Escape model text before placing it inside PR-comment markup.
 func markdown(value string) string {
-	value = html.EscapeString(plain(value))
+	value = plain(value)
+	return markdownEscaped(value)
+}
+
+func markdownEscaped(value string) string {
+	value = html.EscapeString(value)
 	replacer := strings.NewReplacer(
 		"\\", "\\\\", "`", "\\`", "*", "\\*", "_", "\\_", "[", "\\[", "]", "\\]",
 		"|", "\\|", "~", "\\~", "@", "&#64;",

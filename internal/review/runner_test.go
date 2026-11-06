@@ -257,9 +257,6 @@ func TestReviewRejectsInvalidSetup(t *testing.T) {
 	}{
 		{Runner{}, []byte(syntheticDiff)},
 		{Runner{Agent: fake, Concurrency: -1}, []byte(syntheticDiff)},
-		{Runner{Agent: fake}, nil},
-		{Runner{Agent: fake}, []byte(" \n")},
-		{Runner{Agent: fake}, make([]byte, (16<<20)+1)},
 	} {
 		if _, err := tc.runner.Run(context.Background(), tc.diff, config.Defaults()); err == nil {
 			t.Fatal("invalid setup accepted")

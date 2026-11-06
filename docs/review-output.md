@@ -1,12 +1,14 @@
 # Review output contract, version 2
 
-`touchstone review --diff FILE|- --format json` writes exactly one JSON report
+`touchstone review --format json` writes exactly one JSON report
 on stdout once review execution completes. JSON is also the default when stdout
 is not a TTY; terminal output is the interactive default. Version 2 adds independent verification, rejected
 findings, verdict/rank metadata, and per-attempt latency to S1's version 1.
 Consumers must check `schema_version`. The foundation's legacy adapter report
 is unchanged. S3 extends version 2 additively with triage metadata, source
 provenance, and filtered findings. Consumers must tolerate additional fields.
+S4 adds optional path-group scope and local check audit records, without
+changing either model-response contract below.
 A clean report is not
 proof that the diff is safe.
 
@@ -85,7 +87,8 @@ only. Widening that boundary requires a separate captain decision, not part of S
 The candidate file includes `layer` and the eight specialist fields, with each
 `id` qualified as `<layer>:<original-id>`, such as `correctness:synthetic-1`.
 Original specialist IDs cannot contain `:`, so cross-layer collisions are
-unambiguous. The public report retains original `(layer, id)` identities.
+unambiguous. Each verifier session covers one path group; the public report
+retains original IDs, qualified by `(group, layer, id)` when groups are present.
 
 ```json
 [
@@ -143,7 +146,8 @@ All claims receive unique `display_id` values in deterministic rank order
 before filtering, including rejected and filtered claims. Hints can reference
 any of these sections. Claims sort by severity (`error`, `warning`, `info`),
 descending confidence, verifier verdict (confirmed, unverified, uncertain,
-then rejected), file, line, layer, ID, category, title, evidence and reason.
+then rejected), file, line, layer, ID, optional group, category, title, evidence
+and reason.
 
 `--min-severity` and `--min-confidence` filter retained claims independently.
 Bounds are inclusive; confidence must be finite and between 0 and 1. Defaults
@@ -252,11 +256,21 @@ preserves excluded claims; thresholds never hide an incomplete outcome.
 ```
 
 Existing version-2 keys remain emitted, including null unknown metadata. `findings`,
-`rejected`, `layers`, and `attempts` are arrays, never null. `layers` always
-contains `correctness`, then `security`, regardless of completion order.
+`rejected`, `layers`, and `attempts` are arrays, never null. Each nonempty path
+group contributes `correctness`, then `security`, regardless of completion
+order; disabled layers have `status: "disabled"` and empty attempts.
+Multiple groups add a `group` field (`g1`, `g2`, in first-appearance diff order)
+to layer results and findings; source IDs are unchanged, never merged.
+Path-aware layer results also include `paths`, the exact files in that group.
+The verifier result aggregates attempts in group order and the most serious
+status (`incomplete`, `complete`, `disabled`, `not_needed`).
+Findings retain their individual verdicts even when groups differ.
+Configured checks append a `deterministic` layer status (no model attempts).
+Empty diffs have no layer results. Oversized inputs instead have one `input`
+layer with status `incomplete` and `error: "diff too large, N bytes"`.
 Findings use triage order, not specialist/model order. Original IDs are
-layer-scoped; `display_id` is unique within the report. A report has at most
-1,000 claims across retained, filtered, and rejected sections. `rejected`
+group/layer-scoped; `display_id` is unique within the report. Each group has at
+most 1,000 model claims across retained, filtered, and rejected sections. `rejected`
 uses the same finding shape, with the rejected verdict and reason.
 
 Specialist `status` is `complete` only after successful schema validation,
@@ -279,6 +293,44 @@ It never embeds raw subprocess/model output. Attempts list every actual
 invocation, in order, including failed attempts. Cancellation before an
 invocation leaves attempts empty.
 
+### Local deterministic checks
+
+An optional `checks` array records every configured command for a nonempty,
+within-limit review. No checks run for empty or oversized input. For example:
+
+```json
+{
+  "name": "synthetic lint",
+  "args": ["synthetic-lint", "src"],
+  "local": true,
+  "status": "failed",
+  "exit_code": 1,
+  "output": "src/example.go:7: synthetic error\n",
+  "output_bytes": 34
+}
+```
+
+`local` means the process actually started locally; it is false for disabled
+checks or a command that could not start. Status is `complete` (zero exit),
+`failed` (normal nonzero exit), `incomplete` (execution/capture failure), or
+`disabled`. `exit_code` is -1 when unavailable; optional `error` explains
+incompleteness without exposing raw execution errors. Combined stdout/stderr
+is capped; `output_bytes` counts bytes observed before termination, not an
+estimate of what the terminated command would have produced. Invalid UTF-8
+is replaced with `?`. Commands run at the current repository working tree, not
+necessarily the selected `--head`. See [trust and configuration](../README.md#local-deterministic-checks).
+
+Each normally failing command produces one finding with `layer` and `category`
+`deterministic`, severity `error`, confidence 1, and an observed-local-failure
+reason under `verification`. `confirmed` here means an observed exit, not a
+model verdict or a proven diff regression. These findings bypass the model
+verifier but retain the same triage/filtering behavior.
+Only these locally generated findings may use `file: ""`, `line: 0`, denoting
+the repository. A declared location regex can instead supply a valid relative
+file and positive line. The model's location contract remains unchanged.
+
+### Model attempt metadata
+
 Usage is per attempt, including discarded malformed responses. Known values
 are nonnegative integer counts; absent provider fields remain null, not zero.
 `cost` is null when currency cost is unknown (currently always with Droid).
@@ -297,9 +349,9 @@ parallel specialists' times. A skipped call fabricates neither usage nor cost.
 
 | Outcome | Exit | Meaning |
 | --- | --- | --- |
-| `clean` | 0 | Specialists completed; no findings remain above thresholds (possibly all rejected or filtered). Enabled verification succeeded or was not needed. |
-| `findings` | 1 | Specialists completed; at least one retained finding. Enabled verification succeeded; disabled verification leaves findings explicitly unverified. |
-| `incomplete` | 2 | Any specialist or required verifier failed, even if findings exist or all available candidates were rejected. |
+| `clean` | 0 | All enabled work completed; no findings remain above thresholds (possibly all rejected or filtered), or the diff was empty/fully excluded. Disabled work is not evidence of safety. |
+| `findings` | 1 | All enabled work completed; at least one retained model or deterministic finding. Disabled model verification leaves model findings explicitly unverified. |
+| `incomplete` | 2 | Oversized input, a specialist/required verifier failure, or an enabled local check that could not complete, even if findings exist or were all filtered. |
 | No report | 3 | Invalid arguments/config/input, scratch setup failure before specialist execution, or output write failure. |
 
 An output write failure can leave partial output in any format; exit 3 means consumers must not

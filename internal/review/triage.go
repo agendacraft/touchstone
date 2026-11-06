@@ -124,6 +124,7 @@ func compareFindings(a, b Finding) int {
 		cmp.Compare(verdict(b.Verification.Verdict), verdict(a.Verification.Verdict)),
 		cmp.Compare(a.File, b.File), cmp.Compare(a.Line, b.Line),
 		cmp.Compare(a.Layer, b.Layer), cmp.Compare(a.ID, b.ID),
+		cmp.Compare(a.Group, b.Group),
 		cmp.Compare(a.Category, b.Category), cmp.Compare(a.Title, b.Title),
 		cmp.Compare(a.Evidence, b.Evidence), cmp.Compare(a.Verification.Reason, b.Verification.Reason),
 	)

@@ -93,14 +93,12 @@ func TestReviewCLICommandErrors(t *testing.T) {
 		args []string
 		in   io.Reader
 	}{
-		{[]string{"review"}, strings.NewReader(cliDiff)},
+		{[]string{"review", "--cwd", dir}, strings.NewReader(cliDiff)},
 		{[]string{"review", "--diff", "-", "extra"}, strings.NewReader(cliDiff)},
 		{[]string{"review", "--diff", "-", "--unknown"}, strings.NewReader(cliDiff)},
 		{[]string{"review", "--diff", "-", "--concurrency", "0"}, strings.NewReader(cliDiff)},
 		{[]string{"review", "--diff", "-", "--cwd", filepath.Join(dir, "missing")}, strings.NewReader(cliDiff)},
 		{[]string{"review", "--diff", filepath.Join(dir, "missing")}, strings.NewReader(cliDiff)},
-		{[]string{"review", "--diff", "-"}, strings.NewReader("")},
-		{[]string{"review", "--diff", "-"}, strings.NewReader(strings.Repeat("x", (16<<20)+1))},
 		{[]string{"review", "--diff", "-"}, brokenReader{}},
 	} {
 		var out, stderr bytes.Buffer
@@ -116,6 +114,31 @@ func TestReviewCLICommandErrors(t *testing.T) {
 	err := RunContext(context.Background(), []string{"review", "--diff", "-", "--cwd", dir}, strings.NewReader(cliDiff), &out, &stderr, "test", fake)
 	if ExitCode(err) != 3 || out.Len() != 0 {
 		t.Fatal("invalid configuration did not fail before model calls")
+	}
+}
+
+func TestReviewCLIEmptyAndHugeDiff(t *testing.T) {
+	for _, tc := range []struct {
+		data    string
+		code    int
+		outcome string
+	}{
+		{"", 0, "clean"},
+		{strings.Repeat("x", (16<<20)+1), 2, "incomplete"},
+	} {
+		fake := agent.Fake{Respond: func(context.Context, agent.Request) (agent.Result, error) {
+			t.Error("empty or oversized input invoked a model")
+			return agent.Result{}, nil
+		}}
+		var out bytes.Buffer
+		err := RunContext(context.Background(), []string{"review", "--diff", "-", "--cwd", t.TempDir()}, strings.NewReader(tc.data), &out, io.Discard, "test", fake)
+		var report review.Report
+		if ExitCode(err) != tc.code || json.Unmarshal(out.Bytes(), &report) != nil || report.Outcome != tc.outcome {
+			t.Fatalf("bad input status: %v %s", err, out.String())
+		}
+		if tc.code == 2 && report.Layers[0].Error != "diff too large, 16777217 bytes" {
+			t.Fatalf("wrong byte count: %+v", report)
+		}
 	}
 }
 

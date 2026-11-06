@@ -13,6 +13,9 @@ type Terminal struct{ Color bool }
 func (r Terminal) Render(out io.Writer, report review.Report) error {
 	var text strings.Builder
 	fmt.Fprintf(&text, "Touchstone: %s\n", report.Outcome)
+	for _, notice := range report.Notices {
+		fmt.Fprintln(&text, plain(notice))
+	}
 	for _, banner := range banners(report) {
 		fmt.Fprintln(&text, banner)
 	}
@@ -20,6 +23,13 @@ func (r Terminal) Render(out io.Writer, report review.Report) error {
 	fmt.Fprintf(&text, "%d shown | %d rejected | %d filtered (min severity: %s, confidence: %s)\n",
 		s.Shown, s.Rejected, s.Filtered, s.MinSeverity, confidence(s.MinConfidence))
 	writeLayerStatus(&text, report)
+	for _, check := range report.Checks {
+		fmt.Fprintf(&text, "  Local check %s: %s | executed locally: %t | argv: %s", plain(check.Name), plain(check.Status), check.Local, safeArgv(check.Args))
+		if check.Error != "" {
+			fmt.Fprintf(&text, " (%s)", plain(check.Error))
+		}
+		fmt.Fprintln(&text)
+	}
 	for _, f := range report.Findings {
 		fmt.Fprintln(&text)
 		r.finding(&text, f)
@@ -43,6 +53,9 @@ func (r Terminal) Render(out io.Writer, report review.Report) error {
 func writeLayerStatus(text *strings.Builder, report review.Report) {
 	for _, layer := range report.Layers {
 		fmt.Fprintf(text, "  %s: %s", plain(layer.Name), plain(layer.Status))
+		if layer.Group != "" {
+			fmt.Fprintf(text, " [%s]", plain(layer.Group))
+		}
 		if layer.Error != "" {
 			fmt.Fprintf(text, " (%s)", plain(layer.Error))
 		}
