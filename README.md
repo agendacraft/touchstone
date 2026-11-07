@@ -50,7 +50,8 @@ grep "touchstone_${version}_${os}_${arch}.tar.gz" checksums.txt | sha256sum -c -
 tar -xzf "touchstone_${version}_${os}_${arch}.tar.gz"
 ```
 
-`touchstone version` reports the installed version.
+`touchstone version` reports the release version for release binaries; builds
+installed with `go install` report `dev`.
 
 ## Requirements
 

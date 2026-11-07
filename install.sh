@@ -111,18 +111,10 @@ while [ "$#" -gt 0 ]; do
       version_flag=$2
       shift 2
       ;;
-    --version=*)
-      version_flag=${1#*=}
-      shift
-      ;;
     --install-dir)
       [ "$#" -ge 2 ] || fail "option $1 requires an argument"
       install_dir=$2
       shift 2
-      ;;
-    --install-dir=*)
-      install_dir=${1#*=}
-      shift
       ;;
     --dry-run)
       dry_run=1
@@ -176,7 +168,8 @@ fi
 
 command -v curl >/dev/null 2>&1 || fail "curl is required to download the release"
 workdir=$(mktemp -d) || fail "could not create a temporary directory"
-trap 'rm -rf "$workdir"' EXIT
+temp_target=
+trap 'rm -rf "$workdir"; [ -z "$temp_target" ] || rm -f "$temp_target"' EXIT
 
 info "downloading $archive_url"
 fetch "$archive_url" "$workdir/$archive_name"
@@ -194,7 +187,7 @@ tar -xzf "$workdir/$archive_name" -C "$workdir" || fail "could not extract $arch
 [ -f "$workdir/$BINARY_NAME" ] || fail "$archive_name does not contain a $BINARY_NAME binary"
 
 mkdir -p "$install_dir" || fail "could not create the install directory: $install_dir"
-temp_target="$install_dir/.$BINARY_NAME.tmp"
+temp_target=$(mktemp "$install_dir/.$BINARY_NAME.XXXXXX") || fail "could not create a temporary install target"
 mv -f "$workdir/$BINARY_NAME" "$temp_target"
 mv -f "$temp_target" "$install_dir/$BINARY_NAME"
 
