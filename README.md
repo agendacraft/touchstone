@@ -227,7 +227,7 @@ error. Help/version/config validation also exit 0 on success. Diagnostics use
 stderr, not stdout. See the stable [review-output contract](docs/review-output.md)
 for downstream tooling and evals.
 
-The default version is `dev`. For a local build label:
+Local builds default to version `dev`. For a custom build label:
 
 ```sh
 go build -ldflags '-X main.version=local' -o /tmp/touchstone ./cmd/touchstone
