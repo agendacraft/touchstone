@@ -9,8 +9,48 @@ findings stay with a lower-rank label. Cross-layer triage marks possible
 duplicates and ranks each claim before optional filtering.
 Git repositories and diff files are supported, with path-specific policy and
 opt-in local deterministic checks. Terminal, JSON, and Markdown output are
-available. There is no PR input, forge posting, automatic fixing, telemetry, or release yet.
+available. There is no PR input, forge posting, automatic fixing, or telemetry.
 Verification is model judgment, not proof of correctness.
+
+## Install
+
+Install a released binary without root or a package manager. The script
+downloads the archive for your platform, verifies its SHA-256 checksum against
+the release's `checksums.txt`, and installs into `~/.local/bin` (override with
+`--install-dir` or `TOUCHSTONE_INSTALL_DIR`):
+
+```sh
+# Pinned to a release tag: replace vX.Y.Z with the latest tag from the
+# releases page. Pinning keeps the script and binaries they install aligned.
+curl -fsSL https://raw.githubusercontent.com/agendacraft/touchstone/vX.Y.Z/install.sh | sh
+# Or the latest script from main:
+curl -fsSL https://raw.githubusercontent.com/agendacraft/touchstone/main/install.sh | sh
+```
+
+Piping a URL to `sh` runs downloaded code directly, so read
+[install.sh](install.sh) before piping it, or download it first and run
+`sh install.sh`. Pin a version with `--version v0.1.0` or `TOUCHSTONE_VERSION`;
+preview with `--dry-run`; uninstall with `rm ~/.local/bin/touchstone`.
+
+With Go 1.25 or newer:
+
+```sh
+go install github.com/agendacraft/touchstone/cmd/touchstone@latest
+```
+
+To download a release manually, fetch the archive for your platform and the
+release's `checksums.txt`, verify, then unpack:
+
+```sh
+version=vX.Y.Z
+os=linux arch=amd64 # or darwin with arm64 or amd64
+curl -fsSLO "https://github.com/agendacraft/touchstone/releases/download/${version}/touchstone_${version}_${os}_${arch}.tar.gz"
+curl -fsSLO "https://github.com/agendacraft/touchstone/releases/download/${version}/checksums.txt"
+grep "touchstone_${version}_${os}_${arch}.tar.gz" checksums.txt | sha256sum -c - # shasum -a 256 -c - on macOS
+tar -xzf "touchstone_${version}_${os}_${arch}.tar.gz"
+```
+
+`touchstone version` reports the installed version.
 
 ## Requirements
 
