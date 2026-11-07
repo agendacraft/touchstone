@@ -189,6 +189,7 @@ tar -xzf "$workdir/$archive_name" -C "$workdir" || fail "could not extract $arch
 mkdir -p "$install_dir" || fail "could not create the install directory: $install_dir"
 temp_target=$(mktemp "$install_dir/.$BINARY_NAME.XXXXXX") || fail "could not create a temporary install target"
 mv -f "$workdir/$BINARY_NAME" "$temp_target"
+[ ! -d "$install_dir/$BINARY_NAME" ] || fail "install destination is a directory: $install_dir/$BINARY_NAME"
 mv -f "$temp_target" "$install_dir/$BINARY_NAME"
 
 case ":$PATH:" in

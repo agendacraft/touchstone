@@ -175,6 +175,22 @@ grep -qF "/releases/download/$RELEASE_V1/touchstone_${RELEASE_V1}_linux_amd64.ta
   fail_test "success case: expected archive was not requested"
 pass "success case installs the verified binary for linux/amd64"
 
+for destination in directory symlink; do
+  blocked_dir=$tmp/bin-blocked-$destination
+  mkdir -p "$blocked_dir" "$tmp/destination-$destination"
+  if [ "$destination" = directory ]; then
+    mkdir "$blocked_dir/touchstone"
+  else
+    ln -s "$tmp/destination-$destination" "$blocked_dir/touchstone"
+  fi
+  if run_installer "$shim_dir" "$blocked_dir" --version "$RELEASE_V1"; then
+    fail_test "$destination destination: installer unexpectedly succeeded"
+  fi
+  [ -z "$(ls -A "$blocked_dir/touchstone")" ] ||
+    fail_test "$destination destination: binary was placed inside directory"
+done
+pass "directory destinations are rejected"
+
 # Version pin via environment variable selects a different release.
 env_dir=$tmp/bin-env-pin
 TOUCHSTONE_VERSION="$RELEASE_V2" run_installer "$shim_dir" "$env_dir" ||

@@ -46,8 +46,9 @@ version=vX.Y.Z
 os=linux arch=amd64 # or darwin with arm64 or amd64
 curl -fsSLO "https://github.com/agendacraft/touchstone/releases/download/${version}/touchstone_${version}_${os}_${arch}.tar.gz"
 curl -fsSLO "https://github.com/agendacraft/touchstone/releases/download/${version}/checksums.txt"
-grep "touchstone_${version}_${os}_${arch}.tar.gz" checksums.txt | sha256sum -c - # shasum -a 256 -c - on macOS
-tar -xzf "touchstone_${version}_${os}_${arch}.tar.gz"
+# Use shasum -a 256 -c - instead of sha256sum -c - on macOS.
+grep "touchstone_${version}_${os}_${arch}.tar.gz" checksums.txt | sha256sum -c - &&
+  tar -xzf "touchstone_${version}_${os}_${arch}.tar.gz"
 ```
 
 `touchstone version` reports the release version for release binaries; builds
