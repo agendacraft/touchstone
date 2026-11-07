@@ -22,7 +22,7 @@ the release's `checksums.txt`, and installs into `~/.local/bin` (override with
 ```sh
 # Pinned to a release tag: replace vX.Y.Z with the latest tag from the
 # releases page. Pinning keeps the script and binaries they install aligned.
-curl -fsSL https://raw.githubusercontent.com/agendacraft/touchstone/vX.Y.Z/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/agendacraft/touchstone/vX.Y.Z/install.sh | sh -s -- --version vX.Y.Z
 # Or the latest script from main:
 curl -fsSL https://raw.githubusercontent.com/agendacraft/touchstone/main/install.sh | sh
 ```

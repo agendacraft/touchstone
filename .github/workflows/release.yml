@@ -36,8 +36,7 @@ jobs:
             tar -czf "dist/${name}.tar.gz" -C "dist/${name}" touchstone
             rm -rf "dist/${name}"
           done
-          # Checksum paths stay relative so install.sh can match bare file names.
-          (cd dist && sha256sum ./*.tar.gz > checksums.txt)
+          (cd dist && sha256sum *.tar.gz > checksums.txt)
           cat dist/checksums.txt
       - name: Attest build provenance
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2

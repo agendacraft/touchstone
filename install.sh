@@ -30,14 +30,12 @@ Options:
                            Defaults to $TOUCHSTONE_VERSION, then the latest release.
   --install-dir DIR        Target directory.
                            Defaults to $TOUCHSTONE_INSTALL_DIR, then ~/.local/bin.
-  --install-directory DIR  Alias for --install-dir.
   --dry-run                Print what would be installed, then exit.
   -h, --help               Show this help.
 
 Environment:
   TOUCHSTONE_VERSION       Same as --version.
   TOUCHSTONE_INSTALL_DIR   Same as --install-dir.
-  TOUCHSTONE_RELEASE_URL   Release base URL (testing and mirror override).
 EOF
 }
 
@@ -117,12 +115,12 @@ while [ "$#" -gt 0 ]; do
       version_flag=${1#*=}
       shift
       ;;
-    --install-dir | --install-directory)
+    --install-dir)
       [ "$#" -ge 2 ] || fail "option $1 requires an argument"
       install_dir=$2
       shift 2
       ;;
-    --install-dir=* | --install-directory=*)
+    --install-dir=*)
       install_dir=${1#*=}
       shift
       ;;
@@ -147,8 +145,8 @@ done
 [ "$#" -eq 0 ] || fail "unexpected extra arguments: $*"
 
 [ -n "$install_dir" ] || install_dir=$HOME/.local/bin
-[ -n "$version_flag" ] || resolve_latest_version
 version=$version_flag
+[ -n "$version" ] || resolve_latest_version
 case $version in
   v*) ;;
   *) version="v$version" ;;
