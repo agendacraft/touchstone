@@ -58,6 +58,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Lint install scripts
+        if: matrix.os == 'ubuntu-latest'
         run: shellcheck install.sh scripts/install-test.sh
       - name: Test installer against a fake release server
         run: sh scripts/install-test.sh
